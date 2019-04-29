@@ -8,7 +8,6 @@ require(oligo)
 require(limma)
 require(sva)
 require(ggplot2)
-require(GEOquery)
 
 args = commandArgs(T)
 file_path = args[1] #data file path
@@ -22,7 +21,7 @@ pval_setting <- as.numeric(pval_setting)
 logFC_setting <- log2(FC_setting)
 dir.create(result_path)
 
-#design_path <- "/Users/shixiaoying/rongbin/GSE41867_RAW/gsm.txt"
+#design_path <- "/Users/shixiaoying/rongbin/gsm.txt"
 #file_path <- "/Users/shixiaoying/rongbin/GSE41867_RAW"
 #gpl_path  <- "/Users/shixiaoying/Downloads/GSE41867_family.soft"
 
@@ -32,7 +31,7 @@ tmp <- system(paste0("grep -n '!Sample_organism_ch1' ",ff),intern = TRUE)[1]
 if(gsub(".*= ","",tmp)=="Mus musculus"){
   db ="org.Mm.eg.db"
   if(db %in% installed.packages()){
-    library(db)
+    library(org.Mm.eg.db)
   }else{
     source("https://bioconductor.org/biocLite.R")
     biocLite("org.Mm.eg.db")
@@ -41,7 +40,7 @@ if(gsub(".*= ","",tmp)=="Mus musculus"){
 if(gsub(".*= ","",tmp)=="Homo sapiens"){
   db="org.Hs.eg.db"
   if(db %in% installed.packages()){
-    library(db)
+    library(org.Hs.eg.db)
   }else{
     source("https://bioconductor.org/biocLite.R")
     biocLite("org.Hs.eg.db")
@@ -100,42 +99,41 @@ data.exprs_ann_rd <- data.exprs_ann[!duplicated(data.exprs_ann$gene_assignment),
 dim(data.exprs_ann_rd)
 rownames(data.exprs_ann_rd) <- data.exprs_ann_rd$gene_assignment
 data.exprs_ann_rd <- data.exprs_ann_rd[,c(-1,-ncol(data.exprs_ann_rd))]
-#write.csv(data.exprs_ann_rd, paste0('./result/',"Expr.csv"))
+data.exprs_ann_rd1 <- data.exprs_ann_rd
+{
+  if(db=="org.Mm.eg.db")
+    data.exprs_ann_rd1$SYMBOL <- select(org.Mm.eg.db, keys=rownames(data.exprs_ann_rd), columns="SYMBOL", keytype="REFSEQ")[,2]
+  if(db=="org.Hs.eg.db")
+    data.exprs_ann_rd1$SYMBOL <- select(org.Hs.eg.db, keys=rownames(data.exprs_ann_rd), columns="SYMBOL", keytype="REFSEQ")[,2]
+}
+data.exprs_ann_rd_sym <- na.omit(data.exprs_ann_rd1[!duplicated(data.exprs_ann_rd1$SYMBOL),])
+rownames(data.exprs_ann_rd_sym) <- data.exprs_ann_rd_sym$SYMBOL
+data.exprs_ann_rd_sym <- data.exprs_ann_rd_sym[,-ncol(data.exprs_ann_rd_sym)]
+write.table(data.exprs_ann_rd_sym, paste0('.','/Full_data.txt'),sep = '\t',quote = F)
+
 
 #do limma
 design <- model.matrix(~0+factor(grouplist))
 colnames(design) = levels(factor(grouplist))
-rownames(design) = colnames(data.exprs_ann_rd)
-fit <- lmFit(data.exprs_ann_rd,design)
+rownames(design) = colnames(data.exprs_ann_rd_sym)
+fit <- lmFit(data.exprs_ann_rd_sym,design)
 contrast.matrix <- makeContrasts(paste0(rev(unique(grouplist)),collapse = '-'), levels = design)
 fit <- contrasts.fit(fit, contrast.matrix)
 fit <- eBayes(fit)
 tempoutput <- topTable(fit, number = Inf, lfc = 0, p.value = 1)
-{
-if(db=="org.Mm.eg.db")
-  tempoutput$SYMBOL <- select(org.Mm.eg.db, keys=rownames(tempoutput), columns="SYMBOL", keytype="REFSEQ")[,2]
-if(db=="org.Hs.eg.db")
-  tempoutput$SYMBOL <- select(org.Hs.eg.db, keys=rownames(tempoutput), columns="SYMBOL", keytype="REFSEQ")[,2]
-}
-output <- na.omit(tempoutput[!duplicated(tempoutput$SYMBOL),])
-rownames(output) <- output$SYMBOL
-output <- output[,-ncol(output)]
-colnames(output) <- c("log2FoldChange","AveExpr","t","P.Value","padj","B")
+colnames(tempoutput) <- c("log2FoldChange","AveExpr","t","P.Value","padj","B")
 # output file
-write.table(output,paste0('.','/Different_Expression.txt'),sep = '\t',quote = F)
+write.table(tempoutput,paste0('.','/Different_Expression.txt'),sep = '\t',quote = F)
 
-sigout <- subset(output, abs(log2FoldChange) > logFC_setting & padj < pval_setting)
+sigout <- subset(tempoutput, abs(log2FoldChange) > logFC_setting & padj < pval_setting)
 upR <- sigout[which(sigout$log2FoldChange > 0), 0]
 downR <- sigout[which(sigout$log2FoldChange < 0), 0]
 write.table(upR, paste0('.','/Upregulated_gene.txt'),sep = '\t',quote = F,col.names = F)
 write.table(downR, paste0('.','/Downregulated_gene.txt'),sep = '\t',quote = F,col.names = F)
 
-volca <- ggplot(output,aes(log2FoldChange,-log10(padj))) + 
+volca <- ggplot(tempoutput,aes(log2FoldChange,-log10(padj))) + 
   geom_point(aes(color=ifelse((log2FoldChange > logFC_setting | log2FoldChange < -logFC_setting) & padj < pval_setting, "sign","non-sign")), cex = 1, alpha = 0.3) + 
   scale_colour_manual("Significance", values = c("blue","red")) +
   labs(title = 'Volcano plot', x = "log2 Fold Change", y = "-log10 adj.P.Val")+
   geom_text(data = sigout, aes(x = log2FoldChange, y=-log10(padj), label = rownames(sigout)), cex = 1, vjust = "inward", hjust = "inward")
 ggsave(paste0('.',"/Volcano_plot.png"), volca, width = 7, height = 7)
-
-
-
