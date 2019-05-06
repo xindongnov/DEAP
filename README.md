@@ -6,7 +6,7 @@ Differential Expression Analysis Pipeline(DEAP) is a pipeline which can handle e
 
 ## Dependence
 - R
-- python
+- python>=3.7
 - snakemake
 - R-limma
 
