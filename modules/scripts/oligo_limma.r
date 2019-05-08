@@ -16,7 +16,7 @@ args = commandArgs(T)
 file_path = args[1] #data file path
 design_path = args[2] #design matrix path
 result_path = args[3] #result path
-cdf_name = args[4] #cdf names
+species = args[4] #decide species such as human, mouse
 GPL_path=arg[5]#GPL information path
 FC_setting = args[6] #setting fold change
 pval_setting = args[7] #setting adj.p.val
@@ -43,9 +43,9 @@ gpl_inf=read.table(GPL_path,header=T,sep="\t",fill=T,quote = "")
 symbol=gpl_inf$gene_assignment[match(rownames(data.expr),gpl_inf$ID)]
 symbol=sapply(strsplit(as.vector(unlist(symbol))," //"),function(x) x[1])
 
-if(cdf_name=="org.Mm.eg.db")
+if(species=="org.Mm.eg.db")
     new_symbol <- select(org.Mm.eg.db, keys=symbol, columns="SYMBOL", keytype="REFSEQ")[,2]
-if(cdf_name=="org.Hs.eg.db")
+if(species=="org.Hs.eg.db")
     new_symbol <- select(org.Hs.eg.db, keys=symbol, columns="SYMBOL", keytype="REFSEQ")[,2]
 new_symbol=toupper(new_symbol)
 data.expr=aggregate(data.expr,by=list(new_symbol),mean)
