@@ -1,2 +1,7 @@
 metasheet:
 ref:
+samples:
+  sample1:
+    - data/sample1.fastq.gz
+  sample2:
+    - data/sample2.fastq.gz
