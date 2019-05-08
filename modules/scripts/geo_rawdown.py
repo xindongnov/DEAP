@@ -1,5 +1,5 @@
 import os, sys
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 import argparse
 
@@ -9,7 +9,7 @@ def catfastq(main_path, gsm,srx_infor,srr,lay_type):
     cat_file1 = ''
     cat_file2 = ''
     srx_infor = 'ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR'
-    print(lay_type+'\n'+str(len(srr))+' runs')
+    print((lay_type+'\n'+str(len(srr))+' runs'))
     if lay_type == 'SINGLE':
         for i in range(len(srr)):
             srr[i] = srr[i][1:-12]
@@ -22,6 +22,7 @@ def catfastq(main_path, gsm,srx_infor,srr,lay_type):
             cat_file1 = cat_file1 + '%s/%s_temp%s.fastq '%(main_path, gsm,i+1) 
         cmd = cmd + 'cat %s> %s/%s.fastq \n'%(cat_file1,main_path,gsm) 
         cmd = cmd + 'rm %s/%s_temp* \n'%(main_path, gsm)
+        cmd = cmd + 'gzip %s/%s.fastq \n' % (main_path, gsm)
     elif lay_type == 'PAIRED':
         for i in range(len(srr)):
             srr[i] = srr[i][1:-12]
@@ -46,7 +47,7 @@ def LinkPlusDownload(gsm, path):
     """
     os.system('echo %s'%gsm)
     gsm_url = 'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=%s'%gsm
-    gsm_handler = urllib2.urlopen(gsm_url)
+    gsm_handler = urllib.request.urlopen(gsm_url)
     gsm_html = gsm_handler.read()
     gsm_html = gsm_html.decode('utf-8')
     # get the ftp location of SRX file and the SRX id
@@ -55,10 +56,10 @@ def LinkPlusDownload(gsm, path):
     if srx_infor:
         srx = srx_infor.group().rstrip('"').lstrip('https://www.ncbi.nlm.nih.gov/sra?term=')
     else:
-        print('%s: no srx number'%gsm)
+        print(('%s: no srx number'%gsm))
     # get the SRR id('>SRR1588518</a></td><td') and find the type of layout
     srx_url = 'http://www.ncbi.nlm.nih.gov/sra?term=%s'%srx
-    srx_handler = urllib2.urlopen(srx_url)
+    srx_handler = urllib.request.urlopen(srx_url)
     srx_html = srx_handler.read()
     srx_html = srx_html.decode('utf-8')
     # find the layout type (<div>Layout: <span>SINGLE</span>)
@@ -76,17 +77,17 @@ def LinkPlusDownload(gsm, path):
     elif lay_type == 'PAIRED':
         fastq_file = '%s/%s_R1.fastq,%s/%s_R2.fastq'%(path,gsm,path,gsm)
     else:
-        print('+++neither PAIRED nor SINGLE end sequencing: %s+++'%gsm)
+        print(('+++neither PAIRED nor SINGLE end sequencing: %s+++'%gsm))
         return(None, None)
     fastCmd = catfastq(path, gsm,srx_infor,srr,lay_type)
     os.system(fastCmd)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print >>sys.stderr, "++download fastq data by GSM id:"
-        print >>sys.stderr, "gsmid\tpath"
-        print >>sys.stderr, "1\tgsmid"
-        print >>sys.stderr, "2\toptional: the path to save fastq"
+        print("++download fastq data by GSM id:", file=sys.stderr)
+        print("gsmid\tpath", file=sys.stderr)
+        print("1\tgsmid", file=sys.stderr)
+        print("2\toptional: the path to save fastq", file=sys.stderr)
         sys.exit(1)
     elif len(sys.argv) == 2:
     	gsm = sys.argv[1]
