@@ -1,10 +1,12 @@
 #
 metasheet: './matrix.csv'
-ref: ''
+ref: './ref.yaml'
 
 # {'salmon', 'STAR'}
 aligner: 'salmon'
 
+# {'mm10', 'hg38'}
+assembly: 'mm10'
 
 
 #
