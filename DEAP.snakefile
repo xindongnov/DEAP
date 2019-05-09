@@ -47,4 +47,10 @@ def all_targets(wildcards):
 
     return ls   
 
-include: "./modules/align_STAR.snakefile"         # rules specific to STAR and Fusion
+if config['aligner'] == 'STAR':
+    include: "./modules/align_STAR.snakefile"             # rules specific to STAR
+else:
+	include: "./modules/align_salmon_targets.snakefile"   # rules specific to salmon
+
+
+

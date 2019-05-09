@@ -1,5 +1,13 @@
+#
 metasheet:
 ref:
+
+# {'salmon', 'STAR'}
+aligner: 'salmon'
+
+
+
+#
 samples:
   sample1:
     - data/sample1.fastq.gz
