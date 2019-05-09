@@ -5,6 +5,10 @@
 #
 # Sample must always be first, and you are allowed to have as many “compare_XXXX” columns as you want at the end.
 #
-Sample,Experment_type,Condition,Treatment,Replicates,compare_1,compare_2
-,,,,,
-,,,,,
+Run,Sample,Experment_type,Condition,Treatment,Replicates,compare_1,compare_2
+1,Rs1,Rs,Tcell,d1,1,1,
+1,Rs2,Rs,Tcell,d1,2,1,
+1,Rs3,Rs,Tcell,d3,1,2,
+1,Rs4,Rs,Tcell,d3,2,2,
+2,MA1,MA_A,path_to_matrix,,,,
+3,MA2,MA_O,path_to_matrix,,,,

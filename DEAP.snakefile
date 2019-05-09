@@ -9,6 +9,23 @@ from string import Template
 # vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
 
+def getRuns(config):
+    """parse metasheet for Run groupings"""
+    ret = {}
+
+    #KEY: need skipinitialspace to make it fault tolerant to spaces!
+    metadata = pd.read_table(config['metasheet'], index_col=0, sep=',', comment='#', skipinitialspace=True)
+    f = metadata.to_csv().split() #make it resemble an actual file with lines
+    #SKIP the hdr
+    for l in f[1:]:
+        tmp = l.strip().split(",")
+        #print(tmp)
+        ret[tmp[0]] = tmp[1:]
+
+    #print(ret)
+    config['runs'] = ret
+    return config
+
 def addPy2Paths_Config(config):
     """ADDS the python2 paths to config"""
     conda_root = subprocess.check_output('conda info --root',shell=True).decode('utf-8').strip()
@@ -47,10 +64,12 @@ def all_targets(wildcards):
 
     return ls   
 
+include: "./modules/fastqc.snakefile"
+
 if config['aligner'] == 'STAR':
-    include: "./modules/align_STAR.snakefile"             # rules specific to STAR
+    include: "./modules/align_STAR.snakefile"     # rules specific to STAR
 else:
-	include: "./modules/align_salmon_targets.snakefile"   # rules specific to salmon
+	include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 
 
 
