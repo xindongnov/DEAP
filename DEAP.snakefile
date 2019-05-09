@@ -14,7 +14,7 @@ def getRuns(config):
     ret = {}
 
     #KEY: need skipinitialspace to make it fault tolerant to spaces!
-    metadata = pd.read_table(config['metasheet'], index_col=0, sep=',', comment='#', skipinitialspace=True)
+    metadata = pd.read_csv(config['metasheet'], index_col=0, sep=',', comment='#', skipinitialspace=True)
     f = metadata.to_csv().split() #make it resemble an actual file with lines
     #SKIP the hdr
     for l in f[1:]:

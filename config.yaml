@@ -1,6 +1,6 @@
 #
 metasheet: './matrix.csv'
-ref:
+ref: ''
 
 # {'salmon', 'STAR'}
 aligner: 'salmon'
