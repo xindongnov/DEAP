@@ -1,0 +1,8 @@
+hg38:
+  salmon_index: ./ref_files/hg38/salmon/hg38.fa
+  STAR_index: ./ref_files/hg38/STAR/hg38
+
+mm10:
+  salmon_index: /mnt/Storage/home/hanya/Reference_data/salmon_mm10
+  STAR_index: ./ref_files/mm10/STAR/mm10
+

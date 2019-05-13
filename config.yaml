@@ -11,7 +11,17 @@ assembly: 'mm10'
 
 #
 samples:
-  sample1:
-    - data/sample1.fastq.gz
-  sample2:
-    - data/sample2.fastq.gz
+  GSM2441813:
+    - data/RS_PE/GSM2441813_R1.fastq.gz
+    - data/RS_PE/GSM2441813_R2.fastq.gz
+  GSM2441814:
+    - data/RS_PE/GSM2441814_R1.fastq.gz
+    - data/RS_PE/GSM2441814_R1.fastq.gz
+  GSM2309812:
+    - data/RS_SE/GSM2309812.fastq.gz
+  GSM2309818:
+    - data/RS_SE/GSM2309818.fastq.gz
+  MA_O:
+    - data/MA/GSE41867_RAW
+  MA_A:
+    - data/MA/GSE12056_RAW

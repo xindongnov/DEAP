@@ -1,14 +1,14 @@
-# The first column should always be sample, this should be some kind of sample ID. This sample ID must match the sample names in the config file
+#_The_first_column_should_always_be_sample,_this_should_be_some_kind_of_sample_ID._This_sample_ID_must_match_the_sample_names_in_the_config_file
 #
-# The samples that you want to perform a Differential Expression (DE) on using limma and deseq should be marked by the “comp” columns more on this below
-# The “control” should be marked with a 1, and the “treatment” should be marked with a 2.
+#_The_samples_that_you_want_to_perform_a_Differential_Expression_.DE._on_using_limma_and_deseq_should_be_marked_by_the_“comp”_columns_more_on_this_below
+#_The_“control”_should_be_marked_with_a_1,_and_the_“treatment”_should_be_marked_with_a_2.
 #
-# Sample must always be first, and you are allowed to have as many “compare_XXXX” columns as you want at the end.
+#_Sample_must_always_be_first,_and_you_are_allowed_to_have_as_many_“compare_XXXX”_columns_as_you_want_at_the_end.
 #
 Run,Sample,Experment_type,Condition,Treatment,Replicates,compare_1,compare_2
-1,Rs1,Rs,Tcell,d1,1,1,
-1,Rs2,Rs,Tcell,d1,2,1,
-1,Rs3,Rs,Tcell,d3,1,2,
-1,Rs4,Rs,Tcell,d3,2,2,
-2,MA1,MA_A,path_to_matrix,,,,
-3,MA2,MA_O,path_to_matrix,,,,
+RA_SE,GSM2309812,Rs,Tcell,d1,1,1,
+RA_SE,GSM2309818,Rs,Tcell,d1,2,1,
+RA_PE,GSM2441813,Rs,Tcell,d3,1,2,
+RA_PE,GSM2441814,Rs,Tcell,d3,2,2,
+GSE12056,MA_A,MA_A,data/MA/GSE12056_RAW/gse12056_design_matrix.txt,,,,
+GSE41867,MA_O,MA_O,data/MA/GSE41867_RAW/GSE41867_designmatrix.txt,,,,
