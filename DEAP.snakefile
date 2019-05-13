@@ -10,20 +10,9 @@ from collections import defaultdict
 # vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
 
-def updateMeta(config):
-    _sanity_checks(config)
-    metadata = pd.read_csv(config['metasheet'], index_col=0, sep=',', comment='#', skipinitialspace=True)
-    config["comparisons"] = [c[5:] for c in metadata.columns if c.startswith("compare_")]
-    config["comps"] = _get_comp_info(metadata)
-    config["metacols"] = [c for c in metadata.columns if c.lower()[:4] != 'compare']
-    config["file_info"] = { sampleName : config["samples"][sampleName] for sampleName in metadata.index }
-    config["ordered_sample_list"] = metadata.index
-    print(config)
-    return config
-
 def _sanity_checks(config):
     #metasheet pre-parser: converts dos2unix, catches invalid chars
-    _invalid_map = {'\r':'\n', '(':'.', ')':'.', ' ':'_', '/':'.', '$':''}
+    _invalid_map = {'\r':'\n', '(':'.', ')':'.', ' ':'_', '$':''}
     _meta_f = open(config['metasheet'])
     _meta = _meta_f.read()
     _meta_f.close()
@@ -41,32 +30,50 @@ def _sanity_checks(config):
         _meta_f.write(_tmp)
         _meta_f.close()
 
-
 def _get_comp_info(meta_info):
     comps_info = defaultdict(dict)
     for comp in meta_info.columns:
-        if comp[:5] == 'comp_':
-            comps_info[comp[5:]]['control'] = meta_info[meta_info[comp] == 1].index
-            comps_info[comp[5:]]['treat'] = meta_info[meta_info[comp] == 2].index
-
+        # print(comp)
+        if comp[:5] == 'compare_':
+            comps_info[comp[8:]]['control'] = meta_info[meta_info[comp] == 1].index
+            comps_info[comp[8:]]['treat'] = meta_info[meta_info[comp] == 2].index
     return comps_info
 
-
-def getRuns(config):
-    """parse metasheet for Run groupings"""
-    ret = {}
-
-    #KEY: need skipinitialspace to make it fault tolerant to spaces!
+def updateMeta(config):
+    _sanity_checks(config)
     metadata = pd.read_csv(config['metasheet'], index_col=0, sep=',', comment='#', skipinitialspace=True)
-    f = metadata.to_csv().split() #make it resemble an actual file with lines
-    #SKIP the hdr
-    for l in f[1:]:
-        tmp = l.strip().split(",")
-        #print(tmp)
-        ret[tmp[0]] = tmp[1:]
+    config["RS_runs"] = {}
+    config["MA_runs"] = {}
+    for run in set(metadata.index.values):
+        if isinstance(metadata.loc[run,"Experment_type"],str):
+            if metadata.loc[run,"Experment_type"].startswith("MA_"):
+                config["MA_runs"][run] = {'type': metadata.loc[run,"Experment_type"],
+                                          'samples': config['samples'][metadata.loc[run,"Sample"]],
+                                          'matrix': metadata.loc[run,"Condition"]}
+            elif metadata.loc[run,"Experment_type"] == "RS":
+                sys.stdout("ERROR: %s does NOT match any mates." % run)
+                sys.exit(1)
+            else:
+                sys.stdout("WARNING: %s does NOT match any Experiment type." % run)
+        else:
+            if list(metadata.loc[run,"Experment_type"])[0] == "RS":
+                # print(list(metadata.loc[run,"Sample"]))
+                config["RS_runs"][run] = {'type': 'RS'}
+                config["RS_runs"][run]['samples'] = {}
+                for s in list(metadata.loc[run,"Sample"]):
+                    config["RS_runs"][run]['samples'][s] = config['samples'][s]
+            elif metadata.loc[run,"Experment_type"].startswith("MA_"):
+                sys.stdout("ERROR: %s has more than one microarray folder." % run)
+                sys.exit(2)
+            else:
+                sys.stdout("WARNING: %s does NOT match any Experiment type." % run)
+    print(config)
 
-    #print(ret)
-    config['runs'] = ret
+
+    # config["comparisons"] = [c[8:] for c in metadata.columns if c.startswith("compare_")]
+    # config["comps"] = _get_comp_info(metadata)
+    # config["metacols"] = [c for c in metadata.columns if c.lower()[:4] != 'compare']
+    # config["file_info"] = { sampleName : config["samples"][sampleName] for sampleName in metadata.index }
     return config
 
 def addPy2Paths_Config(config):
@@ -108,12 +115,13 @@ def all_targets(wildcards):
 
     return ls   
 
+
 # include: "./modules/fastqc.snakefile"
 
 if config['aligner'] == 'STAR':
     include: "./modules/align_STAR.snakefile"     # rules specific to STAR
-else:
-	include: "./modules/align_salmon.snakefile"   # rules specific to salmon
+# else:
+#     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 
 
 

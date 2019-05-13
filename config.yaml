@@ -1,5 +1,5 @@
 #
-metasheet: './matrix.csv'
+metasheet: './metasheet.csv'
 ref: './ref.yaml'
 
 # {'salmon', 'STAR'}
@@ -19,6 +19,10 @@ samples:
     - data/RS_PE/GSM2441814_R1.fastq.gz
   GSM2309812:
     - data/RS_SE/GSM2309812.fastq.gz
+  GSM2309813:
+    - data/RS_SE/GSM2309813.fastq.gz
+  GSM2309815:
+    - data/RS_SE/GSM2309815.fastq.gz
   GSM2309818:
     - data/RS_SE/GSM2309818.fastq.gz
   MA_O:

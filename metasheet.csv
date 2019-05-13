@@ -6,9 +6,11 @@
 #_Sample_must_always_be_first,_and_you_are_allowed_to_have_as_many_“compare_XXXX”_columns_as_you_want_at_the_end.
 #
 Run,Sample,Experment_type,Condition,Treatment,Replicates,compare_1,compare_2
-RA_SE,GSM2309812,Rs,Tcell,d1,1,1,
-RA_SE,GSM2309818,Rs,Tcell,d1,2,1,
-RA_PE,GSM2441813,Rs,Tcell,d3,1,2,
-RA_PE,GSM2441814,Rs,Tcell,d3,2,2,
+RS_SE,GSM2309812,RS,Tcell,control,1,1,
+RS_SE,GSM2309813,RS,Tcell,control,2,1,
+RS_SE,GSM2309815,RS,Tcell,antiPDL1,1,2,
+RS_SE,GSM2309818,RS,Tcell,antiPDL1,2,2,
+RS_PE,GSM2441813,RS,Tcell,d1,1,1,
+RS_PE,GSM2441814,RS,Tcell,d3,2,2,
 GSE12056,MA_A,MA_A,data/MA/GSE12056_RAW/gse12056_design_matrix.txt,,,,
 GSE41867,MA_O,MA_O,data/MA/GSE41867_RAW/GSE41867_designmatrix.txt,,,,

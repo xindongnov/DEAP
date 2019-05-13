@@ -1,10 +1,11 @@
 # align salmon 
 
 
-
 def align_salmon_targets(wildcards):
     ls = []
-    # for sample in config[]
+    for run in config["RS_runs"]:
+        for sample in run['sample']:
+        	ls.append('analysis/%s/%s/')
     return ls
 
 def getFastq(wildcards):
