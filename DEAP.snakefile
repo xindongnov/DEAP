@@ -67,9 +67,7 @@ def updateMeta(config):
                 sys.exit(2)
             else:
                 sys.stdout("WARNING: %s does NOT match any Experiment type." % run)
-    print(config)
-
-
+    # print(config)
     # config["comparisons"] = [c[8:] for c in metadata.columns if c.startswith("compare_")]
     # config["comps"] = _get_comp_info(metadata)
     # config["metacols"] = [c for c in metadata.columns if c.lower()[:4] != 'compare']
@@ -111,17 +109,21 @@ def all_targets(wildcards):
     print(config)
     ls = []
     #IMPORT all of the module targets
+    if config['trim'] == True:
+        ls.extend(trim_targets(wildcards))
     ls.extend(align_salmon_targets(wildcards))
 
     return ls   
 
+rule all:
+    input: all_targets
 
-# include: "./modules/fastqc.snakefile"
+include: "./modules/trim.snakefile"
 
 if config['aligner'] == 'STAR':
     include: "./modules/align_STAR.snakefile"     # rules specific to STAR
-# else:
-#     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
+else:
+    include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 
 
 

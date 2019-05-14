@@ -8,6 +8,8 @@ aligner: 'salmon'
 # {'mm10', 'hg38'}
 assembly: 'mm10'
 
+# {True, False}
+trim: True
 
 #
 samples:
@@ -16,7 +18,7 @@ samples:
     - data/RS_PE/GSM2441813_R2.fastq.gz
   GSM2441814:
     - data/RS_PE/GSM2441814_R1.fastq.gz
-    - data/RS_PE/GSM2441814_R1.fastq.gz
+    - data/RS_PE/GSM2441814_R2.fastq.gz
   GSM2309812:
     - data/RS_SE/GSM2309812.fastq.gz
   GSM2309813:
