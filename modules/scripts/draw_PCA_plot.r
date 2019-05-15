@@ -1,10 +1,18 @@
+
+required_Packages = c("ggplot2","ggrepel")
+
+if(!all(required_Packages %in% installed.packages())){
+  source("https://bioconductor.org/biocLite.R")
+  biocLite(setdiff(required_Packages, installed.packages()))
+}
+
 library(ggplot2)
 library(ggrepel)
-
-profile_path #which is used to save the tpm matrix or expression matrix
-express_type # tell the funtion which is RNAseq or Microarray
-design_path #describe the subclass of each sample used for PCA
-result_path #save the figure
+args = commandArgs(T)
+profile_path=args[1] #which is used to save the tpm matrix or expression matrix
+express_type=args[2] # tell the funtion which is RNAseq or Microarray
+design_path=args[3] #describe the subclass of each sample used for PCA
+result_path=args[4] #save the figure
 
 expre_matr=as.matrix(read.table(profile_path,header =T,sep="\t"))
 if(express_type == "RNASeq"){
