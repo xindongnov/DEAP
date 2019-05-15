@@ -24,7 +24,7 @@ num_sam=dim(expre_matr)[2]
 expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam)
 pca_raw <- prcomp(t(expre_matr), center = TRUE, scale. = F)
 edata_pc_df <- as.data.frame(pca_raw$x)
-design_matrix=read.table(design_path,header = T,sep="\t")
+design_matrix=read.table(design_path,header = T,sep=",")
 edata_pc_df$class=design_matrix$treatment
 pca_plot=ggplot(edata_pc_df, aes(x = PC1, y = PC2, color = class)) +
   geom_point()
