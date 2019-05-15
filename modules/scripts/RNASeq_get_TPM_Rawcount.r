@@ -22,10 +22,11 @@ result_path_COUNT = args[4] #result path
 #file_path="/Volumes/Macintosh HD/Users/yahan/Downloads/Microarray_data"
 #file_path folder which is including all sample data in one dataset 
 sample_path=list.dirs(file_path,recursive=T)#each sample folder alseo including many folder, only one is the result of alignment
-sample_path=sample_path[grep("quant",sample_path)]
+sample_path=sample_path[grep("align$",sample_path)]
 tpm_matrix=data.frame(Name=NA)
 rawcount=data.frame(Name=NA)
 get_gene<-function(x){
+  x=paste0(x,"quant.sf")
   temp_matrix=read.table(x,header=T,sep = "\t")
   temp_matrix_tpm=temp_matrix[,c("Name","TPM")]
   temp_matrix_count=temp_matrix[,c("Name","NumReads")]
