@@ -45,11 +45,14 @@ tran_raw=unlist(lapply(strsplit(rawcount[,1],"\\."),function(x) x[1]))
 if(species == "Mouse"){
   library(org.Mm.eg.db)
   tran_gene_tpm=select(org.Mm.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="REFSEQ")
-}
+  tran_gene_raw=select(org.Mm.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")# 
+  }
 
 if(species == "Human"){
   library(org.Hs.eg.db)
+  tran_gene_tpm=select(org.Hs.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="REFSEQ")
   tran_gene_raw=select(org.Hs.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")#
+  
 }
 tran_gene_tpm=tran_gene_tpm[match(tran_tpm,tran_gene_tpm$ENSEMBLTRANS),]
 tpm_matrix=cbind(tran_gene_tpm,tpm_matrix[-1])
@@ -57,7 +60,7 @@ tran_gene_raw=tran_gene_raw[match(tran_raw,tran_gene_raw$ENSEMBLTRANS),]
 rawcount=cbind(tran_gene_raw,rawcount[-1])
 tpm_matrix=tpm_matrix[which(!is.na(tpm_matrix[,1])),]
 rawcount=rawcount[which(!is.na(rawcount[,1])),]
-colnames(rawcount)=c("ENSEMBLTRANS","SYMBOL",sample)
-colnames(tpm_matrix)=c("ENSEMBLTRANS","SYMBOL",sample)
+colnames(rawcount)=c("REFSEQ","SYMBOL",sample)
+colnames(tpm_matrix)=c("REFSEQ","SYMBOL",sample)
 write.table(tpm_matrix,result_path_TPM,col.names=T,row.names=F,sep="\t",quote = F)
 write.table(rawcount,result_path_COUNT,col.names=T,row.names=F,sep="\t",quote = F)
