@@ -1,10 +1,19 @@
-library(ggplot2)
-library(ggrepel)
+required_Packages = c("ggplot2","ggrepel")
 
-FC_setting = args[1] #setting fold change
-pval_setting = args[2] #setting adj.p.val
-file_path=arg[3]
-result_path=arg[4]
+if(!all(required_Packages %in% installed.packages())){
+  source("https://bioconductor.org/biocLite.R")
+  biocLite(setdiff(required_Packages, installed.packages()))
+}
+
+
+require(ggplot2)
+require(ggrepel)
+args = commandArgs(T)
+file_path=arg[1]
+result_path=arg[2]
+FC_setting = args[3] #setting fold change
+pval_setting = args[4] #setting adj.p.val
+
 FC_setting <- as.numeric(FC_setting)
 pval_setting <- as.numeric(pval_setting)
 logFC_setting <- log2(FC_setting)
