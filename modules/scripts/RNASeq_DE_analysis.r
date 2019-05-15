@@ -25,7 +25,7 @@ sample=colnames(rawcount)
 rawcount=matrix(as.numeric(as.vector(unlist(rawcount))),ncol=length(sample))
 colnames(rawcount)=sample
 mode(rawcount)<-"integer"
-design_matrix=read.table(design_path,header = T,sep="\t")
+design_matrix=read.table(design_path,header = T,sep=",")
 
 num_com=dim(design_matrix)[2]
 
