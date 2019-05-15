@@ -6,7 +6,7 @@ channels:
 
 dependencies:
 #GENERAL
-- snakemake=4.8.1
+- snakemake=5.4.5
 - samtools
 - python>=3.5.2
 - r>=3.4.1
@@ -21,6 +21,8 @@ dependencies:
 - bioconductor-limma
 - bioconductor-edger
 - bioconductor-tximport
+- bioconductor-org.Hs.eg.db
+- bioconductor-org.Mm.eg.db
 - r-readr
 - r-calibrate
 
