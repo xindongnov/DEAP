@@ -1,22 +1,18 @@
-required_Packages = c("DESeq2","ggplot2","ggrepel")
+required_Packages = c("org.Mm.eg.db","org.Hs.eg.db")
 
 if(!all(required_Packages %in% installed.packages())){
   source("https://bioconductor.org/biocLite.R")
   biocLite(setdiff(required_Packages, installed.packages()))
 }
 
-require(DESeq2)
-require(ggplot2)
-require(ggrepel)
+
 library(org.Hs.eg.db)
 library(org.Mm.eg.db)
-rm(list = ls())
 
 args = commandArgs(T)
 file_path = args[1] #data file path
-design_path = args[2] #design matrix path
-result_path = args[3] #result path
-species = args[4] #cdf names
+result_path = args[2] #result path
+species = args[3] #cdf names
 
 #DESeq calculate different expression gene on raw count
 
