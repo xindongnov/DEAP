@@ -2,21 +2,24 @@
 _threads=4
 
 def getTrimFastq(wildcards):
-    return config['RS_runs'][wildcards.run]['samples'][wildcards.sample]
+    if config['RS_runs'][wildcards.run]['samples']:
+        s = config['RS_runs'][wildcards.run]['samples'][wildcards.sample]
+    return s
 
 
 def trim_targets(wildcards):
     ls = []
     for run in config["RS_runs"]:
-        for sample in config["RS_runs"][run]['samples']:
-            # print(run,sample)
-            if len(config["RS_runs"][run]['samples'][sample]) == 2:
-                ls.append('analysis/%s/samples/%s/trim/%s_R1_val_1.fq.gz' % (run,sample,sample))
-                ls.append('analysis/%s/samples/%s/trim/%s_R2_val_2.fq.gz' % (run,sample,sample))
-            else:
-                ls.append('analysis/%s/samples/%s/trim/%s_trimmed.fq.gz' % (run,sample,sample))
-                ls.append('analysis/%s/samples/%s/trim/%s_trimmed_fastqc.zip' % (run,sample,sample))
-                ls.append('analysis/%s/samples/%s/trim/%s_trimmed_fastqc.html' % (run,sample,sample))
+        if config["RS_runs"][run]['samples']:
+            for sample in config["RS_runs"][run]['samples']:
+                # print(run,sample)
+                if len(config["RS_runs"][run]['samples'][sample]) == 2:
+                    ls.append('analysis/%s/samples/%s/trim/%s_R1_val_1.fq.gz' % (run,sample,sample))
+                    ls.append('analysis/%s/samples/%s/trim/%s_R2_val_2.fq.gz' % (run,sample,sample))
+                else:
+                    ls.append('analysis/%s/samples/%s/trim/%s_trimmed.fq.gz' % (run,sample,sample))
+                    ls.append('analysis/%s/samples/%s/trim/%s_trimmed_fastqc.zip' % (run,sample,sample))
+                    ls.append('analysis/%s/samples/%s/trim/%s_trimmed_fastqc.html' % (run,sample,sample))
     return ls
 
 

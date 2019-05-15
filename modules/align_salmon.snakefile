@@ -17,8 +17,9 @@ def getAlignFastq(wildcards):
 def align_salmon_targets(wildcards):
     ls = []
     for run in config["RS_runs"]:
-        for sample in config["RS_runs"][run]['samples']:
-        	ls.append('analysis/%s/samples/%s/align/quant.sf' % (run,sample))
+        if config["RS_runs"][run]['samples']:
+            for sample in config["RS_runs"][run]['samples']:
+                ls.append('analysis/%s/samples/%s/align/quant.sf' % (run,sample))
     return ls
 
 rule align_salmon:
