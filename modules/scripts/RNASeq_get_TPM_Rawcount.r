@@ -6,8 +6,6 @@ if(!all(required_Packages %in% installed.packages())){
 }
 
 
-library(org.Hs.eg.db)
-library(org.Mm.eg.db)
 
 args = commandArgs(T)
 file_path = args[1] #data file path
@@ -43,10 +41,12 @@ tran_raw=unlist(lapply(strsplit(rawcount[,1],"\\."),function(x) x[1]))
 
 
 if(species="Mouse"){
+  library(org.Mm.eg.db)
   tran_gene_tpm=select(org.Mm.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="ENSEMBLTRANS")
 }
 
 if(species="Human"){
+  library(org.Hs.eg.db)
   tran_gene_raw=select(org.Hs.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="ENSEMBLTRANS")#
 }
 tran_gene_tpm=tran_gene_tpm[match(tran_tpm,tran_gene_tpm$ENSEMBLTRANS),]
