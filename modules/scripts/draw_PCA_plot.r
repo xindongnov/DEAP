@@ -28,4 +28,4 @@ design_matrix=read.table(design_path,header = T,sep="\t")
 edata_pc_df$class=design_matrix$condition
 pca_plot=ggplot(edata_pc_df, aes(x = PC1, y = PC2, color = class)) +
   geom_point()
-ggsave(paste0(result_path,"/PCA_plot.png"), pca_plot, width = 5, height = 5)
+ggsave(result_path, pca_plot, width = 5, height = 5)
