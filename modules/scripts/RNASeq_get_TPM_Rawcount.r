@@ -26,7 +26,7 @@ sample_path=sample_path[grep("align$",sample_path)]
 tpm_matrix=data.frame(Name=NA)
 rawcount=data.frame(Name=NA)
 get_gene<-function(x){
-  x=paste0(x,"quant.sf")
+  x=paste0(x,"/","quant.sf")
   temp_matrix=read.table(x,header=T,sep = "\t")
   temp_matrix_tpm=temp_matrix[,c("Name","TPM")]
   temp_matrix_count=temp_matrix[,c("Name","NumReads")]
