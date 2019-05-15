@@ -8,8 +8,8 @@ def getAlignFastq(wildcards):
     else:
         tmp = []
         if len(config['RS_runs'][r]['samples'][s]) == 2:
-            tmp.append('analysis/%s/%s/trim/%s_val_1_trimmed.fq.gz' % (r,s,s))
-            tmp.append('analysis/%s/%s/trim/%s_val_2_trimmed.fq.gz' % (r,s,s))
+            tmp.append('analysis/%s/%s/trim/%s_R1_val_1.fq.gz' % (r,s,s))
+            tmp.append('analysis/%s/%s/trim/%s_R2_val_2.fq.gz' % (r,s,s))
         else:
             tmp.append('analysis/%s/%s/trim/%s_trimmed.fq.gz' % (r,s,s))
         return tmp
@@ -32,11 +32,12 @@ rule align_salmon:
         output_path=lambda wildcards: "analysis/%s/%s/align/" % (wildcards.run,wildcards.sample),
         threads=8,
         bootstrap=100,
+        gcbias=lambda wildcards: "--gcBias" if len(config['RS_runs'][wildcards.run]['samples'][wildcards.sample]) == 2 else "",
     log: "analysis/log/{run}/trim/{sample}.log"
-    message: "ALIGN: Align {wildcards.sample} to genome "
+    message: "ALIGN: Align {wildcards.sample} to the genome "
     shell:
         "salmon quant -i {params.index} -l A {params._inputs} -o {params.output_path} "
-        "--numBootstraps {params.bootstrap} -p {params.threads} --gcBias"
+        "--numBootstraps {params.bootstrap} -p {params.threads} {params.gcbias} --validateMappings"
 
 
 

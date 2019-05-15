@@ -11,8 +11,8 @@ def trim_targets(wildcards):
         for sample in config["RS_runs"][run]['samples']:
             # print(run,sample)
             if len(config["RS_runs"][run]['samples'][sample]) == 2:
-                ls.append('analysis/%s/%s/trim/%s_val_1_trimmed.fq.gz' % (run,sample,sample))
-                ls.append('analysis/%s/%s/trim/%s_val_2_trimmed.fq.gz' % (run,sample,sample))
+                ls.append('analysis/%s/%s/trim/%s_R1_val_1.fq.gz' % (run,sample,sample))
+                ls.append('analysis/%s/%s/trim/%s_R2_val_2.fq.gz' % (run,sample,sample))
             else:
                 ls.append('analysis/%s/%s/trim/%s_trimmed.fq.gz' % (run,sample,sample))
                 ls.append('analysis/%s/%s/trim/%s_trimmed_fastqc.zip' % (run,sample,sample))
@@ -24,8 +24,8 @@ rule trim_paired_adapter:
     input:
         getTrimFastq
     output:
-        'analysis/{run}/{sample}/trim/{sample}_val_1_trimmed.fq.gz',
-        'analysis/{run}/{sample}/trim/{sample}_val_2_trimmed.fq.gz',
+        'analysis/{run}/{sample}/trim/{sample}_R1_val_1.fq.gz',
+        'analysis/{run}/{sample}/trim/{sample}_R2_val_2.fq.gz',
     params:
         quality=20,
         error_rate=0.1,

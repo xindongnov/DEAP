@@ -13,12 +13,15 @@ trim: True
 
 #
 samples:
-  GSM2441813:
-    - data/RS_PE/GSM2441813_R1.fastq.gz
-    - data/RS_PE/GSM2441813_R2.fastq.gz
-  GSM2441814:
-    - data/RS_PE/GSM2441814_R1.fastq.gz
-    - data/RS_PE/GSM2441814_R2.fastq.gz
+  GSM2365762:
+    - data/RS_PE/GSM2365762_R1.fastq.gz
+    - data/RS_PE/GSM2365762_R2.fastq.gz
+  GSM2365765:
+    - data/RS_PE/GSM2365765_R1.fastq.gz
+    - data/RS_PE/GSM2365765_R2.fastq.gz
+  GSM2365766:
+    - data/RS_PE/GSM2365766reads1.fastq.gz
+    - data/RS_PE/GSM2365766reads2.fastq.gz
   GSM2309812:
     - data/RS_SE/GSM2309812.fastq.gz
   GSM2309813:

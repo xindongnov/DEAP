@@ -106,7 +106,7 @@ loadRef(config)
 #-----------------------------------------
 
 def all_targets(wildcards):
-    print(config)
+    # print(config)
     ls = []
     #IMPORT all of the module targets
     if config['trim'] == True:

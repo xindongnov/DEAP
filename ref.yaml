@@ -1,8 +1,8 @@
 hg38:
-  salmon_index: ./ref_files/hg38/salmon/hg38.fa
+  salmon_index: /mnt/Storage/home/hanya/Reference_data/STAR_homoCRC38.p9_index/
   STAR_index: ./ref_files/hg38/STAR/hg38
 
 mm10:
-  salmon_index: /mnt/Storage/home/hanya/Reference_data/salmon_mm10
+  salmon_index: /mnt/Storage/home/hanya/Reference_data/Salmon_mm10_GRCm38.p6_index/
   STAR_index: ./ref_files/mm10/STAR/mm10
 
