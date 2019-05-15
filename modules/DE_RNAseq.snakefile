@@ -37,7 +37,7 @@ rule gather_TPM:
         TPM="analysis/{run}/DE/{run}_TPM_matrix.txt",
         RawCount="analysis/{run}/DE/{run}_Rawcount_matrix.txt"
     params:
-        input_dir=lambda wildcards: 'analysis/%s/' % wildcards.run,
+        input_dir=lambda wildcards: 'analysis/%s' % wildcards.run,
         species='Human' if config['assembly'] == 'hg38' else 'Mouse'
     shell:
         "Rscript ./DEAP/modules/scripts/RNASeq_get_TPM_Rawcount.r {params.species} {params.input_dir} {output.TPM} {output.RawCount}"
