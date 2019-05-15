@@ -29,16 +29,16 @@ design_matrix=read.table(design_path,header = T,sep="\t")
 
 num_com=dim(design_matrix)[2]
 
-##function used to performance specific condition DSE
+##function used to performance specific treatment DSE
 get_DSE<-function(x){
   con_sample=as.vector(unlist(design_matrix$sample[which(design_matrix[,x]=="1")]))
   case_sample=as.vector(unlist(design_matrix$sample[which(design_matrix[,x]=="2")]))
   compa_samp=c(con_sample,case_sample)
   
   if(length(case_sample) >= 2 & length(con_sample) >= 2){
-    comp_cond=design_matrix$condition[match(compa_samp,design_matrix$sample)]
-    contral=as.character(unlist(design_matrix$condition[which(design_matrix[,x]=="1")][1]))
-    case=as.character(unlist(design_matrix$condition[which(design_matrix[,x]=="2")][1]))
+    comp_cond=design_matrix$treatment[match(compa_samp,design_matrix$sample)]
+    contral=as.character(unlist(design_matrix$treatment[which(design_matrix[,x]=="1")][1]))
+    case=as.character(unlist(design_matrix$treatment[which(design_matrix[,x]=="2")][1]))
     temp_rawcount=rawcount[,match(compa_samp,colnames(rawcount))] 
     
     sampleTable <- data.frame(sampleName = compa_samp,  condition = comp_cond)
