@@ -59,5 +59,5 @@ tpm_matrix=tpm_matrix[which(!is.na(tpm_matrix[,1])),]
 rawcount=rawcount[which(!is.na(rawcount[,1])),]
 colnames(rawcount)=c("ENSEMBLTRANS","SYMBOL",sample)
 colnames(tpm_matrix)=c("ENSEMBLTRANS","SYMBOL",sample)
-write.table(tpm_matrix,paste0(result_path,"/","TPM_matrix.txt"),col.names=T,row.names=F,sep="\t",quote = F)
-write.table(rawcount,paste0(result_path,"/","RawCount_matrix.txt"),col.names=T,row.names=F,sep="\t",quote = F)
+write.table(tpm_matrix,result_path_TPM,col.names=T,row.names=F,sep="\t",quote = F)
+write.table(rawcount,result_path_COUNT,col.names=T,row.names=F,sep="\t",quote = F)
