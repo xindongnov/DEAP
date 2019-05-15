@@ -40,8 +40,6 @@ tran_tpm=unlist(lapply(strsplit(tpm_matrix[,1],"\\."),function(x) x[1]))
 tran_raw=unlist(lapply(strsplit(rawcount[,1],"\\."),function(x) x[1]))
 #transform the ENSG to GENE ID and symbol
 
-
-
 if(species == "Mouse"){
   library(org.Mm.eg.db)
   tran_gene_tpm=select(org.Mm.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="REFSEQ")
@@ -54,9 +52,9 @@ if(species == "Human"){
   tran_gene_raw=select(org.Hs.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")#
   
 }
-tran_gene_tpm=tran_gene_tpm[match(tran_tpm,tran_gene_tpm$ENSEMBLTRANS),]
+tran_gene_tpm=tran_gene_tpm[match(tran_tpm,tran_gene_tpm$REFSEQ),]
 tpm_matrix=cbind(tran_gene_tpm,tpm_matrix[-1])
-tran_gene_raw=tran_gene_raw[match(tran_raw,tran_gene_raw$ENSEMBLTRANS),]
+tran_gene_raw=tran_gene_raw[match(tran_raw,tran_gene_raw$REFSEQ),]
 rawcount=cbind(tran_gene_raw,rawcount[-1])
 tpm_matrix=tpm_matrix[which(!is.na(tpm_matrix[,1])),]
 rawcount=rawcount[which(!is.na(rawcount[,1])),]
