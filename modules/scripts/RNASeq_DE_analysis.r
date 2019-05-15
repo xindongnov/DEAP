@@ -1,8 +1,16 @@
-#现在是用rwacount全程来做了。
+
+required_Packages = c("DESeq2")
+
+if(!all(required_Packages %in% installed.packages())){
+  source("https://bioconductor.org/biocLite.R")
+  biocLite(setdiff(required_Packages, installed.packages()))
+}
+
 library(DESeq2)
-profile_path
-design_path
-result_path
+args = commandArgs(T)
+profile_path=args[1]
+design_path=args[2]
+result_path=args[3]
 
 #profile_path="/Users/yahan/Downloads/Microarray_data/RawCount_matrix.txt"
 #design_path="/Users/yahan/Desktop/design_matrix.txt"
