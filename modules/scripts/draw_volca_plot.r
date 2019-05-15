@@ -29,4 +29,4 @@ volca <- ggplot(file,aes(log2FoldChange,-log10(padj))) +
   scale_colour_manual("Significance", values = c("steelblue","red")) +
   labs(title = 'Volcano plot', x = "log2 Fold Change", y = "-log10 adj.P.Val")+
   geom_text_repel(data = sigout, aes(label = rownames(sigout)), cex = 3,box.padding = unit(0.35, "lines"), point.padding = unit(0.3, "lines"))
-ggsave(paste0(strsplit(file_path,"\\.")[[1]][1],"_","Volcano_plot.png"), volca, width = 7, height = 7)
+ggsave(result_path, volca, width = 7, height = 7)
