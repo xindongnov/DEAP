@@ -1,9 +1,9 @@
-#_The_first_column_should_always_be_sample,_this_should_be_some_kind_of_sample_ID._This_sample_ID_must_match_the_sample_names_in_the_config_file
+# The first column should always be sample, this should be some kind of sample ID. This sample ID must match the sample names in the config file
 #
-#_The_samples_that_you_want_to_perform_a_Differential_Expression_.DE._on_using_limma_and_deseq_should_be_marked_by_the_“comp”_columns_more_on_this_below
-#_The_“control”_should_be_marked_with_a_1,_and_the_“treatment”_should_be_marked_with_a_2.
+# The samples that you want to perform a Differential Expression .DE. on using limma and deseq should be marked by the “comp” columns more on this below
+# The “control” should be marked with a 1, and the “treatment” should be marked with a 2.
 #
-#_Sample_must_always_be_first,_and_you_are_allowed_to_have_as_many_“compare_XXXX”_columns_as_you_want_at_the_end.
+# Sample must always be first, and you are allowed to have as many “compare XXXX” columns as you want at the end.
 #
 Run,Sample,Experment_type,Condition,Treatment,Replicates,compare_1,compare_2
 RS_SE,GSM2309812,RS,Tcell,control,1,1,
