@@ -17,7 +17,7 @@ result_path_COUNT = args[4] #result path
 #DESeq calculate different expression gene on raw count
 
 #design_path
-design_matrix=read.table(design_path,header = T,sep="\t")
+#design_matrix=read.table(design_path,header = T,sep="\t")
 #now the colnames of design matrix is sample,compare1,compare2,compare3
 #file_path="/Volumes/Macintosh HD/Users/yahan/Downloads/Microarray_data"
 #file_path folder which is including all sample data in one dataset 
