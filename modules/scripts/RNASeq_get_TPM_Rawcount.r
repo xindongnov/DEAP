@@ -8,9 +8,11 @@ if(!all(required_Packages %in% installed.packages())){
 
 
 args = commandArgs(T)
-file_path = args[1] #data file path
-result_path = args[2] #result path
-species = args[3] #cdf names
+species = args[1]
+file_path = args[2] #data file path
+result_path_TPM = args[3] #result path
+result_path_COUNT = args[4] #result path
+
 
 #DESeq calculate different expression gene on raw count
 
