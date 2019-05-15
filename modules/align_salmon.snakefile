@@ -8,24 +8,24 @@ def getAlignFastq(wildcards):
     else:
         tmp = []
         if len(config['RS_runs'][r]['samples'][s]) == 2:
-            tmp.append('analysis/%s/%s/trim/%s_R1_val_1.fq.gz' % (r,s,s))
-            tmp.append('analysis/%s/%s/trim/%s_R2_val_2.fq.gz' % (r,s,s))
+            tmp.append('analysis/%s/samples/%s/trim/%s_R1_val_1.fq.gz' % (r,s,s))
+            tmp.append('analysis/%s/samples/%s/trim/%s_R2_val_2.fq.gz' % (r,s,s))
         else:
-            tmp.append('analysis/%s/%s/trim/%s_trimmed.fq.gz' % (r,s,s))
+            tmp.append('analysis/%s/samples/%s/trim/%s_trimmed.fq.gz' % (r,s,s))
         return tmp
 
 def align_salmon_targets(wildcards):
     ls = []
     for run in config["RS_runs"]:
         for sample in config["RS_runs"][run]['samples']:
-        	ls.append('analysis/%s/%s/align/quant.sf' % (run,sample))
+        	ls.append('analysis/%s/samples/%s/align/quant.sf' % (run,sample))
     return ls
 
 rule align_salmon:
     input:
         getAlignFastq
     output:
-        "analysis/{run}/{sample}/align/quant.sf"
+        "analysis/{run}/samples/{sample}/align/quant.sf"
     params:
         index=config["salmon_index"],
         _inputs=lambda wildcards,input: "-1 %s -2 %s" % (input[0], input[1]) if len(input) == 2 else '-r %s' % input[0],
