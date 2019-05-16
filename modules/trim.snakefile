@@ -34,7 +34,7 @@ rule trim_paired_adapter:
         error_rate=0.1,
         stringency=8,
         length=20,
-        output_dir=lambda wildcards: 'analysis/%s/%s/trim/' % (wildcards.run, wildcards.sample),
+        output_dir=lambda wildcards: 'analysis/%s/samples/%s/trim/' % (wildcards.run, wildcards.sample),
         # file=lambda wildcards, input: '--paired %s %s' % (input[0],input[1]) if len(input) == 2 else '%s' % input, 
         thread=_threads,
         basename=lambda wildcards: '%s' % wildcards.sample
@@ -57,7 +57,7 @@ rule trim_single_adapter:
         error_rate=0.1,
         stringency=8,
         length=20,
-        output_dir=lambda wildcards: 'analysis/%s/%s/trim/' % (wildcards.run, wildcards.sample),
+        output_dir=lambda wildcards: 'analysis/%s/samples/%s/trim/' % (wildcards.run, wildcards.sample),
         thread=_threads,
         basename=lambda wildcards: '%s' % wildcards.sample
     log: "analysis/log/{run}/trim/{sample}.log"

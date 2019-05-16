@@ -4,13 +4,11 @@ def DE_RNAseq_targets(wildcards):
     ls = []
     for run in config["RS_runs"]:
         if not config["RS_runs"][run]['compare'].empty:
-            print(run)
+            # print(run)
             ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
             ls.append("analysis/%s/DE/%s_TPM_matrix.txt" % (run,run))
             ls.append("analysis/%s/DE/%s_Rawcount_matrix.txt" % (run,run))
-        # for sample in config["RS_runs"][run]['samples']:
-        #     ls.append("analysis/%s/DE/%s_TPM_matrix.txt" % (run,run))
-        print(ls)
+        # print(ls)
     return ls
 
 def get_quantsf(wildcards):
