@@ -54,6 +54,5 @@ get_DSE<-function(x){
   return(c(case,contral))}
 }
 result=apply(matrix(seq(3:num_com)),1,get_DSE)
-colnames(result)=c("case","contral")
-write.table(result,compare_output_path,quote=F,row.names = F,sep="\t")
+write.table(result,compare_output_path,quote=F,,col.names=c("case","contral"),row.names = F,sep="\t")
 
