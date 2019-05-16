@@ -5,10 +5,11 @@ def DE_RNAseq_targets(wildcards):
     for run in config["RS_runs"]:
         if config["RS_runs"][run]['compare']:
             # print(run)
-            # ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
+            ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_TPM_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_Rawcount_matrix.txt" % (run,run))
-            ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
+            # ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
+            # ls.append("analysis/%s/expression/%s_results" %(run,run))
             ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
             # ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
         # print(ls)
@@ -26,7 +27,8 @@ def get_quantsf(wildcards):
 
 rule get_specific_design:
     output:
-        temp("analysis/{run}/{run}_design_matrix.txt")
+        "analysis/{run}/{run}_design_matrix.txt"
+    message: "Expression: gathering all TMP and raw count for {wildcards.run}"
     run:
         with open(str(output),'w') as op:
             op.write(config["RS_runs"][wildcards.run]['raw_design'].to_csv(sep=',',index=False))

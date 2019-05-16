@@ -34,7 +34,7 @@ rule align_salmon:
         threads=8,
         bootstrap=100,
         gcbias=lambda wildcards: "--gcBias" if len(config['RS_runs'][wildcards.run]['samples'][wildcards.sample]) == 2 else "",
-    log: "analysis/log/{run}/align/{sample}.log"
+    log: "analysis/{run}/log/align/{sample}.log"
     message: "ALIGN: Align {wildcards.sample} to the genome "
     shell:
         "salmon quant -i {params.index} -l A {params._inputs} -o {params.output_path} "
