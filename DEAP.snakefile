@@ -61,47 +61,46 @@ def updateMeta(config):
                 config["RS_runs"][run] = {'type': 'RS'}
                 comp_list = ['sample','treatment']
                 comp_list.extend([i for i in metadata.columns.values if i.startswith('compare_')])
+                config["RS_runs"][run]['samples'] = {}
+                config["RS_runs"][run]['compare'] = {}
+                design = metadata.loc[run,comp_list]
                 if config['check_compare']:
-                    # handle none replicate
-                    design = metadata.loc[run,comp_list]
-                    # will not run unlist sample
-                    config["RS_runs"][run]['samples'] = {}
                     for c in design.loc[run,comp_list[2:]]:
-                        # print(design.loc[:,c])
-                        sample_list = []
+                        sample_list = [] # init sample_list
                         control = list(design.loc[:,c]).count(1)
                         treat = list(design.loc[:,c]).count(2)
                         NA = len(design.loc[:,c]) - treat - control
                         if control == 1 or treat == 1 or NA == len(design.loc[:,c]):
                             sys.stdout.write("WARNING: run: %s, compare: %s do not have enough data!\n" % (run,c))
                             sys.stdout.write("The samples in this comparison will not implement alignment and differential expression.\n")
-                            config["RS_runs"][run]['compare'] = pd.DataFrame()
                         else:
                             sample_list.extend(design.loc[design.loc[:,c] == 1,'sample'])
                             sample_list.extend(design.loc[design.loc[:,c] == 2,'sample'])
-                            # print(sample_list)
+                            # only add useful sample in config
                             for s in sample_list:
                                 if s not in config["RS_runs"][run]['samples']:
                                     config["RS_runs"][run]['samples'][s] = config['samples'][s]
-                            # print(config["RS_runs"][run]['samples']
-                            # print(design.loc[design.loc[:,c].notna(),'sample'])
-                            config["RS_runs"][run]['compare'] = design
+                            config["RS_runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
+                                                                                'sample': list(design.loc[design.loc[:,c] == 1,'sample'])},
+                                                                    'treat': {'name':list(design.loc[design.loc[:,c] == 2,'treatment'])[0], 
+                                                                             'sample': list(design.loc[design.loc[:,c] == 2,'sample'])}}
+                        config["RS_runs"][run]['raw_design'] = metadata.loc[run,comp_list]
                 else:
-                    # wrote sample information into config
-                    config["RS_runs"][run]['samples'] = {}
+                    # # wrote sample information into config
                     for s in list(metadata.loc[run,"sample"]):
                         config["RS_runs"][run]['samples'][s] = config['samples'][s]
-                    config['RS_runs'][run]['compare'] = metadata.loc[run,comp_list]
+                    for c in design.loc[run,comp_list[2:]]:
+                        if len(pd.unique(design.loc[:,c])) != 1:
+                            config["RS_runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
+                                                                                'sample': list(design.loc[design.loc[:,c] == 1,'sample'])},
+                                                                    'treat': {'name':list(design.loc[design.loc[:,c] == 2,'treatment'])[0], 
+                                                                            'sample': list(design.loc[design.loc[:,c] == 2,'sample'])}}
+                    config["RS_runs"][run]['raw_design'] = metadata.loc[run,comp_list]
             elif metadata.loc[run,"experment_type"].startswith("MA_"):
                 sys.stdout.write("ERROR: %s has more than one microarray folder." % run)
                 sys.exit(2)
             else:
                 sys.stdout.write("WARNING: %s does NOT match any Experiment type." % run)
-    # print(config)
-    # config["comparisons"] = [c[8:] for c in metadata.columns if c.startswith("compare_")]
-    # config["comps"] = _get_comp_info(metadata)
-    # config["metacols"] = [c for c in metadata.columns if c.lower()[:4] != 'compare']
-    # config["file_info"] = { sampleName : config["samples"][sampleName] for sampleName in metadata.index }
     return config
 
 def loadRef(config):
