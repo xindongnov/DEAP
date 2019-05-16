@@ -9,8 +9,8 @@ if(!all(required_Packages %in% installed.packages())){
 require(ggplot2)
 require(ggrepel)
 args = commandArgs(T)
-file_path=arg[1]
-result_path=arg[2]
+file_path=args[1]
+result_path=args[2]
 FC_setting = args[3] #setting fold change
 pval_setting = args[4] #setting adj.p.val
 
