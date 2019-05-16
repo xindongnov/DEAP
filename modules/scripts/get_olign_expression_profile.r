@@ -10,7 +10,7 @@ require(org.Mm.eg.db)
 require(org.Hs.eg.db)
 args = commandArgs(T)
 file_path = args[1] #data file path
-GPL_path=arg[2]#GPL information path
+GPL_path=args[2]#GPL information path
 species=args[3]
 design_path = args[4] #design matrix path
 result_path = args[5] #result path
