@@ -21,8 +21,8 @@ logFC_setting <- log2(FC_setting)
 file=read.table(file_path,header = T,sep="\t")
 
 sigout <- subset(file, abs(log2FoldChange) > logFC_setting & padj < pval_setting)
-upR <- sigout$SYMBOL[which(sigout$log2FoldChange > 0)]
-downR <- sigout$SYMBOL[which(sigout$log2FoldChange < 0)]
+upR <- as.vector(unlist(sigout$SYMBOL[which(sigout$log2FoldChange > 0)]))
+downR <- as.vector(unlist(sigout$SYMBOL[which(sigout$log2FoldChange < 0)]))
 
 volca <- ggplot(file,aes(log2FoldChange,-log10(padj))) + 
   geom_point(aes(color=ifelse((log2FoldChange > logFC_setting | log2FoldChange < -logFC_setting) & padj < pval_setting, "sign","non-sign")), cex = 1, alpha = 0.3) + 
