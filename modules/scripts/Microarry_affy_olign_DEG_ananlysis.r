@@ -49,5 +49,7 @@ calcu_DEG<-function(x){
   return(c(case,contral))}
 }
 result=apply(matrix(3:dim(design_mat)[2]),1,calcu_DEG)
+if(length(unlist(result)) >= 2){
+  result=matrix(unlist(result),ncol=2)
 colnames(result)=c("case","contral")
-write.table(result,result_path_com,quote=F,row.names = F,sep="\t")
+write.table(result,result_path_com,quote=F,row.names = F,sep="\t")}

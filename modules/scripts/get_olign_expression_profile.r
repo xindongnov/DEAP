@@ -15,9 +15,9 @@ species=args[3]
 design_path = args[4] #design matrix path
 result_path = args[5] #result path
 
-file_path="/Users/yahan/Downloads/GSE41867_RAW"
-design_path="/Users/yahan/Downloads/GSE41867_RAW/GSE41867_designmatrix.txt"
-GPL_path="/Users/yahan/Downloads/GPL6246-18741.txt"
+#file_path="/Users/yahan/Downloads/GSE41867_RAW"
+#design_path="/Users/yahan/Downloads/GSE41867_RAW/GSE41867_designmatrix.txt"
+#GPL_path="/Users/yahan/Downloads/GPL6246-18741.txt"
 # Read design
 design_mat = read.table(design_path, sep=",", header=T)
 gsm = as.vector(design_mat[,1])
