@@ -11,6 +11,8 @@ assembly: 'mm10'
 # {True, False}
 trim: True
 
+check_compare: False
+
 #
 samples:
   GSM2365762:
@@ -34,3 +36,13 @@ samples:
     - data/MA/GSE41867_RAW
   MA_A:
     - data/MA/GSE12056_RAW
+  GSM2067916:
+    - data/GSE7138/GSM2067916.fastq.gz
+  GSM2067917:
+    - data/GSE7138/GSM2067917.fastq.gz
+  GSM2067918:
+    - data/GSE7138/GSM2067918.fastq.gz
+  GSM2067919:
+    - data/GSE7138/GSM2067919.fastq.gz
+
+
