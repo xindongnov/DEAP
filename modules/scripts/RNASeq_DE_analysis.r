@@ -50,8 +50,8 @@ get_DSE<-function(x){
     df <- data.frame(matrix(unlist(des.re@listData), ncol=6))
     colnames(df)=names(des.re@listData)
     df=cbind(tran_gene,df)
-    write.table(df,file=paste0(result_path,"/",case,"_",contral,"_","DESeq_table.txt"),quote=F,row.names = F,sep="\t")}
-  return(c(case,contral))
+    write.table(df,file=paste0(result_path,"/",case,"_",contral,"_","DESeq_table.txt"),quote=F,row.names = F,sep="\t")
+  return(c(case,contral))}
 }
 result=apply(matrix(seq(3:num_com)),1,get_DSE)
 colnames(result)=c("case","contral")
