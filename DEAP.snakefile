@@ -51,6 +51,12 @@ def updateMeta(config):
                 config["MA_runs"][run] = {'type': metadata.loc[run,"experment_type"],
                                           'samples': config['samples'][metadata.loc[run,"sample"]],
                                           'matrix': metadata.loc[run,"condition"]}
+                MA_design = pd.read_csv(config['MA_runs'][run]['matrix'], index_col=0, sep=',', comment='#', skipinitialspace=True)
+                config["MA_runs"][run]['compare'] = {}
+                design = list(MA_design.columns.values)
+                # if config['check_compare']:
+
+
             elif metadata.loc[run,"experment_type"] == "RS":
                 sys.stdout.write("ERROR: %s does NOT match any mates." % run)
                 sys.exit(1)

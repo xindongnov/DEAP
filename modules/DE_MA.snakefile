@@ -1,22 +1,17 @@
 # Differential expression
 
-def DE_RNAseq_targets(wildcards):
+def DE_MA_targets(wildcards):
     ls = []
-    for run in config["RS_runs"]:
-        if config["RS_runs"][run]['compare']:
+    for run in config["MA_runs"]:
+        if config["MA_runs"][run]['compare']:
             # print(run)
             ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_TPM_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_Rawcount_matrix.txt" % (run,run))
             # ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
             # ls.append("analysis/%s/expression/%s_results" %(run,run))
-            # ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
-            for comp in config["RS_runs"][run]['compare']:
-                ctrl = config["RS_runs"][run]['compare'][comp]['control']['name']
-                treat = config["RS_runs"][run]['compare'][comp]['treat']['name']
-                if len(config["RS_runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["RS_runs"][run]['compare'][comp]['treat']['sample']) > 1:
-                    ls.append("analysis/%s/expression/%s_results/%s_%s_DESeq_table.txt" % (run,run,treat,ctrl))
-                    ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot.png" % (run,run,treat,ctrl))
+            ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
+            # ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
         # print(ls)
     return ls
 
@@ -66,12 +61,11 @@ rule RNASeq_DE:
         rawcount="analysis/{run}/expression/{run}_Rawcount_matrix.txt",
         design="analysis/{run}/{run}_design_matrix.txt"
     output:
-        # detail="analysis/{run}/expression/{run}_Compare_detail.txt",
-        table="analysis/{run}/expression/{run}_results/{treatment}_DESeq_table.txt"
+        "analysis/{run}/expression/{run}_Compare_detail.txt"
     params:
         output_dir=lambda wildcards: "analysis/%s/expression/%s_results" % (wildcards.run,wildcards.run)
     shell:
-        "Rscript ./DEAP/modules/scripts/RNASeq_DE_analysis.r {input.rawcount} {input.design} {params.output_dir} {output.table}"
+        "Rscript ./DEAP/modules/scripts/RNASeq_DE_analysis.r {input.rawcount} {input.design} {params.output_dir} {output}"
 
 rule RNAseq_volca_plot:
     input:
