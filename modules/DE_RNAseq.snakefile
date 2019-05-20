@@ -8,7 +8,7 @@ def DE_RNAseq_targets(wildcards):
             ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_TPM_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_Rawcount_matrix.txt" % (run,run))
-            # ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
+            ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
             # ls.append("analysis/%s/expression/%s_results" %(run,run))
             # ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
             for comp in config["RS_runs"][run]['compare']:
@@ -23,16 +23,17 @@ def DE_RNAseq_targets(wildcards):
 def get_quantsf(wildcards):
     r = wildcards.run
     sf =[]
-    if config['RS_runs'][r]['samples']:
-        for s in config['RS_runs'][r]['samples']:
-            sf.append("analysis/%s/samples/%s/align/quant.sf" % (r,s))
+    if r in config['RS_runs']:
+        if config['RS_runs'][r]['samples']:
+            for s in config['RS_runs'][r]['samples']:
+                sf.append("analysis/%s/samples/%s/align/quant.sf" % (r,s))
     # print(sf)
     return sf
 
 
 rule get_specific_design:
     output:
-        "analysis/{run}/{run}_design_matrix.txt"
+        temp("analysis/{run}/{run}_design_matrix.txt")
     message: "Expression: gathering all TMP and raw count for {wildcards.run}"
     run:
         with open(str(output),'w') as op:

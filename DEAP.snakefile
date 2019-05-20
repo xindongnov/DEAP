@@ -50,13 +50,33 @@ def updateMeta(config):
             if metadata.loc[run,"experment_type"].startswith("MA_"):
                 config["MA_runs"][run] = {'type': metadata.loc[run,"experment_type"],
                                           'samples': config['samples'][metadata.loc[run,"sample"]],
-                                          'matrix': metadata.loc[run,"condition"]}
+                                          'matrix': metadata.loc[run,"condition"],
+                                          'GPL': metadata.loc[run,"treatment"]}
                 MA_design = pd.read_csv(config['MA_runs'][run]['matrix'], index_col=0, sep=',', comment='#', skipinitialspace=True)
                 config["MA_runs"][run]['compare'] = {}
-                design = list(MA_design.columns.values)
-                # if config['check_compare']:
-
-
+                comp_list= list(MA_design.columns.values)
+                # print(MA_design)
+                # modified form rnaseq
+                if config['check_compare']:
+                    for c in MA_design.loc[run,comp_list[1:]]:
+                        control = list(MA_design.loc[:,c]).count(1)
+                        treat = list(MA_design.loc[:,c]).count(2)
+                        NA = len(MA_design.loc[:,c]) - treat - control
+                        if control == 1 or treat == 1 or NA == len(MA_design.loc[:,c]):
+                            sys.stdout.write("WARNING: run: %s, compare: %s do not have enough data!\n" % (run,c))
+                            sys.stdout.write("The samples in this comparison will not do differential expression.\n")
+                        else:
+                            config["MA_runs"][run]['compare'][c] = {'control': {'name':list(MA_design.loc[MA_design.loc[:,c] == 1,'treatment'])[0], 
+                                                                                'sample': list(MA_design.loc[MA_design.loc[:,c] == 1,:].index.values)},
+                                                                    'treat': {'name':list(MA_design.loc[MA_design.loc[:,c] == 2,'treatment'])[0], 
+                                                                             'sample': list(MA_design.loc[MA_design.loc[:,c] == 2,].index.values)}}
+                else:
+                    for c in MA_design.loc[:,comp_list[1:]]:
+                        if len(pd.unique(MA_design.loc[:,c])) != 1:
+                            config["MA_runs"][run]['compare'][c] = {'control': {'name':list(MA_design.loc[MA_design.loc[:,c] == 1,'treatment'])[0], 
+                                                                                'sample': list(MA_design.loc[MA_design.loc[:,c] == 1,:].index.values)},
+                                                                    'treat': {'name':list(MA_design.loc[MA_design.loc[:,c] == 2,'treatment'])[0], 
+                                                                            'sample': list(MA_design.loc[MA_design.loc[:,c] == 2,].index.values)}}
             elif metadata.loc[run,"experment_type"] == "RS":
                 sys.stdout.write("ERROR: %s does NOT match any mates." % run)
                 sys.exit(1)
@@ -132,14 +152,16 @@ loadRef(config)
 #-----------------------------------------
 
 def all_targets(wildcards):
-    print(config)
+    # print(config)
     ls = []
     #IMPORT all of the module targets
     if config['trim'] == True:
         ls.extend(trim_targets(wildcards))
     ls.extend(align_salmon_targets(wildcards))
     ls.extend(DE_RNAseq_targets(wildcards))
-
+    ls.extend(DE_MA_A_targets(wildcards))
+    # ls.extend(DE_MA_O_targets(wildcards))
+    print(ls)
     return ls   
 
 rule all:
@@ -153,6 +175,6 @@ else:
     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 
 include: "./modules/DE_RNAseq.snakefile"
-
-
+include: "./modules/DE_Microarray_affy.snakefile"
+# include: "./modules/DE_Microarray_oligo.snakefile"
 
