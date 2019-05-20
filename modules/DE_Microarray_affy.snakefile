@@ -12,19 +12,22 @@ def DE_MA_A_targets(wildcards):
                 treat = config["MA_runs"][run]['compare'][comp]['treat']['name']
                 if len(config["MA_runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["MA_runs"][run]['compare'][comp]['treat']['sample']) > 1:
                     ls.append("analysis/%s/expression/%s_results/%s_%sDifferent_Expression.txt" % (run,run,treat,ctrl))
-                    ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot_affy.png" % (run,run,treat,ctrl))
+                    ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot_MA.png" % (run,run,treat,ctrl))
             # ls.append("" % (run,run))
         # print(ls)
     return ls
 
-def getMAInput(wildcards):
+def getMA_A_Input(wildcards):
+    MA_A_target = []
+    if config['MA_runs'][wildcards.run]['type'] == 'MA_A':
+        MA_A_target.extend(config['MA_runs'][wildcards.run]['samples'])
     # print(wildcards.run)
-    return config['MA_runs'][wildcards.run]['samples']
+    return MA_A_target
 
 
 rule gather_affy_expresion:
     input:
-        getMAInput
+        getMA_A_Input
     output:
         "analysis/{run}/expression/{run}_exp_matrix_affy.txt"
     params:
@@ -62,7 +65,7 @@ rule Microarray_affy_plot:
     input:
         "analysis/{run}/expression/{run}_results/{treatment}Different_Expression.txt"
     output:
-        "analysis/{run}/expression/{run}_results/{treatment}_volca_plot_affy.png"
+        "analysis/{run}/expression/{run}_results/{treatment}_volca_plot_MA.png"
     params:
         foldchange=10,
         pvalue=0.01

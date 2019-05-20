@@ -160,7 +160,7 @@ def all_targets(wildcards):
     ls.extend(align_salmon_targets(wildcards))
     ls.extend(DE_RNAseq_targets(wildcards))
     ls.extend(DE_MA_A_targets(wildcards))
-    # ls.extend(DE_MA_O_targets(wildcards))
+    ls.extend(DE_MA_O_targets(wildcards))
     print(ls)
     return ls   
 
@@ -176,5 +176,5 @@ else:
 
 include: "./modules/DE_RNAseq.snakefile"
 include: "./modules/DE_Microarray_affy.snakefile"
-# include: "./modules/DE_Microarray_oligo.snakefile"
+include: "./modules/DE_Microarray_oligo.snakefile"
 
