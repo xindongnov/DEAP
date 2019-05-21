@@ -11,6 +11,7 @@ result_path=args[3]
 result_path_com=args[4]
 FC_setting = args[5] #setting fold change
 pval_setting = args[6] #setting adj.p.val
+platform = args[7]
 FC_setting <- as.numeric(FC_setting)
 pval_setting <- as.numeric(pval_setting)
 logFC_setting <- log2(FC_setting)
@@ -28,7 +29,7 @@ calcu_DEG<-function(x){
   con_sam=as.vector(unlist(design_mat$sample[which(design_mat[,x]=="1")]))
   cas_sam=as.vector(unlist(design_mat$sample[which(design_mat[,x]=="2")]))
   if(length(con_sam) >=2 & length(cas_sam) >= 2){
-  contral=as.vector(unlist(design_mat$treatment[which(design_mat[,x]=="1")]))[1]
+  control=as.vector(unlist(design_mat$treatment[which(design_mat[,x]=="1")]))[1]
   case=as.vector(unlist(design_mat$treatment[which(design_mat[,x]=="2")]))[1]
   sam=c(con_sam,cas_sam)
   tem_mat=expres_matr[,sam]
@@ -38,18 +39,23 @@ calcu_DEG<-function(x){
   colnames(design) = levels(factor(grouplist))
   rownames(design) = colnames(tem_mat)
   fit <- lmFit(tem_mat,design)
-  cont.matrix <- makeContrasts(contrasts = paste0(case,"-",contral),levels = colnames(fit$coefficients))
+  cont.matrix <- makeContrasts(contrasts = paste0(case,"-",control),levels = colnames(fit$coefficients))
   fit <- contrasts.fit(fit, cont.matrix)
   fit <- eBayes(fit)
   output <- topTable(fit, number = Inf, lfc = 0, p.value = 1)
   output<-cbind(rownames(output),output)
   colnames(output) <-c("SYMBOL","log2FoldChange","AveExpr","t","P.Value","padj","B")
   # output file
-  write.table(output,paste0(result_path,'/',case,"_",contral,'Different_Expression.txt'),sep = '\t',quote = F,col.names = T,row.names = F)
-  return(c(case,contral))}
+  if(platform == 'affy'){
+      write.table(output,paste0(result_path,'/',case,"_",control,'_Different_Expression_affy.txt'),sep = '\t',quote = F,col.names = T,row.names = F)
+  }
+  if(platform == 'oligo'){
+      write.table(output,paste0(result_path,'/',case,"_",control,'_Different_Expression_oligo.txt'),sep = '\t',quote = F,col.names = T,row.names = F)
+  }
+  return(c(case,control))}
 }
 result=apply(matrix(3:dim(design_mat)[2]),1,calcu_DEG)
 if(length(unlist(result)) >= 2){
   result=matrix(unlist(result),ncol=2)
-colnames(result)=c("case","contral")
+colnames(result)=c("case","control")
 write.table(result,result_path_com,quote=F,row.names = F,sep="\t")}

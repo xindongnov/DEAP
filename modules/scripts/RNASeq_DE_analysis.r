@@ -37,24 +37,24 @@ get_DSE<-function(x){
   
   if(length(case_sample) >= 2 & length(con_sample) >= 2){
     comp_cond=design_matrix$treatment[match(compa_samp,design_matrix$sample)]
-    contral=as.character(unlist(design_matrix$treatment[which(design_matrix[,x]=="1")][1]))
+    control=as.character(unlist(design_matrix$treatment[which(design_matrix[,x]=="1")][1]))
     case=as.character(unlist(design_matrix$treatment[which(design_matrix[,x]=="2")][1]))
     temp_rawcount=rawcount[,match(compa_samp,colnames(rawcount))] 
     
     sampleTable <- data.frame(sampleName = compa_samp,  condition = comp_cond)
     sampleTable$condition <- factor(sampleTable$condition)
-    sampleTable$condition <- relevel(sampleTable$condition, ref = contral)
+    sampleTable$condition <- relevel(sampleTable$condition, ref = control)
     ddsFullCountTable <- DESeqDataSetFromMatrix(countData = temp_rawcount,colData = sampleTable,  design= ~ condition)
     dds <- DESeq(ddsFullCountTable) 
     des.re=results(dds)
     df <- data.frame(matrix(unlist(des.re@listData), ncol=6))
     colnames(df)=names(des.re@listData)
     df=cbind(tran_gene,df)
-    write.table(df,paste0(result_path,"/",case,"_",contral,"_","DESeq_table.txt"),quote=F,row.names = F,sep="\t")
-  return(c(case,contral))}
+    write.table(df,paste0(result_path,"/",case,"_",control,"_","DESeq_table.txt"),quote=F,row.names = F,sep="\t")
+  return(c(case,control))}
 }
 result=apply(matrix(3:num_com),1,get_DSE)
 if(length(unlist(result)) >= 2){
 result=matrix(unlist(result),ncol=2)
-write.table(result,compare_output_path,quote=F,col.names=c("case","contral"),row.names = F,sep="\t")
+write.table(result,compare_output_path,quote=F,col.names=c("case","control"),row.names = F,sep="\t")
 }

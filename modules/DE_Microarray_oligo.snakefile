@@ -11,8 +11,8 @@ def DE_MA_O_targets(wildcards):
                 ctrl = config["MA_runs"][run]['compare'][comp]['control']['name']
                 treat = config["MA_runs"][run]['compare'][comp]['treat']['name']
                 if len(config["MA_runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["MA_runs"][run]['compare'][comp]['treat']['sample']) > 1:
-                    ls.append("analysis/%s/expression/%s_results/%s_%sDifferent_Expression.txt" % (run,run,treat,ctrl))
-                    ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot_MA.png" % (run,run,treat,ctrl))
+                    ls.append("analysis/%s/expression/%s_results/%s_%s_Different_Expression_oligo.txt" % (run,run,treat,ctrl))
+                    ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot_oligo.png" % (run,run,treat,ctrl))
             # ls.append("" % (run,run))
         # print(ls)
     return ls
@@ -32,9 +32,10 @@ rule gather_oligo_expression:
         "analysis/{run}/expression/{run}_exp_matrix_oligo.txt"
     params:
         GPL=lambda wildcards: config['MA_runs'][wildcards.run]['GPL'],
-        design=lambda wildcards: config['MA_runs'][wildcards.run]['matrix']
+        design=lambda wildcards: config['MA_runs'][wildcards.run]['matrix'],
+        species='Human' if config['assembly'] == 'hg38' else 'Mouse'
     shell:
-        "Rscript ./DEAP/modules/scripts/get_olign_expression_profile.r {input} {params.GPL} {params.design} {output}"
+        "Rscript ./DEAP/modules/scripts/get_olign_expression_profile.r {input} {params.GPL} {params.species} {params.design} {output}"
 
 rule Microarray_oligo_PCA_plot:
     input:
@@ -46,31 +47,32 @@ rule Microarray_oligo_PCA_plot:
     shell:
         "Rscript ./DEAP/modules/scripts/draw_PCA_plot.r {input} Microarray {params.design_matrix} {output}"
 
-# rule Microarray_oligo_DE:
-#     input:
-#         "analysis/{run}/expression/{run}_exp_matrix_oligo.txt"
-#     output:
-#         table="analysis/{run}/expression/{run}_results/{treatment}Different_Expression.txt"
-#         # "analysis/{run}/expression/{run}_Compare_detail.txt"
-#     params:
-#         design_matrix=lambda wildcards: config['MA_runs'][wildcards.run]['matrix'],
-#         output_dir=lambda wildcards: "analysis/%s/expression/%s_results" % (wildcards.run,wildcards.run),
-#         compare_detail=lambda wildcards: "analysis/%s/expression/%s_results/%s_compare_detail.txt" % (wildcards.run,wildcards.run,wildcards.treatment),
-#         foldchange=10,
-#         p=0.01
-#     shell:
-#         "Rscript ./DEAP/modules/scripts/Microarry_affy_olign_DEG_ananlysis.r {input} {params.design_matrix} {params.output_dir} {params.compare_detail} {params.foldchange} {params.p}"
+rule Microarray_oligo_DE:
+    input:
+        "analysis/{run}/expression/{run}_exp_matrix_oligo.txt"
+    output:
+        table="analysis/{run}/expression/{run}_results/{treatment}_Different_Expression_oligo.txt"
+        # "analysis/{run}/expression/{run}_Compare_detail.txt"
+    params:
+        design_matrix=lambda wildcards: config['MA_runs'][wildcards.run]['matrix'],
+        output_dir=lambda wildcards: "analysis/%s/expression/%s_results" % (wildcards.run,wildcards.run),
+        compare_detail=lambda wildcards: "analysis/%s/expression/%s_results/%s_compare_detail.txt" % (wildcards.run,wildcards.run,wildcards.treatment),
+        foldchange=1,
+        p=1,
+        platform='oligo'
+    shell:
+        "Rscript ./DEAP/modules/scripts/Microarry_affy_olign_DEG_ananlysis.r {input} {params.design_matrix} {params.output_dir} {params.compare_detail} {params.foldchange} {params.p} {params.platform}"
 
-# rule Microarray_oligo_plot:
-#     input:
-#         "analysis/{run}/expression/{run}_results/{treatment}Different_Expression.txt"
-#     output:
-#         "analysis/{run}/expression/{run}_results/{treatment}_volca_plot_oligo.png"
-#     params:
-#         foldchange=10,
-#         pvalue=0.01
-#     shell:
-#         "Rscript ./DEAP/modules/scripts/draw_volca_plot.r {input} {output} {params.foldchange} {params.pvalue}"
+rule Microarray_oligo_plot:
+    input:
+        "analysis/{run}/expression/{run}_results/{treatment}_Different_Expression_oligo.txt"
+    output:
+        "analysis/{run}/expression/{run}_results/{treatment}_volca_plot_oligo.png"
+    params:
+        foldchange=10,
+        pvalue=0.01
+    shell:
+        "Rscript ./DEAP/modules/scripts/draw_volca_plot.r {input} {output} {params.foldchange} {params.pvalue}"
 
 
 

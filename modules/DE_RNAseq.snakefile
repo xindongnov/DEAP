@@ -15,8 +15,9 @@ def DE_RNAseq_targets(wildcards):
                 ctrl = config["RS_runs"][run]['compare'][comp]['control']['name']
                 treat = config["RS_runs"][run]['compare'][comp]['treat']['name']
                 if len(config["RS_runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["RS_runs"][run]['compare'][comp]['treat']['sample']) > 1:
-                    ls.append("analysis/%s/expression/%s_results/%s_%s_DESeq_table.txt" % (run,run,treat,ctrl))
-                    ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot.png" % (run,run,treat,ctrl))
+                    ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
+                    # ls.append("analysis/%s/expression/%s_results/%s_%s_DESeq_table.txt" % (run,run,treat,ctrl))
+                    # ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot.png" % (run,run,treat,ctrl))
         # print(ls)
     return ls
 
@@ -67,23 +68,23 @@ rule RNASeq_DE:
         rawcount="analysis/{run}/expression/{run}_Rawcount_matrix.txt",
         design="analysis/{run}/{run}_design_matrix.txt"
     output:
-        # detail="analysis/{run}/expression/{run}_Compare_detail.txt",
-        table="analysis/{run}/expression/{run}_results/{treatment}_DESeq_table.txt"
+        detail="analysis/{run}/expression/{run}_Compare_detail.txt",
+        # table="analysis/{run}/expression/{run}_results/{treatment}_DESeq_table.txt"
     params:
         output_dir=lambda wildcards: "analysis/%s/expression/%s_results" % (wildcards.run,wildcards.run)
     shell:
-        "Rscript ./DEAP/modules/scripts/RNASeq_DE_analysis.r {input.rawcount} {input.design} {params.output_dir} {output.table}"
+        "Rscript ./DEAP/modules/scripts/RNASeq_DE_analysis.r {input.rawcount} {input.design} {params.output_dir} {output.detail}"
 
-rule RNAseq_volca_plot:
-    input:
-        "analysis/{run}/expression/{run}_results/{treatment}_DESeq_table.txt"
-    output:
-        "analysis/{run}/expression/{run}_results/{treatment}_volca_plot.png"
-    params:
-        foldchange=100,
-        pvalue=0.01
-    shell:
-        "Rscript ./DEAP/modules/scripts/draw_volca_plot.r {input} {output} {params.foldchange} {params.pvalue}"
+# rule RNAseq_volca_plot:
+#     input:
+#         "analysis/{run}/expression/{run}_results/{treatment}_DESeq_table.txt"
+#     output:
+#         "analysis/{run}/expression/{run}_results/{treatment}_volca_plot.png"
+#     params:
+#         foldchange=100,
+#         pvalue=0.01
+#     shell:
+#         "Rscript ./DEAP/modules/scripts/draw_volca_plot.r {input} {output} {params.foldchange} {params.pvalue}"
 
 
 
