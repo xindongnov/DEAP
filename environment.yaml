@@ -16,6 +16,12 @@ dependencies:
 - star-fusion=0.5.4
 - bioconductor-sva
 
+# trim.snakefile
+- trim-galore>=0.6.2
+
+# align_salmon.snakefile
+- salmon
+
 #DE.snakefile
 - bioconductor-deseq2>=1.12.1
 - bioconductor-limma

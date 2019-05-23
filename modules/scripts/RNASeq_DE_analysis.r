@@ -53,6 +53,7 @@ get_DSE<-function(x){
     write.table(df,paste0(result_path,"/",case,"_",control,"_","DESeq_table.txt"),quote=F,row.names = F,sep="\t")
   return(c(case,control))}
 }
+dir.create(result_path)
 result=apply(matrix(3:num_com),1,get_DSE)
 if(length(unlist(result)) >= 2){
 result=matrix(unlist(result),ncol=2)
