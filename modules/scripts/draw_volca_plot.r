@@ -33,7 +33,7 @@ volca <- ggplot(file,aes(log2FoldChange,-log10(padj))) +
   scale_colour_manual("Significance", values = c("grey","red")) +
   labs(title = 'Volcano plot', x = "log2 Fold Change", y = "-log10 adj.P.Val")+
   geom_text_repel(data = sigout, aes(label = sigout$SYMBOL), cex = 3,box.padding = unit(0.35, "lines"), point.padding = unit(0.3, "lines"))+
-  theme_bw()+geom_hline(aes(yintercept=-log10(pval_setting)),linetype="dashed",size=0.5)+
+  theme_bw()+geom_hline(aes(yintercept=-log10(pval_setting)),linetype="dashed",color="grey",size=0.5)+
   geom_vline(aes(xintercept=logFC_setting),linetype="dashed",color="grey",size=0.5)+
   geom_vline(aes(xintercept=-logFC_setting),linetype="dashed",color="grey",size=0.5)+theme(axis.text.x = element_text(size = 10))+theme(axis.text.y = element_text(size = 10))
 

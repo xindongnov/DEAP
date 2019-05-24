@@ -23,7 +23,7 @@ if(express_type == "RNASeq"){
 }
 num_sam=dim(expre_matr)[2]
 expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam)
-expre_matr=log2(expre_matr)
+expre_matr=log2(expre_matr+1)
 pca_raw <- prcomp(t(expre_matr), center = TRUE, scale. = F)
 edata_pc_df <- as.data.frame(pca_raw$x)
 design_matrix=read.table(design_path,header = T,sep=",")
