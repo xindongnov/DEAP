@@ -38,7 +38,7 @@ rule trim_paired_adapter:
         # file=lambda wildcards, input: '--paired %s %s' % (input[0],input[1]) if len(input) == 2 else '%s' % input, 
         thread=_threads,
         basename=lambda wildcards: '%s' % wildcards.sample
-    log: "analysis/{run}/log/trim/{sample}.log"
+    # log: "analysis/{run}/log/trim/{sample}.log"
     message: "TRIM: Trim adaptor for {wildcards.sample} " 
     shell:
         "trim_galore -q {params.quality} -j {params.thread} --phred33 --stringency {params.stringency} "
@@ -60,7 +60,7 @@ rule trim_single_adapter:
         output_dir=lambda wildcards: 'analysis/%s/samples/%s/trim/' % (wildcards.run, wildcards.sample),
         thread=_threads,
         basename=lambda wildcards: '%s' % wildcards.sample
-    log: "analysis/{run}/log/trim/{sample}.log"
+    # log: "analysis/{run}/log/trim/{sample}.log"
     message: "TRIM: Trim adaptor for {wildcards.sample} "
     shell:
         "trim_galore -q {params.quality} -j {params.thread} --phred33 --stringency {params.stringency} "

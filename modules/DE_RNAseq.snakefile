@@ -15,7 +15,7 @@ def DE_RNAseq_targets(wildcards):
                 ctrl = config["RS_runs"][run]['compare'][comp]['control']['name']
                 treat = config["RS_runs"][run]['compare'][comp]['treat']['name']
                 if len(config["RS_runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["RS_runs"][run]['compare'][comp]['treat']['sample']) > 1:
-                    ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
+                    # ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
                     ls.append("analysis/%s/expression/%s_results/%s_%s_DESeq_table.txt" % (run,run,treat,ctrl))
                     ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot.png" % (run,run,treat,ctrl))
         # print(ls)
@@ -35,7 +35,7 @@ def get_quantsf(wildcards):
 rule get_specific_design:
     output:
         temp("analysis/{run}/{run}_design_matrix.txt")
-    message: "Expression: gathering all TMP and raw count for {wildcards.run}"
+    message: "Expression: Get specific design for {wildcards.run}"
     run:
         with open(str(output),'w') as op:
             op.write(config["RS_runs"][wildcards.run]['raw_design'].to_csv(sep=',',index=False))
@@ -46,6 +46,7 @@ rule gather_TPM_and_Rawcount:
     output:
         TPM="analysis/{run}/expression/{run}_TPM_matrix.txt",
         RawCount="analysis/{run}/expression/{run}_Rawcount_matrix.txt"
+    message: "Expression: gathering all TMP and raw count for {wildcards.run}"
     params:
         input_dir=lambda wildcards: 'analysis/%s' % wildcards.run,
         species='Human' if config['assembly'] == 'hg38' else 'Mouse'
@@ -54,19 +55,20 @@ rule gather_TPM_and_Rawcount:
 
 rule RNASeq_PCA_plot:
     input:
-        "analysis/{run}/expression/{run}_TPM_matrix.txt"
+        TPM="analysis/{run}/expression/{run}_TPM_matrix.txt",
+        design="analysis/{run}/{run}_design_matrix.txt"
     output:
         "analysis/{run}/expression/{run}_PCA.png"
     params:
         expr_type='RNASeq',
-        design_matrix=lambda wildcards: "analysis/%s/%s_design_matrix.txt" % (wildcards.run,wildcards.run)
+        # design_matrix=lambda wildcards: "analysis/%s/%s_design_matrix.txt" % (wildcards.run,wildcards.run)
     shell:
-        "Rscript ./DEAP/modules/scripts/draw_PCA_plot.r {input} {params.expr_type} {params.design_matrix} {output}"
+        "Rscript ./DEAP/modules/scripts/draw_PCA_plot.r {input.TPM} {params.expr_type} {input.design} {output}"
 
 rule RNASeq_DE:
     input:
         rawcount="analysis/{run}/expression/{run}_Rawcount_matrix.txt",
-        design="analysis/{run}/{run}_design_matrix.txt"
+        # design="analysis/{run}/{run}_design_matrix.txt"
     output:
         # detail="analysis/{run}/expression/{run}_Compare_detail.txt",
         table="analysis/{run}/expression/{run}_results/{treatment}_DESeq_table.txt"
