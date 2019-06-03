@@ -68,7 +68,7 @@ rule RNASeq_PCA_plot:
 rule RNASeq_DE:
     input:
         rawcount="analysis/{run}/expression/{run}_Rawcount_matrix.txt",
-        # design="analysis/{run}/{run}_design_matrix.txt"
+        design="analysis/{run}/{run}_design_matrix.txt"
     output:
         # detail="analysis/{run}/expression/{run}_Compare_detail.txt",
         table="analysis/{run}/expression/{run}_results/{treatment}_DESeq_table.txt"
