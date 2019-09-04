@@ -6,18 +6,26 @@ Differential Expression Analysis Pipeline(DEAP) is a pipeline which can handle e
 
 ## Usage
 ```{bash}
+git clone git@github.com:XinDong9511/DEAP.git
+cd DEAP
 conda env create -n DEAP -f environment.yaml
 conda activate DEAP
+cd ..
+cp DEAP/metasheet.csv .
+cp DEAP/ref.yaml .
+cp config.yaml .
+mkdir data
 ```
-Then make your folder structure like this:  
- 
+
+Then your folder structure should like this:  
+
 data  *(store your data)  
 DEAP *(this one is the git repo)*  
 metasheet.csv  
 ref.yaml  
 config.yaml  
 
-At last type:
+After modified yaml files and metasheet.csv, at last type:
 ```
 snakemake -s DEAP/DEAP.snakefile
 ```
