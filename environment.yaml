@@ -9,7 +9,7 @@ dependencies:
 - snakemake=5.4.5
 - samtools
 - python>=3.5.2
-- r>=3.4.1
+- r=3.4.1
 
 #align_STAR.snakefile
 - star>=2.5.3a
@@ -20,7 +20,7 @@ dependencies:
 - trim-galore>=0.6.2
 
 # align_salmon.snakefile
-- salmon
+- salmon=0.13.1
 
 #DE.snakefile
 - bioconductor-deseq2>=1.12.1
