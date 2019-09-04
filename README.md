@@ -34,7 +34,7 @@ snakemake -s DEAP/DEAP.snakefile
 
 - config.yaml: 
 Here are several keys in this yaml file.   
-`metasheet`: a path for a table file that defined samples relationship.   
+`metasheet`: a path for a table file that defined the relationship among samples.   
 `ref`: a yaml file that stored the path where reference files are.   
 `aligner`: the align tool that you want to use for RNA-seq samples, options: `"STAR"` or `"salmon"`.   
 `assembly`: the assembly you want to use for your data, options: `"mm10"` or `"hg38"`.   
