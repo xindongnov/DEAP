@@ -55,32 +55,42 @@ def LinkPlusDownload(gsm, path):
     srx_infor = srx_regexp.search(gsm_html)
     if srx_infor:
         srx = srx_infor.group().rstrip('"').lstrip('https://www.ncbi.nlm.nih.gov/sra?term=')
+        # get the SRR id('>SRR1588518</a></td><td') and find the type of layout
+        srx_url = 'http://www.ncbi.nlm.nih.gov/sra?term=%s'%srx
+        srx_handler = urllib.request.urlopen(srx_url)
+        srx_html = srx_handler.read()
+        srx_html = srx_html.decode('utf-8')
+        # find the layout type (<div>Layout: <span>SINGLE</span>)
+        lay_infor = re.compile('<div>Layout: <span>.{6}</span>')
+        lay_type = lay_infor.search(srx_html)
+        lay_type = lay_type.group()
+        lay_type = lay_type[-13:-7]
+        # get the srr id and download the sra files
+        srr_regexp = re.compile('>SRR[0-9]*</a></td><td')
+        srr = srr_regexp.findall(srx_html)
+        if lay_type == 'SINGLE':
+            fastq_file = '%s/%s.fastq'%(path,gsm)
+             # single.append(gsm)
+             # print >>SingleEnd_gsm, gsm
+        elif lay_type == 'PAIRED':
+            fastq_file = '%s/%s_R1.fastq,%s/%s_R2.fastq'%(path,gsm,path,gsm)
+        else:
+            print(('+++neither PAIRED nor SINGLE end sequencing: %s+++'%gsm))
+            return(None, None)
+        fastCmd = catfastq(path, gsm,srx_infor,srr,lay_type)
+        os.system(fastCmd)
     else:
-        print(('%s: no srx number'%gsm))
-    # get the SRR id('>SRR1588518</a></td><td') and find the type of layout
-    srx_url = 'http://www.ncbi.nlm.nih.gov/sra?term=%s'%srx
-    srx_handler = urllib.request.urlopen(srx_url)
-    srx_html = srx_handler.read()
-    srx_html = srx_html.decode('utf-8')
-    # find the layout type (<div>Layout: <span>SINGLE</span>)
-    lay_infor = re.compile('<div>Layout: <span>.{6}</span>')
-    lay_type = lay_infor.search(srx_html)
-    lay_type = lay_type.group()
-    lay_type = lay_type[-13:-7]
-    # get the srr id and download the sra files
-    srr_regexp = re.compile('>SRR[0-9]*</a></td><td')
-    srr = srr_regexp.findall(srx_html)
-    if lay_type == 'SINGLE':
-        fastq_file = '%s/%s.fastq'%(path,gsm)
-         # single.append(gsm)
-         # print >>SingleEnd_gsm, gsm
-    elif lay_type == 'PAIRED':
-        fastq_file = '%s/%s_R1.fastq,%s/%s_R2.fastq'%(path,gsm,path,gsm)
-    else:
-        print(('+++neither PAIRED nor SINGLE end sequencing: %s+++'%gsm))
-        return(None, None)
-    fastCmd = catfastq(path, gsm,srx_infor,srr,lay_type)
-    os.system(fastCmd)
+        print(('WARNING: no srx number for %s. Another type of data?'%gsm))
+        link_regexp = re.compile('href="ftp://ftp.ncbi.nlm.nih.gov/geo/samples/\S*\(ftp\)')
+        link_infor = link_regexp.search(gsm_html)
+        if link_infor:
+            link = link_infor.group().replace('">(ftp)','').replace('href="','')
+            print("Find ftp download link.")
+            ftpcmd = "wget %s" % link
+            os.system(ftpcmd)
+        else:
+            print("ERROR: Failed to download this GSM!")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

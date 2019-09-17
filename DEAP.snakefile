@@ -13,7 +13,7 @@ from collections import defaultdict
 
 def _sanity_checks(config):
     #metasheet pre-parser: converts dos2unix, catches invalid chars
-    _invalid_map = {'\r':'\n', '(':'.', ')':'.', '$':''}
+    _invalid_map = {'\r':'\n', '$':''}
     _meta_f = open(config['metasheet'])
     _meta = _meta_f.read()
     _meta_f.close()
@@ -161,7 +161,7 @@ def all_targets(wildcards):
     ls.extend(DE_RNAseq_targets(wildcards))
     ls.extend(DE_MA_A_targets(wildcards))
     ls.extend(DE_MA_O_targets(wildcards))
-    print(ls)
+    # print(ls)
     return ls   
 
 rule all:

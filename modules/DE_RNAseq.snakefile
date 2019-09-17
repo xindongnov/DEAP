@@ -5,7 +5,7 @@ def DE_RNAseq_targets(wildcards):
     for run in config["RS_runs"]:
         if config["RS_runs"][run]['compare']:
             # print(run)
-            ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
+            # ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_TPM_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_Rawcount_matrix.txt" % (run,run))
             ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
