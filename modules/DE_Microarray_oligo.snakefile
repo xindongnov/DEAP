@@ -11,7 +11,7 @@ def DE_MA_O_targets(wildcards):
                 ctrl = config["MA_runs"][run]['compare'][comp]['control']['name']
                 treat = config["MA_runs"][run]['compare'][comp]['treat']['name']
                 if len(config["MA_runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["MA_runs"][run]['compare'][comp]['treat']['sample']) > 1:
-                    ls.append("analysis/%s/expression/%s_results/%s_%s_Different_Expression_oligo.txt" % (run,run,treat,ctrl))
+                    ls.append("analysis/%s/expression/%s_results/%s_%s_limma_table_oligo.txt" % (run,run,treat,ctrl))
                     ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot_oligo.png" % (run,run,treat,ctrl))
             # ls.append("" % (run,run))
         # print(ls)
@@ -51,7 +51,7 @@ rule Microarray_oligo_DE:
     input:
         "analysis/{run}/expression/{run}_exp_matrix_oligo.txt"
     output:
-        table="analysis/{run}/expression/{run}_results/{treatment}_Different_Expression_oligo.txt"
+        table="analysis/{run}/expression/{run}_results/{treatment}_limma_table_oligo.txt"
         # "analysis/{run}/expression/{run}_Compare_detail.txt"
     params:
         design_matrix=lambda wildcards: config['MA_runs'][wildcards.run]['matrix'],
@@ -65,7 +65,7 @@ rule Microarray_oligo_DE:
 
 rule Microarray_oligo_plot:
     input:
-        "analysis/{run}/expression/{run}_results/{treatment}_Different_Expression_oligo.txt"
+        "analysis/{run}/expression/{run}_results/{treatment}_limma_table_oligo.txt"
     output:
         "analysis/{run}/expression/{run}_results/{treatment}_volca_plot_oligo.png"
     params:

@@ -47,10 +47,10 @@ calcu_DEG<-function(x){
   colnames(output) <-c("SYMBOL","log2FoldChange","AveExpr","t","P.Value","padj","B")
   # output file
   if(platform == 'affy'){
-      write.table(output,paste0(result_path,'/',case,"_",control,'_Different_Expression_affy.txt'),sep = '\t',quote = F,col.names = T,row.names = F)
+      write.table(output,paste0(result_path,'/',case,"_",control,'_limma_table_affy.txt'),sep = '\t',quote = F,col.names = T,row.names = F)
   }
   if(platform == 'oligo'){
-      write.table(output,paste0(result_path,'/',case,"_",control,'_Different_Expression_oligo.txt'),sep = '\t',quote = F,col.names = T,row.names = F)
+      write.table(output,paste0(result_path,'/',case,"_",control,'_limma_table_oligo.txt'),sep = '\t',quote = F,col.names = T,row.names = F)
   }
   return(c(case,control))}
 }
