@@ -10,6 +10,13 @@ import urllib.request
 import re
 import argparse
 
+def checkFastqSize(fastq):
+    if os.path.getsize(fastq) < 100:
+        os.system("rm %s" % fastq)
+        return False
+    else:
+        return True
+
 def downloadFastqFromEBI(path,gsm,srr,lay_type):
     ebi_ftp = "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"
     if lay_type == "SINGLE":
@@ -76,13 +83,6 @@ def downloadFastqFromEBI(path,gsm,srr,lay_type):
     else:
         return False
 
-def checkFastqSize(fastq):
-    if os.path.getsize(fastq) < 100:
-        os.system("rm %s" % fastq)
-        return False
-    else:
-        return True
-
 def downloadFastqFromGEO(path,gsm,srr,lay_type):
     cat_file1 = ''
     cat_file2 = ''
@@ -94,7 +94,7 @@ def downloadFastqFromGEO(path,gsm,srr,lay_type):
             # download the sra files and transmit them into fastq files
             fsra = '%s/%s_temp%s.sra'%(path, gsm, i+1)
             os.system('wget %s -O %s \n'%(ftp, fsra))
-            if checkFastqSize(temp_fq) != True:
+            if checkFastqSize(fsra) != True:
                 return False
             os.system('echo "+++fastq-dump++++"')
             os.system('\nfastq-dump %s/%s_temp%s.sra -O %s \n'%(path, gsm,i+1, path))
@@ -107,7 +107,7 @@ def downloadFastqFromGEO(path,gsm,srr,lay_type):
             ftp = ncbi_link + '/' + srr[i][:6] + '/' + srr[i] +'/' + srr[i]+ '.sra'
             fsra = '%s/%s_temp%s.sra'%(path, gsm, i+1)
             os.system('wget %s -O %s \n'%(ftp, fsra))
-            if checkFastqSize(temp_fq) != True:
+            if checkFastqSize(fsra) != True:
                 return False
             os.system('echo "+++fastq-dump++++" \n')
             os.system('\nfastq-dump --split-files %s/%s_temp%s.sra -O %s \n'%(path, gsm,i+1, path))
