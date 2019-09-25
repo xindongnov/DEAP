@@ -1,4 +1,5 @@
 # align salmon 
+_threads = 8
 
 def getAlignFastq(wildcards):
     r = wildcards.run
@@ -31,14 +32,14 @@ rule align_salmon:
         index=config["salmon_index"],
         _inputs=lambda wildcards,input: "-1 %s -2 %s" % (input[0], input[1]) if len(input) == 2 else '-r %s' % input[0],
         output_path=lambda wildcards: "analysis/%s/samples/%s/align/" % (wildcards.run,wildcards.sample),
-        threads=8,
         bootstrap=100,
         gcbias=lambda wildcards: "--gcBias" if len(config['RS_runs'][wildcards.run]['samples'][wildcards.sample]) == 2 else "",
     # log: "analysis/{run}/log/align/{sample}.log"
     message: "ALIGN: Align {wildcards.sample} to the genome "
+    threads: _threads
     shell:
         "salmon quant -i {params.index} -l A {params._inputs} -o {params.output_path} "
-        "--numBootstraps {params.bootstrap} -p {params.threads} {params.gcbias} --validateMappings"
+        "--numBootstraps {params.bootstrap} -p {threads} {params.gcbias} --validateMappings"
 
 
 
