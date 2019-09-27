@@ -11,6 +11,8 @@ assembly: 'mm10'
 # {True, False}
 trim: True
 
+# if check_compare is False, DEAP will only align samples that have enough replications for saving time
+# either will still trim and align samples but no different expression.
 check_compare: False
 
 #

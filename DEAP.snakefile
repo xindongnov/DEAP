@@ -78,7 +78,7 @@ def updateMeta(config):
                                                                     'treat': {'name':list(MA_design.loc[MA_design.loc[:,c] == 2,'treatment'])[0], 
                                                                             'sample': list(MA_design.loc[MA_design.loc[:,c] == 2,].index.values)}}
             elif metadata.loc[run,"experment_type"] == "RS":
-                sys.stdout.write("ERROR: %s does NOT match any mates." % run)
+                sys.stderr.write("ERROR: %s does NOT match any mates." % run)
                 sys.exit(1)
             else:
                 sys.stdout.write("WARNING: %s does NOT match any Experiment type." % run)
@@ -149,6 +149,7 @@ config = updateMeta(config)
 
 #NOW load ref.yaml - SIDE-EFFECT: loadRef CHANGES config
 loadRef(config)
+# print(config)
 #-----------------------------------------
 
 def all_targets(wildcards):
@@ -158,9 +159,7 @@ def all_targets(wildcards):
     if config['trim'] == True:
         ls.extend(trim_targets(wildcards))
     ls.extend(align_salmon_targets(wildcards))
-    ls.extend(DE_RNAseq_targets(wildcards))
-    ls.extend(DE_MA_A_targets(wildcards))
-    ls.extend(DE_MA_O_targets(wildcards))
+    ls.extend(experssion_targets(wildcards))
     # print(ls)
     return ls   
 
@@ -174,7 +173,5 @@ if config['aligner'] == 'STAR':
 else:
     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 
-include: "./modules/DE_RNAseq.snakefile"
-include: "./modules/DE_Microarray_affy.snakefile"
-include: "./modules/DE_Microarray_oligo.snakefile"
+include: "./modules/expression.snakefile"
 
