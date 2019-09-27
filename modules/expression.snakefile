@@ -1,5 +1,11 @@
 # Differential expression
 
+# ================================
+# @auther: Xin Dong
+# @email: xindong9511@gmail.com
+# @date: Sep 2019
+# ================================
+
 def experssion_targets(wildcards):
     ls = []
     for run in config["MA_runs"]:

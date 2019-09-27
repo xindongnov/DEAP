@@ -1,3 +1,10 @@
+
+# ================================
+# @auther: Xin Dong
+# @email: xindong9511@gmail.com
+# @date: Sep 2019
+# ================================
+
 required_Packages = c("affy", "limma","sva","ggplot2","ggrepel")
 
 if(!all(required_Packages %in% installed.packages())){

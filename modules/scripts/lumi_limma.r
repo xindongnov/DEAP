@@ -1,3 +1,10 @@
+
+# ================================
+# @auther: Xin Dong
+# @email: xindong9511@gmail.com
+# @date: Sep 2019
+# ================================
+
 required_Packages = c("lumi", "limma")
 
 if(!all(required_Packages %in% installed.packages())){

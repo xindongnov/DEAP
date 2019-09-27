@@ -1,4 +1,10 @@
 
+# ================================
+# @auther: Ya Han, Xin Dong
+# @email: xindong9511@gmail.com
+# @date: Sep 2019
+# ================================
+
 required_Packages = c("oligo","org.Mm.eg.db","org.Hs.eg.db")
 if(!all(required_Packages %in% installed.packages())){
   source("https://bioconductor.org/biocLite.R")

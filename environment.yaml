@@ -35,3 +35,5 @@ dependencies:
 #gsea.snakefile
 - bioconductor-clusterprofiler
 
+#lisa.snakefile
+- qinqian-lisa

@@ -1,3 +1,10 @@
+
+# ================================
+# @auther: Xin Dong
+# @email: xindong9511@gmail.com
+# @date: Sep 2019
+# ================================
+
 required_Packages = c("oligo", "limma","sva","ggplot2","ggrepel","org.Mm.eg.db","org.Hs.eg.db")
 if(!all(required_Packages %in% installed.packages())){
   source("https://bioconductor.org/biocLite.R")

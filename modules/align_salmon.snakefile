@@ -1,4 +1,11 @@
 # align salmon 
+
+# ================================
+# @auther: Xin Dong
+# @email: xindong9511@gmail.com
+# @date: Sep 2019
+# ================================
+
 _threads = 8
 
 def getAlignFastq(wildcards):

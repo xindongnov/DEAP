@@ -1,6 +1,12 @@
 # trim adapter module
 _threads=4
 
+# ================================
+# @auther: Xin Dong
+# @email: xindong9511@gmail.com
+# @date: Sep 2019
+# ================================
+
 def getTrimFastq(wildcards):
     if config['RS_runs'][wildcards.run]['samples']:
         s = config['RS_runs'][wildcards.run]['samples'][wildcards.sample]
