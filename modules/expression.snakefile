@@ -18,6 +18,8 @@ def experssion_targets(wildcards):
                 ls.append("analysis/%s/expression/%s_results/%s_%s_limma_table.txt" % (run,run,treat,ctrl))
                 ls.append("analysis/%s/expression/%s_results/%s_%s_DE.txt" % (run,run,treat,ctrl))
                 ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot.png" % (run,run,treat,ctrl))
+                ls.append("analysis/%s/expression/%s_results/%s_%s_upRegGenes.txt" % (run,run,treat,ctrl))
+                ls.append("analysis/%s/expression/%s_results/%s_%s_downRegGenes.txt" % (run,run,treat,ctrl))
     for run in config["RS_runs"]:
         # print(run)
         # ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
@@ -34,6 +36,8 @@ def experssion_targets(wildcards):
                 ls.append("analysis/%s/expression/%s_results/%s_%s_DESeq_table.txt" % (run,run,treat,ctrl))
                 ls.append("analysis/%s/expression/%s_results/%s_%s_DE.txt" % (run,run,treat,ctrl))
                 ls.append("analysis/%s/expression/%s_results/%s_%s_volca_plot.png" % (run,run,treat,ctrl))
+                ls.append("analysis/%s/expression/%s_results/%s_%s_upRegGenes.txt" % (run,run,treat,ctrl))
+                ls.append("analysis/%s/expression/%s_results/%s_%s_downRegGenes.txt" % (run,run,treat,ctrl))
     return ls
 
 
@@ -183,8 +187,29 @@ rule expression_volcaPlot:
     shell:
         "Rscript ./DEAP/modules/scripts/draw_volca_plot.r {input} {output} {params.foldchange} {params.pvalue}"
 
+rule expression_upRegGene:
+    input:
+        "analysis/{run}/expression/{run}_results/{treatment}_DE.txt"
+    output:
+        "analysis/{run}/expression/{run}_results/{treatment}_upRegGenes.txt"
+    # log: "analysis/{run}/log/{treatment}_upRegGenes.log"
+    params:
+        foldchange = 0,
+        pvalue = 0.05
+    shell:
+        """tail -n +2 {input} | awk -F '\\t' '$3>{params.foldchange} && $5<{params.pvalue} {{print}}'| sort -g -k5 | cut -f1 > {output}"""
 
-
+rule expression_downRegGene:
+    input:
+        "analysis/{run}/expression/{run}_results/{treatment}_DE.txt"
+    output:
+        "analysis/{run}/expression/{run}_results/{treatment}_downRegGenes.txt"
+    # log: "analysis/{run}/log/{treatment}_downRegGenes.log"
+    params:
+        foldchange = 0,
+        pvalue = 0.05
+    shell:
+        """tail -n +2 {input} | awk -F '\\t' '$3<{params.foldchange} && $5<{params.pvalue} {{print}}'| sort -g -k5 | cut -f1 > {output}"""
 
 
 # rule Microarray_affy_plot:
