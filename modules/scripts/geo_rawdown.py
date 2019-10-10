@@ -17,6 +17,43 @@ def checkFastqSize(fastq):
     else:
         return True
 
+def downloadFastqByPrefetch(path,gsm,srr,lay_type):
+    cat_file1 = ''
+    cat_file2 = ''
+    if lay_type == 'SINGLE':
+        for i in range(len(srr)):
+            fsra = '%s/%s_temp%s.sra'%(path, gsm, i+1)
+            os.system('prefetch %s -o %s \n'%(srr[i], fsra))
+            if os.path.exists(fsra) != True:
+                return False
+            if checkFastqSize(fsra) != True:
+                return False
+            os.system('echo "+++fastq-dump++++"')
+            os.system('\nfastq-dump %s/%s_temp%s.sra -O %s \n'%(path, gsm,i+1, path))
+            cat_file1 = cat_file1 + '%s/%s_temp%s.fastq '%(path, gsm,i+1) 
+        os.system('cat %s> %s/%s.fastq \n'%(cat_file1,path,gsm))
+        os.system('rm %s/%s_temp* \n'%(path, gsm))
+        os.system('gzip %s/%s.fastq \n' % (path, gsm))
+    elif lay_type == 'PAIRED':
+        for i in range(len(srr)):
+            fsra = '%s/%s_temp%s.sra'%(path, gsm, i+1)
+            os.system('prefetch %s -o %s \n'%(srr[i], fsra))
+            if os.path.exists(fsra) != True:
+                return False
+            if checkFastqSize(fsra) != True:
+                return False
+            os.system('echo "+++fastq-dump++++" \n')
+            os.system('\nfastq-dump --split-files %s/%s_temp%s.sra -O %s \n'%(path, gsm,i+1, path))
+            cat_file1 = cat_file1 + '%s/%s_temp%s_1.fastq '%(path, gsm,i+1)
+            cat_file2 = cat_file2 + '%s/%s_temp%s_2.fastq '%(path, gsm,i+1)
+        os.system('cat %s> %s/%s_R1.fastq \n'%(cat_file1, path,gsm))
+        os.system('cat %s> %s/%s_R2.fastq \n'%(cat_file2, path,gsm))
+        os.system('rm %s/%s_temp* \n'%(path, gsm))
+        os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
+        os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
+    return True
+
+
 def downloadFastqFromEBI(path,gsm,srr,lay_type):
     ebi_ftp = "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"
     if lay_type == "SINGLE":
@@ -192,16 +229,19 @@ def main():
             LayType = getLayType(srx_html,gsm)
             GEO_status = downloadFastqFromGEO(path,gsm,SRR,LayType)
             if GEO_status == False:
-                sys.stdout.write("WARNING: Could NOT download %s sra file from GEO. Trying EBI.\n" % gsm)
+                sys.stdout.write("WARNING: Could NOT download %s sra file from GEO. Trying EBI.\n\n" % gsm)
                 EBI_status = downloadFastqFromEBI(path,gsm,SRR,LayType)
                 if EBI_status == False:
-                    sys.stderr.write("ERROR: Could NOT download %s sra file from EBI. END QUERY.\n" % gsm)
-                    sys.exit(6)
+                    sys.stderr.write("WARNING: Could NOT download %s sra file from EBI. Trying Prefetch (sra-tools).\n\n" % gsm)
+                    PREFETCH_status = downloadFastqByPrefetch(path,gsm,SRR,LayType)
+                    if PREFETCH_status == False:
+                        sys.stderr.write("WARNING: Could NOT download %s sra file by PREFETCH. END QUERY.\n\n" % gsm)
+                        sys.exit(6)
         else: 
-            sys.stderr.write("ERROR: Do not find SRR information for %s. Experiment data may not be public.\n" % gsm)
+            sys.stderr.write("ERROR: Do not find SRR information for %s. Experiment data may not be public.\n\n" % gsm)
             sys.exit(4)
     else: # may not seq data
-        sys.stdout.write("WARNING: Do not find SRX information for %s. Microarray Data?\n" % gsm)
+        sys.stdout.write("WARNING: Do not find SRX information for %s. Microarray Data?\n\n" % gsm)
         cmd = downloadMicroarrayData(gsm_html)
         os.system(cmd)
 

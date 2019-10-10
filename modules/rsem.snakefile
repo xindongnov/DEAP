@@ -77,7 +77,7 @@ rule rsem_iso_matrix:
     shell:
         "perl src/raw_and_fpkm_count_matrix.pl --column 5 --metasheet {input.metasheet} --header -f {params.args} 1>{output.rsem_iso_matrix}"
 
-;
+
 rule rsem_gene_matrix:
     input:
         rsem_gene_files = expand( "analysis/rsem/{sample}/{sample}.genes.results", sample=config["samples"] ),

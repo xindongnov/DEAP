@@ -136,6 +136,16 @@ def updateMeta(config):
                 sys.stdout.write("WARNING: %s does NOT match any Experiment type." % run)
     return config
 
+
+def add_lisa_config(config):
+    conda_root = subprocess.check_output('conda info --root',shell=True).decode('utf-8').strip()
+    config["conda_root"] = conda_root
+    conda_path = os.path.join(conda_root, 'pkgs')
+    if not "lisa_path" in config or not config["lisa_path"]:
+        config["lisa_path"] = os.path.join(conda_root, 'envs', 'lisa', 'bin', 'lisa')
+        config["lisa_env"] = os.path.join(conda_root, 'envs', 'lisa', 'bin')
+
+
 def loadRef(config):
     """Adds the static reference paths found in config['ref']
     NOTE: if the elm is already defined, then we DO NOT clobber the value
@@ -152,7 +162,7 @@ def loadRef(config):
 #---------  CONFIG set up  ---------------
 configfile: "config.yaml"   # This makes snakemake load up yaml into config 
 config = updateMeta(config)
-# addPy2Paths_Config(config)
+add_lisa_config(config)
 
 #NOW load ref.yaml - SIDE-EFFECT: loadRef CHANGES config
 loadRef(config)
@@ -167,6 +177,7 @@ def all_targets(wildcards):
         ls.extend(trim_targets(wildcards))
     ls.extend(align_salmon_targets(wildcards))
     ls.extend(experssion_targets(wildcards))
+    ls.extend(lisa_targets(wildcards))
     # print(ls)
     return ls   
 
@@ -181,4 +192,5 @@ else:
     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 
 include: "./modules/expression.snakefile"
+include: "./modules/lisa.snakefile"
 
