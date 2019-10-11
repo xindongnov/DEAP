@@ -53,9 +53,9 @@ def updateMeta(config):
     config["RS_runs"] = {}
     config["MA_runs"] = {}
     for run in set(metadata.index.values):
-        if isinstance(metadata.loc[run,"experment_type"],str):
-            if metadata.loc[run,"experment_type"].startswith("MA_"):
-                config["MA_runs"][run] = {'type': metadata.loc[run,"experment_type"],
+        if isinstance(metadata.loc[run,"experiment_type"],str):
+            if metadata.loc[run,"experiment_type"].startswith("MA_"):
+                config["MA_runs"][run] = {'type': metadata.loc[run,"experiment_type"],
                                           'samples': config['samples'][metadata.loc[run,"sample"]],
                                           'matrix': metadata.loc[run,"condition"],
                                           'GPL': metadata.loc[run,"treatment"]}
@@ -84,13 +84,13 @@ def updateMeta(config):
                                                                                 'sample': list(MA_design.loc[MA_design.loc[:,c] == 1,:].index.values)},
                                                                     'treat': {'name':list(MA_design.loc[MA_design.loc[:,c] == 2,'treatment'])[0], 
                                                                             'sample': list(MA_design.loc[MA_design.loc[:,c] == 2,].index.values)}}
-            elif metadata.loc[run,"experment_type"] == "RS":
+            elif metadata.loc[run,"experiment_type"] == "RS":
                 sys.stderr.write("ERROR: %s does NOT match any mates." % run)
                 sys.exit(1)
             else:
                 sys.stdout.write("WARNING: %s does NOT match any Experiment type." % run)
         else:
-            if list(metadata.loc[run,"experment_type"])[0] == "RS":
+            if list(metadata.loc[run,"experiment_type"])[0] == "RS":
                 config["RS_runs"][run] = {'type': 'RS'}
                 comp_list = ['sample','treatment']
                 comp_list.extend([i for i in metadata.columns.values if i.startswith('compare_')])
@@ -129,7 +129,7 @@ def updateMeta(config):
                                                                     'treat': {'name':list(design.loc[design.loc[:,c] == 2,'treatment'])[0], 
                                                                             'sample': list(design.loc[design.loc[:,c] == 2,'sample'])}}
                     config["RS_runs"][run]['raw_design'] = metadata.loc[run,comp_list]
-            elif metadata.loc[run,"experment_type"].startswith("MA_"):
+            elif metadata.loc[run,"experiment_type"].startswith("MA_"):
                 sys.stdout.write("ERROR: %s has more than one microarray folder." % run)
                 sys.exit(2)
             else:
@@ -177,7 +177,8 @@ def all_targets(wildcards):
         ls.extend(trim_targets(wildcards))
     ls.extend(align_salmon_targets(wildcards))
     ls.extend(experssion_targets(wildcards))
-    ls.extend(lisa_targets(wildcards))
+    if config['lisa'] == True:
+        ls.extend(lisa_targets(wildcards))
     # print(ls)
     return ls   
 
@@ -192,5 +193,7 @@ else:
     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 
 include: "./modules/expression.snakefile"
-include: "./modules/lisa.snakefile"
+
+if config['lisa'] == True:
+    include: "./modules/lisa.snakefile"
 
