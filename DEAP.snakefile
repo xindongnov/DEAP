@@ -186,14 +186,11 @@ rule all:
     input: all_targets
 
 include: "./modules/trim.snakefile"
-
 if config['aligner'] == 'STAR':
     include: "./modules/align_STAR.snakefile"     # rules specific to STAR
 else:
     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
-
 include: "./modules/expression.snakefile"
-
 if config['lisa'] == True:
     include: "./modules/lisa.snakefile"
 

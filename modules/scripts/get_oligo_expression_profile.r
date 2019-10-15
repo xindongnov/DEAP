@@ -1,15 +1,15 @@
 
 # ================================
-# @auther: Ya Han, Xin Dong
+# @auther: Ya Han
 # @email: xindong9511@gmail.com
 # @date: Sep 2019
 # ================================
 
-required_Packages = c("oligo","org.Mm.eg.db","org.Hs.eg.db")
-if(!all(required_Packages %in% installed.packages())){
-  source("https://bioconductor.org/biocLite.R")
-  biocLite(setdiff(required_Packages, installed.packages()))
-}
+# required_Packages = c("oligo","org.Mm.eg.db","org.Hs.eg.db")
+# if(!all(required_Packages %in% installed.packages())){
+#   source("https://bioconductor.org/biocLite.R")
+#   biocLite(setdiff(required_Packages, installed.packages()))
+# }
 
 require(oligo)
 require(org.Mm.eg.db)

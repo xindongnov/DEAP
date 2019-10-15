@@ -1,15 +1,15 @@
 
 # ================================
-# @auther: Ya Han, Xin Dong
+# @auther: Ya Han
 # @email: xindong9511@gmail.com
 # @date: Sep 2019
 # ================================
 
-required_Packages = c("limma")
-if(!all(required_Packages %in% installed.packages())){
-  source("https://bioconductor.org/biocLite.R")
-  biocLite(setdiff(required_Packages, installed.packages()))
-}
+# required_Packages = c("limma")
+# if(!all(required_Packages %in% installed.packages())){
+#   source("https://bioconductor.org/biocLite.R")
+#   biocLite(setdiff(required_Packages, installed.packages()))
+# }
 require(limma)
 args = commandArgs(T)
 file_path = args[1] #data file path
