@@ -30,10 +30,10 @@ GPL_path = opt$gpl
 result_path = opt$result
 FC_setting = opt$foldchange
 fdr_setting = opt$fdr
-treat = opt$treat
-control = opt$control
-treatsample = opt$treatname
-controlsample = opt$controlname
+treatsample = opt$treat
+controlsample = opt$control
+treatname = opt$treatname
+controlname = opt$controlname
 
 treatsample = strsplit(treatsample,',')[[1]]
 controlsample = strsplit(controlsample,',')[[1]]
@@ -48,10 +48,10 @@ input_matrix <- read.table(input_path, sep = "\t", header = TRUE,
                            quote = "", fill = TRUE)
 dm <- as.data.frame(c(treatsample,controlsample))
 colnames(dm) <- 'sample'
-dm$treatment <- c(rep(control,nrow(dm)))
-dm$treatment[match(treatsample, as.character(dm$sample))] <- treat
-dm$label_c <- c(rep(1,nrow(dm)))
-dm$label_c[match(treatsample,dm$sample)] <- 2
+dm$treatment <- c(rep(controlname,nrow(dm)))
+dm$treatment[match(treatsample, as.character(dm$sample))] <- treatname
+dm$compare <- c(rep(1,nrow(dm)))
+dm$compare[match(treatsample,dm$sample)] <- 2
 dm <- dm[match(colnames(input_matrix),dm$sample),]
 
 design <- model.matrix(~0+factor(dm[,3]))

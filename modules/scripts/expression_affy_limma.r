@@ -31,10 +31,10 @@ GPL_path = opt$gpl
 result_path = opt$result
 FC_setting = opt$foldchange
 fdr_setting = opt$fdr
-treat = opt$treat
-control = opt$control
-treatsample = opt$treatname
-controlsample = opt$controlname
+treatsample = opt$treat
+controlsample = opt$control
+treatname = opt$treatname
+controlname = opt$controlname
 
 treatsample = strsplit(treatsample,',')[[1]]
 controlsample = strsplit(controlsample,',')[[1]]
@@ -43,17 +43,16 @@ FC_setting <- as.numeric(FC_setting)
 fdr_setting <- as.numeric(fdr_setting)
 logFC_setting <- log2(FC_setting)
 
-# input_path = "/Users/shixiaoying/Downloads/ll.txt"
 
 input_matrix <- read.table(input_path, sep = "\t", header = TRUE,
                            stringsAsFactors = FALSE,
                            quote = "", fill = TRUE)
 dm <- as.data.frame(c(treatsample,controlsample))
 colnames(dm) <- 'sample'
-dm$treatment <- c(rep(control,nrow(dm)))
-dm$treatment[match(treatsample, as.character(dm$sample))] <- treat
-dm$label_c <- c(rep(1,nrow(dm)))
-dm$label_c[match(treatsample,dm$sample)] <- 2
+dm$treatment <- c(rep(controlname,nrow(dm)))
+dm$treatment[match(treatsample, as.character(dm$sample))] <- treatname
+dm$compare <- c(rep(1,nrow(dm)))
+dm$compare[match(treatsample,dm$sample)] <- 2
 dm <- dm[match(colnames(input_matrix),dm$sample),]
 
 design <- model.matrix(~0+factor(dm[,3]))
@@ -72,7 +71,7 @@ gpl_inf = read.table(GPL_path, sep = "\t", header = TRUE,
                      stringsAsFactors = FALSE,
                      quote = "", fill = TRUE)
 
-symbol=gpl$Gene.Symbol[match(rownames(limma_res),gpl_inf$ID)]
+symbol=gpl_inf$Gene.Symbol[match(rownames(limma_res),gpl_inf$ID)]
 symbol[which(symbol=="")]="NULL"
 symbol=sapply(strsplit(as.vector(unlist(symbol))," //"),function(x) x[1])
 limma_res_agg=aggregate(limma_res,by=list(symbol),max)
