@@ -206,31 +206,18 @@ def getGsmHtml(gsm):
 
 
 def main():
-    class MyParser(argparse.ArgumentParser):
-        def error(self, message):
-            sys.stderr.write('error: %s\n' % message)
-            self.print_help()
-            sys.exit(2)
-
-    parser = MyParser()
-    parser.add_argument('-g', '--gsm', help='input GSM id', required=True)
-    parser.add_argument('-p', '--path', help='input the path to save fastq', default=".")
-    args = parser.parse_args()
-    gsm = args.gsm
-    path = args.path
-
-    # if len(sys.argv) < 2:
-    #     print("++download data by GSM id:", file=sys.stderr)
-    #     print("gsmid\tpath", file=sys.stderr)
-    #     print("1\tgsmid", file=sys.stderr)
-    #     print("2\toptional: the path to save fastq", file=sys.stderr)
-    #     sys.exit(1)
-    # elif len(sys.argv) == 2:
-    #     gsm = sys.argv[1]
-    #     path = os.getcwd()
-    # else:
-    #     gsm = sys.argv[1]
-    #     path = sys.argv[2]
+    if len(sys.argv) < 2:
+        print("++download data by GSM id:", file=sys.stderr)
+        print("gsmid\tpath", file=sys.stderr)
+        print("1\tgsmid", file=sys.stderr)
+        print("2\toptional: the path to save fastq", file=sys.stderr)
+        sys.exit(1)
+    elif len(sys.argv) == 2:
+        gsm = sys.argv[1]
+        path = os.getcwd()
+    else:
+        gsm = sys.argv[1]
+        path = sys.argv[2]
 
 
     os.system('echo %s' % gsm)

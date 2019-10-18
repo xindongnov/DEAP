@@ -8,18 +8,18 @@ _threads=4
 # ================================
 
 def getTrimFastq(wildcards):
-    if config['RS_runs'][wildcards.run]['samples']:
-        s = config['RS_runs'][wildcards.run]['samples'][wildcards.sample]
+    if config['runs'][wildcards.run]['samples']:
+        s = config['runs'][wildcards.run]['samples'][wildcards.sample]
     return s
 
 
 def trim_targets(wildcards):
     ls = []
-    for run in config["RS_runs"]:
-        if config["RS_runs"][run]['samples']:
-            for sample in config["RS_runs"][run]['samples']:
+    for run in config["runs"]:
+        if config["runs"][run]['type'] == "RS" and config["runs"][run]['samples']:
+            for sample in config["runs"][run]['samples']:
                 # print(run,sample)
-                if len(config["RS_runs"][run]['samples'][sample]) == 2:
+                if len(config["runs"][run]['samples'][sample]) == 2:
                     ls.append('analysis/%s/samples/%s/trim/%s_R1_val_1.fq.gz' % (run,sample,sample))
                     ls.append('analysis/%s/samples/%s/trim/%s_R2_val_2.fq.gz' % (run,sample,sample))
                 else:
