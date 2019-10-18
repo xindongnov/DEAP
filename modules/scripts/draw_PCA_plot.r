@@ -27,12 +27,13 @@ opt = parse_args(opt_parser)
 profile_path = opt$input
 express_type = opt$type
 result_path = opt$result
-treat = opt$treat
-control = opt$control
-treatsample = opt$treatname
-controlsample = opt$controlname
-treatsample = strsplit(treatsample,',')[[1]]  #"GSM1017442,GSM1017443,GSM1017444,GSM1017445"
-controlsample = strsplit(controlsample,',')[[1]] #'GSM1017446,GSM1017447' 
+treat = opt$treatname
+control = opt$controlname
+treatsample = opt$treat
+controlsample = opt$control
+treatsample = strsplit(treatsample,',')[[1]]
+controlsample = strsplit(controlsample,',')[[1]]
+
 
 
 # profile_path  = "/Users/shixiaoying/Downloads/ll.txt" 

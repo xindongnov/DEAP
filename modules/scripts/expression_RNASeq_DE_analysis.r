@@ -23,10 +23,10 @@ opt = parse_args(opt_parser)
 
 profile_path=opt$input 
 result_path=opt$result
-treat = opt$treat
-control = opt$control
-treatsample = opt$treatname
-controlsample = opt$controlname
+treat = opt$treatname
+control = opt$controlname
+treatsample = opt$treat
+controlsample = opt$control
 treatsample = strsplit(treatsample,',')[[1]]
 controlsample = strsplit(controlsample,',')[[1]]
 

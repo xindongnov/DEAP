@@ -27,8 +27,6 @@ def experssion_targets(wildcards):
             #         ls.append("analysis/%s/expression/%s_results/%s_%s.upRegGenes.txt" % (run,run,treat,ctrl))
             #         ls.append("analysis/%s/expression/%s_results/%s_%s.downRegGenes.txt" % (run,run,treat,ctrl))
         # elif config["runs"][run]["type"] == "RS":
-            # print(run)
-            # ls.append("analysis/%s/%s_design_matrix.txt" % (run,run))
             # ls.append("analysis/%s/expression/%s_TPM_matrix.txt" % (run,run))
             # ls.append("analysis/%s/expression/%s_Rawcount_matrix.txt" % (run,run))
             # ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))

@@ -219,20 +219,6 @@ def main():
     gsm = args.gsm
     path = args.path
 
-    # if len(sys.argv) < 2:
-    #     print("++download data by GSM id:", file=sys.stderr)
-    #     print("gsmid\tpath", file=sys.stderr)
-    #     print("1\tgsmid", file=sys.stderr)
-    #     print("2\toptional: the path to save fastq", file=sys.stderr)
-    #     sys.exit(1)
-    # elif len(sys.argv) == 2:
-    #     gsm = sys.argv[1]
-    #     path = os.getcwd()
-    # else:
-    #     gsm = sys.argv[1]
-    #     path = sys.argv[2]
-
-
     os.system('echo %s' % gsm)
     gsm_html = getGsmHtml(gsm)
     srx_html = getSrxHtml(gsm_html)
@@ -248,7 +234,7 @@ def main():
                     sys.stderr.write("WARNING: Could NOT download %s sra file from EBI. Trying Prefetch (sra-tools).\n\n" % gsm)
                     PREFETCH_status = downloadFastqByPrefetch(path,gsm,SRR,LayType)
                     if PREFETCH_status == False:
-                        sys.stderr.write("WARNING: Could NOT download %s sra file by PREFETCH. END QUERY.\n\n" % gsm)
+                        sys.stderr.write("ERROR: Could NOT download %s sra file by PREFETCH. END QUERY.\n\n" % gsm)
                         sys.exit(6)
         else: 
             sys.stderr.write("ERROR: Do not find SRR information for %s. Experiment data may not be public.\n\n" % gsm)
