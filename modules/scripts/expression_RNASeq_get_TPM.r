@@ -8,33 +8,32 @@
 require(optparse)
 
 option_list <- list(
-  make_option(c("-i", "--input"), type = "character", default=FALSE,
-              help="Input sample path folder"),
-  make_option(c("-r", "--retpm"), type="character", default=FALSE,
-              help="Input TPM result path"),
-  make_option(c("-s", "--species"), type="character", default=FALSE,
-              help="Input the species: Mouse or Human")
+  make_option(c("-i", "--input"), type = "character", default=FALSE, help="Input quant.sf files, use comma to split"),
+  make_option(c("-n", "--name"), type = "character", default=FALSE, help="Input samples name"),
+  make_option(c("-o", "--output"), type="character", default=FALSE, help="Output of TPM result path"),
+  make_option(c("-s", "--species"), type="character", default=FALSE, help="Input the species: Mouse or Human")
 )
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 species = opt$species
-file_path = opt$input
-result_path_TPM = opt$retpm
+files = strsplit(opt$input,",")[[1]]
+result_path_TPM = opt$output
+names = strsplit(opt$name,",")[[1]]
 
-sample_path=list.dirs(file_path,recursive=T)#each sample folder alseo including many folder, only one is the result of alignment
-sample_path=sample_path[grep("align$",sample_path)]
+# sample_path=list.dirs(file_path,recursive=T)
+# sample_path=sample_path[grep("align$",sample_path)]
 tpm_matrix=data.frame(Name=NA)
 get_gene<-function(x){
-  x=paste0(x,"/","quant.sf")
+  # x=paste0(x,"/","quant.sf")
   temp_matrix=read.table(x,header=T,sep = "\t")
   temp_matrix_tpm=temp_matrix[,c("Name","TPM")]
   tpm_matrix<<-merge(tpm_matrix,temp_matrix_tpm,by="Name",all=TRUE)
 }
-result=apply(matrix(sample_path),1,get_gene)
+result=apply(matrix(files),1,get_gene)
 
-sample=unlist(lapply(strsplit(sample_path,"/"),function(x) tail(x,2)[1]))
+# sample=unlist(lapply(strsplit(sample_path,"/"),function(x) tail(x,2)[1]))
 tran_tpm=unlist(lapply(strsplit(tpm_matrix[,1],"\\."),function(x) x[1]))
 
 #transform the ENSG to GENE ID and symbol
@@ -53,5 +52,5 @@ if(species == "Human"){
 tran_gene_tpm=tran_gene_tpm[match(tran_tpm,tran_gene_tpm$REFSEQ),]
 tpm_matrix=cbind(tran_gene_tpm,tpm_matrix[-1])
 tpm_matrix=tpm_matrix[which(!is.na(tpm_matrix[,1])),]
-colnames(tpm_matrix)=c("refseq","symbol",sample)
+colnames(tpm_matrix)=c("refseq","symbol",names)
 write.table(tpm_matrix,result_path_TPM,col.names=T,row.names=F,sep="\t",quote = F)

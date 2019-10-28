@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 # Created on Mon Oct 14 14:46:37 2019
 
+required_Packages = c("oligo")
+if(!all(required_Packages %in% installed.packages())){
+  source("https://bioconductor.org/biocLite.R")
+  biocLite(setdiff(required_Packages, installed.packages()))
+}
+
 require(oligo)
 require(optparse)
 

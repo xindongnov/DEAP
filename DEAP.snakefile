@@ -62,7 +62,7 @@ def updateMeta(config):
             config["runs"][run]['samples'] = {}
             config["runs"][run]['compare'] = {}
             design = metadata.loc[run,comp_list]
-            if config['check_compare']:
+            if config['check_compare'] == True:
                 for c in design.loc[run,comp_list[2:]]:
                     sample_list = [] # init sample_list
                     control = list(design.loc[:,c]).count(1)
@@ -128,7 +128,7 @@ add_lisa_config(config)
 
 #NOW load ref.yaml - SIDE-EFFECT: loadRef CHANGES config
 loadRef(config)
-print(config)
+# print(config)
 #-----------------------------------------
 
 def all_targets(wildcards):
@@ -139,8 +139,8 @@ def all_targets(wildcards):
         ls.extend(trim_targets(wildcards))
     ls.extend(align_salmon_targets(wildcards))
     ls.extend(experssion_targets(wildcards))
-    # if config['lisa'] == True:
-        # ls.extend(lisa_targets(wildcards))
+    if config['lisa'] == True:
+        ls.extend(lisa_targets(wildcards))
     # print(ls)
     return ls   
 
@@ -153,6 +153,6 @@ if config['aligner'] == 'STAR':
 else:
     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 include: "./modules/expression.snakefile"
-# if config['lisa'] == True:
-#     include: "./modules/lisa.snakefile"
+if config['lisa'] == True:
+    include: "./modules/lisa.snakefile"
 

@@ -13,7 +13,7 @@ option_list <- list(
   make_option(c("-c", "--control"), type="character", default=TRUE,
               help="Input control"),
   make_option(c("--treatname"), type="character", default=TRUE,
-              help="Input treatname sample"),
+              help="Input treat sample"),
   make_option(c("--controlname"), type="character", default=TRUE,
               help="Input control sample")
 )
@@ -25,10 +25,8 @@ profile_path=opt$input
 result_path=opt$result
 treat = opt$treatname
 control = opt$controlname
-treatsample = opt$treat
-controlsample = opt$control
-treatsample = strsplit(treatsample,',')[[1]]
-controlsample = strsplit(controlsample,',')[[1]]
+treatsample = strsplit(opt$treat,',')[[1]]
+controlsample = strsplit(opt$control,',')[[1]]
 
 rawcount=as.matrix(read.table(profile_path,header =T,sep="\t"))
 tran_gene=rawcount[,c(1,2)]

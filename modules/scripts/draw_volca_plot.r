@@ -25,7 +25,7 @@ fdr_setting <- as.numeric(fdr_setting)
 logFC_setting <- log2(FC_setting)
 
 # file_path="/Users/shixiaoying/Downloads/result_path.txt"
-file=read.table(file_path,sep = "\t", header = TRUE,
+file=read.table(input_path,sep = "\t", header = TRUE,
                 stringsAsFactors = FALSE,
                 quote = "", fill = TRUE)
 sigout <- subset(file, abs(logFC) > logFC_setting & adj.P.Val < fdr_setting)

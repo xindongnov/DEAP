@@ -12,8 +12,8 @@ dependencies:
 - r>=3.5.1
 
 #align_STAR.snakefile
-- star>=2.5.3a
-- star-fusion=0.5.4
+# - star>=2.5.3a
+# - star-fusion=0.5.4
 
 # trim.snakefile
 - trim-galore>=0.6.2
@@ -26,12 +26,12 @@ dependencies:
 - bioconductor-limma
 # - bioconductor-edger
 # - bioconductor-tximport
-#- bioconductor-org.Hs.eg.db
-#- bioconductor-org.Mm.eg.db
-#- bioconductor-affy
-#- bioconductor-affyplm
+- bioconductor-org.Hs.eg.db
+- bioconductor-org.Mm.eg.db
+# - bioconductor-affy
+# - bioconductor-affyplm
 - bioconductor-sva
-#- bioconductor-oligo=1.44.0
+# - bioconductor-oligo=1.44.0
 - r-optparse
 - r-ggplot2>=3.1.1
 # - r-readr
@@ -41,4 +41,4 @@ dependencies:
 - bioconductor-clusterprofiler
 
 #lisa.snakefile
-# - qinqian-lisa
+
