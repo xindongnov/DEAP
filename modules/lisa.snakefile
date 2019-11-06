@@ -15,11 +15,11 @@ def lisa_targets(wildcards):
             treat = config["runs"][run]['compare'][comp]['treat']['name']
             if len(config["runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["runs"][run]['compare'][comp]['treat']['sample']) > 1:
                 for geneType in ["upRegGenes","downRegGenes"]:
-                    ls.append("analysis/%s/lisa/%s_%s/%s.%s.txt" % (run,comp,geneType,comp,geneType))
-                    n = subprocess.check_output("wc -l %s" % checkpoints.lisa_copy_file.get(run=run,compare=comp,geneType=geneType).output[0],shell=True)
-                    n = int(n.decode("utf-8").strip().split()[0])
-                    if n != 0:
-                        ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s.txt.1000.lisa_direct.csv" % (run,comp,geneType,run,comp,geneType))
+                    ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s.txt" % (run,comp,geneType,run,comp,geneType))
+                    # n = subprocess.check_output("wc -l %s" % checkpoints.lisa_copy_file.get(run=run,compare=comp,geneType=geneType).output[0],shell=True)
+                    # n = int(n.decode("utf-8").strip().split()[0])
+                    # if n != 0:
+                    ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s.txt.1000.lisa_direct.csv" % (run,comp,geneType,run,comp,geneType))
     # for run in config["RS_runs"]:
     #     for comp in config["RS_runs"][run]['compare']:
     #         ctrl = config["RS_runs"][run]['compare'][comp]['control']['name']
@@ -41,11 +41,11 @@ def lisa_targets(wildcards):
     return ls
 
 
-checkpoint lisa_copy_file:
+rule lisa_copy_file:
     input:
         "analysis/{run}/expression/{compare}/{run}_{compare}.{geneType}.txt"
     output:
-        "analysis/{run}/lisa/{run}_{compare}_{geneType}/{compare}.{geneType}.txt"
+        "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt"
     shell:
         "head -n 500 {input} > {output}"
 

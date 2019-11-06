@@ -5,8 +5,10 @@
 
 required_Packages = c("affy","affyPLM")
 if(!all(required_Packages %in% installed.packages())){
-  source("https://bioconductor.org/biocLite.R")
-  biocLite(setdiff(required_Packages, installed.packages()))
+  if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+  }
+  BiocManager::install(setdiff(required_Packages, installed.packages()))
 }
 
 require(affyPLM)

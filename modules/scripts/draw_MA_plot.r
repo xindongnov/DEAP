@@ -1,3 +1,11 @@
+required_Packages = c("affy")
+if(!all(required_Packages %in% installed.packages())){
+  if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+  }
+  BiocManager::install(setdiff(required_Packages, installed.packages()))
+}
+
 require(optparse)
 require(ggplot2)
 require(ggrepel)
