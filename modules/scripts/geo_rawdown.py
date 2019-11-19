@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # ================================
 # @auther: Xin Dong
@@ -33,7 +34,7 @@ def downloadFastqByPrefetch(path,gsm,srr,lay_type):
             cat_file1 = cat_file1 + '%s/%s_temp%s.fastq '%(path, gsm,i+1) 
         os.system('cat %s> %s/%s.fastq \n'%(cat_file1,path,gsm))
         os.system('rm %s/%s_temp* \n'%(path, gsm))
-        os.system('gzip %s/%s.fastq \n' % (path, gsm))
+        gzip_fastq(lay_type,path,gsm)
     elif lay_type == 'PAIRED':
         for i in range(len(srr)):
             fsra = '%s/%s_temp%s.sra'%(path, gsm, i+1)
@@ -49,8 +50,7 @@ def downloadFastqByPrefetch(path,gsm,srr,lay_type):
         os.system('cat %s> %s/%s_R1.fastq \n'%(cat_file1, path,gsm))
         os.system('cat %s> %s/%s_R2.fastq \n'%(cat_file2, path,gsm))
         os.system('rm %s/%s_temp* \n'%(path, gsm))
-        os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
-        os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
+        gzip_fastq(lay_type,path,gsm)
     return True
 
 
@@ -65,6 +65,7 @@ def downloadFastqFromEBI(path,gsm,srr,lay_type):
             os.system('wget %s -O %s \n'%(down_link, temp_fq))
             if checkFastqSize(temp_fq) != True:
                 return False
+            gunzip_fastq(lay_type,path,gsm)
         else:
             for i in range(len(srr)):
                 down_link = ebi_ftp + srr[i][0:6] + "/00" + srr[i][-1] + "/" + srr[i] + "/" + srr[i] + ".fastq.gz"
@@ -76,7 +77,8 @@ def downloadFastqFromEBI(path,gsm,srr,lay_type):
                 cat_file = cat_file + '%s/%s_temp%s.fastq '%(path, gsm,i+1)
             os.system('cat %s> %s/%s.fastq \n'%(cat_file, path, gsm))
             os.system('rm %s/%s_temp* \n'%(path, gsm))
-            os.system('gzip %s/%s.fastq \n' % (path, gsm))
+            gzip_fastq(lay_type,path,gsm)
+            gunzip_fastq(lay_type,path,gsm)
         return True
     elif lay_type == "PAIRED":
         cat_file1 = ""
@@ -88,11 +90,13 @@ def downloadFastqFromEBI(path,gsm,srr,lay_type):
             os.system('wget %s -O %s \n'%(down_link, temp_fq))
             if checkFastqSize(temp_fq) != True:
                 return False
+            gunzip_fastq(lay_type,path,gsm)
             down_link = ebi_ftp + s[0:6] + "/00" + s[-1] + "/" + s + "/" + s + "_2.fastq.gz"
             temp_fq = '%s/%s_R2.fastq.gz'% (path, gsm)
             os.system('wget %s -O %s \n'%(down_link, temp_fq))
             if checkFastqSize(temp_fq) != True:
                 return False
+            gunzip_fastq(lay_type,path,gsm)
         else:
             for i in range(len(srr)):
                 # Read 1
@@ -109,13 +113,13 @@ def downloadFastqFromEBI(path,gsm,srr,lay_type):
                 os.system('wget %s -O %s \n'%(down_link, temp_fq))
                 if checkFastqSize(temp_fq) != True:
                     return False
-                os.system('gunzip %s \n'%(temp_fq))
+                gzip_fastq(lay_type,path,gsm)
                 cat_file2 = cat_file2 + '%s/%s_temp%s_2.fastq '%(path, gsm,i+1)
             os.system('cat %s> %s/%s_R1.fastq \n'%(cat_file1, path, gsm))
             os.system('cat %s> %s/%s_R2.fastq \n'%(cat_file2, path, gsm))
             os.system('rm %s/%s_temp* \n'%(path, gsm))
-            os.system('gzip %s/%s_R1.fastq \n' % (path, gsm))
-            os.system('gzip %s/%s_R2.fastq \n' % (path, gsm))
+            gzip_fastq(lay_type,path,gsm)
+            gunzip_fastq(lay_type,path,gsm)
         return True
     else:
         return False
@@ -138,7 +142,7 @@ def downloadFastqFromGEO(path,gsm,srr,lay_type):
             cat_file1 = cat_file1 + '%s/%s_temp%s.fastq '%(path, gsm,i+1) 
         os.system('cat %s> %s/%s.fastq \n'%(cat_file1,path,gsm))
         os.system('rm %s/%s_temp* \n'%(path, gsm))
-        os.system('gzip %s/%s.fastq \n' % (path, gsm))
+        gzip_fastq(lay_type,path,gsm)
     elif lay_type == 'PAIRED':
         for i in range(len(srr)):
             ftp = ncbi_link + '/' + srr[i][:6] + '/' + srr[i] +'/' + srr[i]+ '.sra'
@@ -153,8 +157,7 @@ def downloadFastqFromGEO(path,gsm,srr,lay_type):
         os.system('cat %s> %s/%s_R1.fastq \n'%(cat_file1, path,gsm))
         os.system('cat %s> %s/%s_R2.fastq \n'%(cat_file2, path,gsm))
         os.system('rm %s/%s_temp* \n'%(path, gsm))
-        os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
-        os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
+        gzip_fastq(lay_type,path,gsm)
     return True
 
 def downloadMicroarrayData(gsm_html):
@@ -213,11 +216,39 @@ def main():
             sys.exit(2)
 
     parser = MyParser()
-    parser.add_argument('-g', '--gsm', help='input GSM id', required=True)
-    parser.add_argument('-p', '--path', help='input the path to save fastq', default=".")
+    parser.add_argument('-i', '--id', help='GSM id', required=True)
+    parser.add_argument('-o', '--output', help='the path to save fastq', default=".")
+    parser.add_argument('-g', '--gzip', help='the flag of whether compress fastq files', action = "store_true")
     args = parser.parse_args()
-    gsm = args.gsm
-    path = args.path
+
+    gsm = args.id
+    path = args.output
+    compress = args.gzip
+
+    if compress:
+        sys.stdout.write("Gzip files.\n\n")
+        def gzip_fastq(lay_type,path,gsm):
+            if lay_type == "SINGLE":
+                os.system('gzip %s/%s.fastq \n' % (path, gsm))
+            elif lay_type == 'PAIRED':
+                os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
+                os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
+            else:
+                pass
+        def gunzip_fastq(lay_type,path,gsm):
+            pass
+    else:
+        def gzip_fastq(lay_type,path,gsm):
+            pass
+        def gunzip_fastq(lay_type,path,gsm):
+            if lay_type == "SINGLE":
+                os.system('gunzip %s/%s.fastq.gz \n' % (path, gsm))
+            elif lay_type == 'PAIRED':
+                os.system('gunzip %s/%s_R1.fastq.gz \n'%(path, gsm))
+                os.system('gunzip %s/%s_R2.fastq.gz \n'%(path, gsm))
+            else:
+                pass
+
 
     os.system('echo %s' % gsm)
     gsm_html = getGsmHtml(gsm)
