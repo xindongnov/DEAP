@@ -241,6 +241,7 @@ def main():
         def gzip_fastq(lay_type,path,gsm):
             pass
         def gunzip_fastq(lay_type,path,gsm):
+            os.stdout.write("Unzipping files from EBI.")
             if lay_type == "SINGLE":
                 os.system('gunzip %s/%s.fastq.gz \n' % (path, gsm))
             elif lay_type == 'PAIRED':
@@ -259,13 +260,13 @@ def main():
             LayType = getLayType(srx_html,gsm)
             GEO_status = downloadFastqFromGEO(path,gsm,SRR,LayType)
             if GEO_status == False:
-                sys.stdout.write("WARNING: Could NOT download %s sra file from GEO. Trying EBI.\n\n" % gsm)
-                EBI_status = downloadFastqFromEBI(path,gsm,SRR,LayType)
-                if EBI_status == False:
-                    sys.stderr.write("WARNING: Could NOT download %s sra file from EBI. Trying Prefetch (sra-tools).\n\n" % gsm)
-                    PREFETCH_status = downloadFastqByPrefetch(path,gsm,SRR,LayType)
-                    if PREFETCH_status == False:
-                        sys.stderr.write("ERROR: Could NOT download %s sra file by PREFETCH. END QUERY.\n\n" % gsm)
+                sys.stdout.write("WARNING: Could NOT download %s sra file from GEO. Trying Prefetch (sra-tools).\n\n" % gsm)
+                PREFETCH_status = downloadFastqByPrefetch(path,gsm,SRR,LayType)
+                if PREFETCH_status == False:
+                    sys.stderr.write("WARNING: Could NOT download %s sra file by PREFETCH. Trying EBI.\n\n" % gsm)
+                    EBI_status = downloadFastqFromEBI(path,gsm,SRR,LayType)
+                    if EBI_status == False:
+                        sys.stderr.write("ERROR: Could NOT download %s sra file from EBI. END QUERY.\n\n" % gsm)
                         sys.exit(6)
         else: 
             sys.stderr.write("ERROR: Do not find SRR information for %s. Experiment data may not be public.\n\n" % gsm)
