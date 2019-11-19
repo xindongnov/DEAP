@@ -11,6 +11,29 @@ import urllib.request
 import re
 import argparse
 
+def gzip_fastq(lay_type,path,gsm):
+    global compress
+    if compress == True:
+        if lay_type == "SINGLE":
+            os.system('gzip %s/%s.fastq \n' % (path, gsm))
+        elif lay_type == 'PAIRED':
+            os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
+            os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
+    else:
+        return None
+
+def gunzip_fastq(lay_type,path,gsm):
+    global compress
+    if compress != True:
+        if lay_type == "SINGLE":
+            os.system('gzip %s/%s.fastq \n' % (path, gsm))
+        elif lay_type == 'PAIRED':
+            os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
+            os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
+    else:
+        return None
+
+
 def checkFastqSize(fastq):
     if os.path.getsize(fastq) < 100:
         os.system("rm %s" % fastq)
@@ -169,7 +192,7 @@ def downloadMicroarrayData(gsm_html):
         cmd = "wget %s" % link
         return cmd
     else:
-        sys.stderr.write("ERROR: Failed to download find CEL files.\n")
+        sys.stderr.write("!!!!! ERROR: Failed to download find CEL files. !!!!!\n")
         sys.exit(5)
 
 def getLayType(srx_html,gsm):
@@ -180,7 +203,7 @@ def getLayType(srx_html,gsm):
         sys.stderr.write(lay_type + "\n")
         if lay_type != "SINGLE" and lay_type != "PAIRED":
             lay_type = None
-            sys.stderr.write('ERROR: neither PAIRED nor SINGLE end sequencing: %s.\n'%gsm)
+            sys.stderr.write('!!!!! ERROR: neither PAIRED nor SINGLE end sequencing: %s. !!!!!\n'%gsm)
             sys.exit(3)
         else:
             return lay_type
@@ -218,38 +241,18 @@ def main():
     parser = MyParser()
     parser.add_argument('-i', '--id', help='GSM id', required=True)
     parser.add_argument('-o', '--output', help='the path to save fastq', default=".")
-    parser.add_argument('-g', '--gzip', help='the flag of whether compress fastq files', action = "store_true")
+    parser.add_argument('-g', '--gzip', help='the flag of whether compress fastq files', action = "store_true", default=False)
     args = parser.parse_args()
 
     gsm = args.id
     path = args.output
+    global compress
     compress = args.gzip
 
-    if compress:
-        sys.stdout.write("Gzip files.\n\n")
-        def gzip_fastq(lay_type,path,gsm):
-            if lay_type == "SINGLE":
-                os.system('gzip %s/%s.fastq \n' % (path, gsm))
-            elif lay_type == 'PAIRED':
-                os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
-                os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
-            else:
-                pass
-        def gunzip_fastq(lay_type,path,gsm):
-            pass
+    if compress == True:
+        sys.stdout.write("Gzip files.")
     else:
-        def gzip_fastq(lay_type,path,gsm):
-            pass
-        def gunzip_fastq(lay_type,path,gsm):
-            os.stdout.write("Unzipping files from EBI.")
-            if lay_type == "SINGLE":
-                os.system('gunzip %s/%s.fastq.gz \n' % (path, gsm))
-            elif lay_type == 'PAIRED':
-                os.system('gunzip %s/%s_R1.fastq.gz \n'%(path, gsm))
-                os.system('gunzip %s/%s_R2.fastq.gz \n'%(path, gsm))
-            else:
-                pass
-
+        sys.stdout.write("Would not compress files.")
 
     os.system('echo %s' % gsm)
     gsm_html = getGsmHtml(gsm)
@@ -260,19 +263,19 @@ def main():
             LayType = getLayType(srx_html,gsm)
             GEO_status = downloadFastqFromGEO(path,gsm,SRR,LayType)
             if GEO_status == False:
-                sys.stdout.write("WARNING: Could NOT download %s sra file from GEO. Trying Prefetch (sra-tools).\n\n" % gsm)
+                sys.stderr.write("+++++ WARNING: Could NOT download %s sra file from GEO. Trying Prefetch (sra-tools). +++++\n\n" % gsm)
                 PREFETCH_status = downloadFastqByPrefetch(path,gsm,SRR,LayType)
                 if PREFETCH_status == False:
-                    sys.stderr.write("WARNING: Could NOT download %s sra file by PREFETCH. Trying EBI.\n\n" % gsm)
+                    sys.stderr.write("+++++ WARNING: Could NOT download %s sra file by PREFETCH. Trying EBI. +++++\n\n" % gsm)
                     EBI_status = downloadFastqFromEBI(path,gsm,SRR,LayType)
                     if EBI_status == False:
-                        sys.stderr.write("ERROR: Could NOT download %s sra file from EBI. END QUERY.\n\n" % gsm)
+                        sys.stderr.write("!!!!! ERROR: Could NOT download %s sra file from EBI. END QUERY. !!!!!\n\n" % gsm)
                         sys.exit(6)
         else: 
-            sys.stderr.write("ERROR: Do not find SRR information for %s. Experiment data may not be public.\n\n" % gsm)
+            sys.stderr.write("!!!!! ERROR: Do not find SRR information for %s. Experiment data may not be public. !!!!!\n\n" % gsm)
             sys.exit(4)
     else: # may not seq data
-        sys.stdout.write("WARNING: Do not find SRX information for %s. Microarray Data?\n\n" % gsm)
+        sys.stderr.write("+++++ WARNING: Do not find SRX information for %s. Microarray Data? +++++\n\n" % gsm)
         cmd = downloadMicroarrayData(gsm_html)
         os.system(cmd)
 
