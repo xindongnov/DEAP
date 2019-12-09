@@ -3,7 +3,7 @@
 # Created on Mon Oct 14 14:46:37 2019
 
 
-required_Packages = c("affy","affyPLM")
+required_Packages = c("affy","affyPLM","optparse")
 if(!all(required_Packages %in% installed.packages())){
   if (!requireNamespace("BiocManager", quietly = TRUE)){
     install.packages("BiocManager")

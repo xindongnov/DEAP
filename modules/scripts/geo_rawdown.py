@@ -193,7 +193,7 @@ def downloadMicroarrayData(gsm_html):
         return cmd
     else:
         sys.stderr.write("!!!!! ERROR: Failed to download find CEL files. !!!!!\n")
-        sys.exit(5)
+        sys.exit(6)
 
 def getLayType(srx_html,gsm):
     lay_type = re.search('<div>Layout: <span>.{6}</span>',srx_html)
@@ -250,9 +250,9 @@ def main():
     compress = args.gzip
 
     if compress == True:
-        sys.stdout.write("Gzip files.")
+        sys.stdout.write("Gzip files.\n")
     else:
-        sys.stdout.write("Would not compress files.")
+        sys.stdout.write("Would not compress files.\n")
 
     os.system('echo %s' % gsm)
     gsm_html = getGsmHtml(gsm)
@@ -270,8 +270,8 @@ def main():
                     EBI_status = downloadFastqFromEBI(path,gsm,SRR,LayType)
                     if EBI_status == False:
                         sys.stderr.write("!!!!! ERROR: Could NOT download %s sra file from EBI. END QUERY. !!!!!\n\n" % gsm)
-                        sys.exit(6)
-        else: 
+                        sys.exit(5)
+        else:
             sys.stderr.write("!!!!! ERROR: Do not find SRR information for %s. Experiment data may not be public. !!!!!\n\n" % gsm)
             sys.exit(4)
     else: # may not seq data

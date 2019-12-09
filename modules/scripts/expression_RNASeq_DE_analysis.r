@@ -1,5 +1,13 @@
 # command: Rscript RNASeq_DE_analysis.R -i "/Users/shixiaoying/analysis/GSE110708/expression/GSE110708_Rawcount_matrix.txt" -r "/Users/shixiaoying/work2019/Test_DEAP/test_result/" -t "IFNy" -c "NT" --controlname "GSM3014871,GSM3014872,GSM3014873" --treatname "GSM3014868,GSM3014869,GSM3014870"
 
+required_Packages = c("DESeq2","optparse")
+if(!all(required_Packages %in% installed.packages())){
+  if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+  }
+  BiocManager::install(setdiff(required_Packages, installed.packages()))
+}
+
 require(DESeq2)
 require(optparse)
 

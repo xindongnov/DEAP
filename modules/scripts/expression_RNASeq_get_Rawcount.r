@@ -5,6 +5,14 @@
 # @date: Sep 2019
 # ================================
 
+required_Packages = c("optparse")
+if(!all(required_Packages %in% installed.packages())){
+  if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+  }
+  BiocManager::install(setdiff(required_Packages, installed.packages()))
+}
+
 require(optparse)
 
 option_list <- list(

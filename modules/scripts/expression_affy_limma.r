@@ -1,3 +1,11 @@
+required_Packages = c("limma","optparse")
+if(!all(required_Packages %in% installed.packages())){
+  if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+  }
+  BiocManager::install(setdiff(required_Packages, installed.packages()))
+}
+
 library(limma)
 library(optparse)
 

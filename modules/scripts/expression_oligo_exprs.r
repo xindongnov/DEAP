@@ -2,11 +2,8 @@
 # -*- coding: utf-8 -*-
 # Created on Mon Oct 14 14:46:37 2019
 
-required_Packages = c("oligo")
+required_Packages = c("oligo","optparse")
 if(!all(required_Packages %in% installed.packages())){
-  if (!requireNamespace("BiocManager", quietly = TRUE)){
-    install.packages("BiocManager")
-  }
   BiocManager::install(setdiff(required_Packages, installed.packages()))
 }
 
