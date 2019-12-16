@@ -7,7 +7,7 @@
 
 
 def lisa_targets(wildcards):
-    print(snakemake.snakemake)
+    # print(snakemake.snakemake)
     ls = []
     for run in config["runs"]:
         for comp in config["runs"][run]['compare']:
@@ -67,13 +67,16 @@ rule lisa_run:
         "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.yml"
     params:
         prefix=lambda wildcards: "%s_%s.%s.txt" % (wildcards.run,wildcards.compare,wildcards.geneType),
-        species="hg38",
+        species=config["assembly"],
         lisa_path=config["lisa_path"],
+        method="all",
     threads: 8
     run:
         cmd = "cd analysis/%s/lisa/%s_%s/; " % (wildcards.run,wildcards.compare,wildcards.geneType)
         cmd += ". %s/etc/profile.d/conda.sh && conda activate lisa; " % config["conda_root"]
-        cmd += "%s model --method=\"all\" --web=False --new_rp_h5=None --new_count_h5=None --species %s --epigenome \"['DNase', 'H3K27ac']\" --cluster=False --covariates=False --random=True --prefix %s --background=dynamic_auto_tad --stat_background_number=1000 --threads %s %s; " % (params.lisa_path,params.species,params.prefix,threads,params.prefix)
+        cmd += "%s model --method=\"%s\" --web=False --new_rp_h5=None --new_count_h5=None --species %s " % (params.lisa_path, params.method, params.species)
+        cmd += "--epigenome \"['DNase', 'H3K27ac']\" --cluster=False --covariates=False --random=True --prefix %s " % params.prefix
+        cmd += "--background=dynamic_auto_tad --stat_background_number=1000 --threads %s %s; " % (threads, params.prefix)
         cmd += "conda deactivate"
         print(cmd)
         subprocess.run(cmd,shell=True,executable='/bin/bash')

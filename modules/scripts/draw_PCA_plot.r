@@ -15,7 +15,7 @@ require(ggrepel)
 option_list <- list(
   make_option(c("-i", "--input"), type = "character", default=FALSE,
               help="Input matrix path"),
-  make_option(c("-k", "--type"), type = "character", default=FALSE,
+  make_option(c("-t", "--type"), type = "character", default=FALSE,
               help="Whether the input data is RNAseq or Microarray"),
   make_option(c("-d", "--design"), type="character", default=FALSE,
               help="Input control sample"),
@@ -33,13 +33,15 @@ design_path=opt$design #describe the subclass of each sample used for PCA
 result_path=opt$result #save the figure
 
 expre_matr=as.matrix(read.table(profile_path,header=T,sep="\t"))
-# if(express_type == "RNASeq"){
-#   expre_matr=expre_matr
-# } else {
-  # expre_matr=expre_matr
-# }
 num_sam=dim(expre_matr)[2]
-expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam)
+if(express_type == "RNASeq"){
+  expre_matr=expre_matr[,3:num_sam]
+  expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam-2)
+} else {
+  expre_matr=expre_matr
+  expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam)
+}
+# print(expre_matr)
 expre_matr=log2(expre_matr+1)
 pca_raw <- prcomp(t(expre_matr), center = TRUE, scale. = F)
 edata_pc_df <- as.data.frame(pca_raw$x)

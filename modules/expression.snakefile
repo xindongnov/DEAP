@@ -171,7 +171,7 @@ rule expression_PCAplot:
     params:
         protocal = lambda wildcards: "Microarray" if config['runs'][wildcards.run]["type"].startswith("MA_") else "RNASeq"
     shell:
-        "Rscript ./DEAP/modules/scripts/draw_PCA_plot.r -i {input.matrix} -d {input.design} -r {output}"
+        "Rscript ./DEAP/modules/scripts/draw_PCA_plot.r -i {input.matrix} -d {input.design} -r {output} -t {params.protocal}"
 
 
 rule expression_MicroarrayDifferentialExpression:

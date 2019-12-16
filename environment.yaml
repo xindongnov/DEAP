@@ -9,8 +9,9 @@ dependencies:
 - snakemake=5.4.5
 - samtools
 - python>=3.5.2
-- r>=3.6
+- r=3.5.1
 - r-biocmanager
+- glib=2.56
 
 #align_STAR.snakefile
 # - star>=2.5.3a
@@ -32,8 +33,8 @@ dependencies:
 # - bioconductor-affy
 # - bioconductor-affyplm
 # - bioconductor-sva
-# - bioconductor-oligo=1.44.0
-# - r-optparse
+# - bioconductor-oligo
+- r-optparse
 # - r-ggplot2>=3.1.1
 # - r-ggrepel
 # - r-readr

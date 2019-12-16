@@ -10,6 +10,7 @@ import os, sys
 import urllib.request
 import re
 import argparse
+import subprocess
 
 def gzip_fastq(lay_type,path,gsm):
     global compress
@@ -33,6 +34,18 @@ def gunzip_fastq(lay_type,path,gsm):
     else:
         return None
 
+def checkSRA(fsra):
+    try:
+        f = os.path.basename(fsra)
+        cmd_output = subprocess.getoutput('vdb-validate %s' % fsra)
+        if ("'%s' is consistent" % f in cmd_output) or ("'%s' metadata: md5 ok" % f in cmd_output):
+            os.stdout.write("sra file OK: %s" % fsra)
+            return True
+        else:
+            os.stdout.write("sra file problem: %s" % fsra)
+            return False
+    except:
+        return False
 
 def checkFastqSize(fastq):
     if os.path.getsize(fastq) < 100:
@@ -51,6 +64,8 @@ def downloadFastqByPrefetch(path,gsm,srr,lay_type):
             if os.path.exists(fsra) != True:
                 return False
             if checkFastqSize(fsra) != True:
+                return False
+            if checkSRA(fsra) != True:
                 return False
             os.system('echo "+++fastq-dump++++"')
             os.system('\nfastq-dump %s/%s_temp%s.sra -O %s \n'%(path, gsm,i+1, path))
@@ -263,7 +278,7 @@ def main():
             LayType = getLayType(srx_html,gsm)
             GEO_status = downloadFastqFromGEO(path,gsm,SRR,LayType)
             if GEO_status == False:
-                sys.stderr.write("+++++ WARNING: Could NOT download %s sra file from GEO. Trying Prefetch (sra-tools). +++++\n\n" % gsm)
+                sys.stderr.write("+++++ WARNING: Could NOT download %s sra file from GEO FTP server. Trying Prefetch (sra-tools). +++++\n\n" % gsm)
                 PREFETCH_status = downloadFastqByPrefetch(path,gsm,SRR,LayType)
                 if PREFETCH_status == False:
                     sys.stderr.write("+++++ WARNING: Could NOT download %s sra file by PREFETCH. Trying EBI. +++++\n\n" % gsm)
