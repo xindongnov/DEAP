@@ -20,8 +20,8 @@ def trim_targets(wildcards):
             for sample in config["runs"][run]['samples']:
                 # print(run,sample)
                 if len(config["runs"][run]['samples'][sample]) == 2:
-                    ls.append('analysis/%s/samples/%s/trim/%s_R1_val_1.fq.gz' % (run,sample,sample))
-                    ls.append('analysis/%s/samples/%s/trim/%s_R2_val_2.fq.gz' % (run,sample,sample))
+                    ls.append('analysis/%s/samples/%s/trim/%s_val_1.fq.gz' % (run,sample,sample))
+                    ls.append('analysis/%s/samples/%s/trim/%s_val_2.fq.gz' % (run,sample,sample))
                 else:
                     ls.append('analysis/%s/samples/%s/trim/%s_trimmed.fq.gz' % (run,sample,sample))
                     ls.append('analysis/%s/samples/%s/trim/%s_trimmed_fastqc.zip' % (run,sample,sample))
@@ -33,8 +33,8 @@ rule trim_PairedEndAdapter:
     input:
         getTrimFastq
     output:
-        'analysis/{run}/samples/{sample}/trim/{sample}_R1_val_1.fq.gz',
-        'analysis/{run}/samples/{sample}/trim/{sample}_R2_val_2.fq.gz',
+        'analysis/{run}/samples/{sample}/trim/{sample}_val_1.fq.gz',
+        'analysis/{run}/samples/{sample}/trim/{sample}_val_2.fq.gz',
     params:
         quality=20,
         error_rate=0.1,

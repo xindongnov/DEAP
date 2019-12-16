@@ -155,7 +155,7 @@ rule expression_MicroarrayGatherExpression:
         probe="analysis/{run}/expression/{compare}/{run}_{compare}_exp_matrix_probe.txt",
         trans="analysis/{run}/expression/{compare}/{run}_{compare}_exp_matrix_transcription.txt",
         gene="analysis/{run}/expression/{compare}/{run}_{compare}_exp_matrix_gene.txt",
-    log: "analysis/{run}/log/{run}_expression_MicroarrayGatherExpression.log"
+    log: "analysis/{run}/log/{run}_expression_MicroarrayGatherExpression_{compare}.log"
     message: "Expression: gathering specific expression profile for {wildcards.run} in {wildcards.compare}"
     params:
         GPL=lambda wildcards: "%s/%s.txt" % (config['GPL'],config['runs'][wildcards.run]['platform']),
@@ -190,7 +190,7 @@ rule expression_MicroarrayDifferentialExpression:
     output:
         table="analysis/{run}/expression/{compare}/{run}_{compare}_limma_table.txt"
         # "analysis/{run}/expression/{run}_Compare_detail.txt"
-    log: "analysis/{run}/log/{run}_expression_MicroarrayDifferentialExpression.log"
+    log: "analysis/{run}/log/{run}_expression_MicroarrayDifferentialExpression_{compare}.log"
     message: "Expression: call differential expression for microarray experiment {wildcards.run} in {wildcards.compare}"
     params:
         scripts=lambda wildcards: DE_scripts_switcher(wildcards),
@@ -247,7 +247,7 @@ rule expression_RNAseqDifferentialExpression:
     output:
         # detail="analysis/{run}/expression/{run}_Compare_detail.txt",
         table="analysis/{run}/expression/{compare}/{run}_{compare}_DESeq_table.txt"
-    log: "analysis/{run}/log/{run}_expression_RNAseqDifferentialExpression.log"
+    log: "analysis/{run}/log/{run}_expression_RNAseqDifferentialExpression_{compare}.log"
     message: "Expression: call differential expression for RNA-seq experiment {wildcards.run} in {wildcards.compare}"
     params:
         treat=lambda wildcards: ",".join(config["runs"][wildcards.run]["compare"][wildcards.compare]["treat"]["sample"]),
@@ -278,7 +278,7 @@ rule expression_volcaPlot:
         "analysis/{run}/expression/{compare}/{run}_{compare}_DE.txt"
     output:
         "analysis/{run}/expression/{compare}/{run}_{compare}_volca_plot.png"
-    log: "analysis/{run}/log/{run}_expression_volcaPlot.log"
+    log: "analysis/{run}/log/{run}_expression_volcaPlot_{compare}.log"
     message: "Expression: draw volcano plot for {wildcards.run} in {wildcards.compare}"
     params:
         foldchange=100,

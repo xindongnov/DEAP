@@ -11,6 +11,7 @@ assembly: 'mm10'
 # {True, False}
 trim: True
 
+# {True, False}
 lisa: True
 
 # if check_compare is False, DEAP will only align samples that have enough replications for saving time

@@ -16,8 +16,8 @@ def getAlignFastq(wildcards):
     else:
         tmp = []
         if len(config['runs'][r]['samples'][s]) == 2:
-            tmp.append('analysis/%s/samples/%s/trim/%s_R1_val_1.fq.gz' % (r,s,s))
-            tmp.append('analysis/%s/samples/%s/trim/%s_R2_val_2.fq.gz' % (r,s,s))
+            tmp.append('analysis/%s/samples/%s/trim/%s_val_1.fq.gz' % (r,s,s))
+            tmp.append('analysis/%s/samples/%s/trim/%s_val_2.fq.gz' % (r,s,s))
         else:
             tmp.append('analysis/%s/samples/%s/trim/%s_trimmed.fq.gz' % (r,s,s))
         return tmp
