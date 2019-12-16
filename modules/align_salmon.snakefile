@@ -30,7 +30,7 @@ def align_salmon_targets(wildcards):
                 ls.append('analysis/%s/samples/%s/align/quant.sf' % (run,sample))
     return ls
 
-rule align_salmon:
+rule align_Salmon:
     input:
         getAlignFastq
     output:
@@ -41,12 +41,12 @@ rule align_salmon:
         output_path=lambda wildcards: "analysis/%s/samples/%s/align/" % (wildcards.run,wildcards.sample),
         bootstrap=100,
         gcbias=lambda wildcards: "--gcBias" if len(config['runs'][wildcards.run]['samples'][wildcards.sample]) == 2 else "",
-    # log: "analysis/{run}/log/align/{sample}.log"
-    message: "ALIGN: Align {wildcards.sample} to the genome "
+    log: "analysis/{run}/log/{sample}_align_Salmon.log"
+    message: "ALIGN: Align {wildcards.sample} to the genome by salmon"
     threads: _threads
     shell:
         "salmon quant -i {params.index} -l A {params._inputs} -o {params.output_path} "
-        "--numBootstraps {params.bootstrap} -p {threads} {params.gcbias} --validateMappings"
+        "--numBootstraps {params.bootstrap} -p {threads} {params.gcbias} --validateMappings > {log} 2>&1"
 
 
 

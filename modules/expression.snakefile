@@ -137,13 +137,16 @@ rule expression_MicroarrayGatherAllExpresion:
         probe="analysis/{run}/expression/{run}_exp_matrix_probe.txt",
         trans="analysis/{run}/expression/{run}_exp_matrix_transcription.txt",
         gene="analysis/{run}/expression/{run}_exp_matrix_gene.txt",
+    log: "analysis/{run}/log/{run}_expression_MicroarrayGatherAllExpresion.log"
+    message: "Expression: gathering all expression profile for microarray experiment {wildcards.run}"
     params:
         GPL=lambda wildcards: "%s/%s.txt" % (config['GPL'],config['runs'][wildcards.run]['platform']),
         scripts=lambda wildcards: expression_scripts_switcher(wildcards),
         inputs=lambda wildcards, input: ",".join(input),
         names=lambda wildcards: ",".join([s for s in config['runs'][wildcards.run]['samples']])
     shell:
-        "Rscript ./DEAP/modules/scripts/{params.scripts} -f \"{params.inputs}\" -n {params.names} -l {params.GPL} -p {output.probe} -t {output.trans} -g {output.gene}"
+        "Rscript ./DEAP/modules/scripts/{params.scripts} -f \"{params.inputs}\" -n {params.names} "
+        "-l {params.GPL} -p {output.probe} -t {output.trans} -g {output.gene} > {log} 2>&1"
 
 rule expression_MicroarrayGatherExpression:
     input:
@@ -152,13 +155,16 @@ rule expression_MicroarrayGatherExpression:
         probe="analysis/{run}/expression/{compare}/{run}_{compare}_exp_matrix_probe.txt",
         trans="analysis/{run}/expression/{compare}/{run}_{compare}_exp_matrix_transcription.txt",
         gene="analysis/{run}/expression/{compare}/{run}_{compare}_exp_matrix_gene.txt",
+    log: "analysis/{run}/log/{run}_expression_MicroarrayGatherExpression.log"
+    message: "Expression: gathering specific expression profile for {wildcards.run} in {wildcards.compare}"
     params:
         GPL=lambda wildcards: "%s/%s.txt" % (config['GPL'],config['runs'][wildcards.run]['platform']),
         scripts=lambda wildcards: expression_scripts_switcher(wildcards),
         inputs=lambda wildcards, input: ",".join(input),
         names=lambda wildcards: get_MA_Compare_Name(wildcards)
     shell:
-        "Rscript ./DEAP/modules/scripts/{params.scripts} -f \"{params.inputs}\" -n {params.names} -l {params.GPL} -p {output.probe} -t {output.trans} -g {output.gene}"
+        "Rscript ./DEAP/modules/scripts/{params.scripts} -f \"{params.inputs}\" -n {params.names} "
+        "-l {params.GPL} -p {output.probe} -t {output.trans} -g {output.gene} > {log} 2>&1"
 
 
 rule expression_PCAplot:
@@ -168,10 +174,13 @@ rule expression_PCAplot:
         design="analysis/{run}/expression/{run}_design_matrix.txt"
     output:
         "analysis/{run}/expression/{run}_PCA.png"
+    log: "analysis/{run}/log/{run}_expression_PCAplot.log"
+    message: "Expression: draw PCA plot for {wildcards.run}"
     params:
         protocal = lambda wildcards: "Microarray" if config['runs'][wildcards.run]["type"].startswith("MA_") else "RNASeq"
     shell:
-        "Rscript ./DEAP/modules/scripts/draw_PCA_plot.r -i {input.matrix} -d {input.design} -r {output} -t {params.protocal}"
+        "Rscript ./DEAP/modules/scripts/draw_PCA_plot.r -i {input.matrix} -d {input.design} "
+        "-r {output} -t {params.protocal} > {log} 2>&1"
 
 
 rule expression_MicroarrayDifferentialExpression:
@@ -181,6 +190,8 @@ rule expression_MicroarrayDifferentialExpression:
     output:
         table="analysis/{run}/expression/{compare}/{run}_{compare}_limma_table.txt"
         # "analysis/{run}/expression/{run}_Compare_detail.txt"
+    log: "analysis/{run}/log/{run}_expression_MicroarrayDifferentialExpression.log"
+    message: "Expression: call differential expression for microarray experiment {wildcards.run} in {wildcards.compare}"
     params:
         scripts=lambda wildcards: DE_scripts_switcher(wildcards),
         GPL=lambda wildcards: "%s/%s.txt" % (config['GPL'],config['runs'][wildcards.run]['platform']),
@@ -191,8 +202,9 @@ rule expression_MicroarrayDifferentialExpression:
         treatname=lambda wildcards: config["runs"][wildcards.run]["compare"][wildcards.compare]["treat"]["name"],
         contname=lambda wildcards: config["runs"][wildcards.run]["compare"][wildcards.compare]["control"]["name"],
     shell:
-        "Rscript ./DEAP/modules/scripts/{params.scripts} -i {input} -l {params.GPL} -r {output.table} -f {params.foldchange} -q {params.p} -t {params.treatsample} "
-        "-c {params.contsample} --treatname {params.treatname} --controlname {params.contname}"
+        "Rscript ./DEAP/modules/scripts/{params.scripts} -i {input} -l {params.GPL} -r {output.table} "
+        "-f {params.foldchange} -q {params.p} -t {params.treatsample} "
+        "-c {params.contsample} --treatname {params.treatname} --controlname {params.contname} > {log} 2>&1"
 
 rule expression_RNAseqGatherTpm:
     # only for RNA-seq
@@ -201,13 +213,15 @@ rule expression_RNAseqGatherTpm:
     output:
         TPM="analysis/{run}/expression/{run}_TPM_matrix.txt",
         # RawCount="analysis/{run}/expression/{run}_Rawcount_matrix.txt"
-    message: "Expression: gathering all TMP for {wildcards.run}"
+    message: "Expression: gathering all TPM for RNA-seq experiment {wildcards.run}"
+    log: "analysis/{run}/log/{run}_expression_RNAseqGatherTpm.log"
     params:
         files=lambda wildcards, input: ",".join(input),
         species='Human' if config['assembly'].startswith("hg") else 'Mouse',
         names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
-        "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_TPM.r -s {params.species} -i {params.files} -o {output.TPM} -n {params.names}"
+        "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_TPM.r -s {params.species} "
+        "-i {params.files} -o {output.TPM} -n {params.names} > {log} 2>&1"
 
 rule expression_RNAseqGatherRawcount:
     # only for RNA-seq
@@ -216,13 +230,15 @@ rule expression_RNAseqGatherRawcount:
     output:
         rawcount="analysis/{run}/expression/{run}_Rawcount_matrix.txt",
         # RawCount="analysis/{run}/expression/{run}_Rawcount_matrix.txt"
-    message: "Expression: gathering all raw count for {wildcards.run}"
+    message: "Expression: gathering all raw count for RNA-seq experiment {wildcards.run}"
+    log: "analysis/{run}/log/{run}_expression_RNAseqGatherRawcount.log"
     params:
         files=lambda wildcards, input: ",".join(input),
         species='Human' if config['assembly'].startswith("hg") else 'Mouse',
         names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
-        "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_Rawcount.r -s {params.species} -i {params.files} -o {output.rawcount} -n {params.names}"
+        "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_Rawcount.r -s {params.species} "
+        "-i {params.files} -o {output.rawcount} -n {params.names} > {log} 2>&1"
 
 rule expression_RNAseqDifferentialExpression:
     # For RNA-seq
@@ -231,20 +247,25 @@ rule expression_RNAseqDifferentialExpression:
     output:
         # detail="analysis/{run}/expression/{run}_Compare_detail.txt",
         table="analysis/{run}/expression/{compare}/{run}_{compare}_DESeq_table.txt"
+    log: "analysis/{run}/log/{run}_expression_RNAseqDifferentialExpression.log"
+    message: "Expression: call differential expression for RNA-seq experiment {wildcards.run} in {wildcards.compare}"
     params:
         treat=lambda wildcards: ",".join(config["runs"][wildcards.run]["compare"][wildcards.compare]["treat"]["sample"]),
         treatname=lambda wildcards: config["runs"][wildcards.run]["compare"][wildcards.compare]["treat"]["name"],
         control=lambda wildcards: ",".join(config["runs"][wildcards.run]["compare"][wildcards.compare]["control"]["sample"]),
         controlname=lambda wildcards: config["runs"][wildcards.run]["compare"][wildcards.compare]["control"]["name"],
     shell:
-        "Rscript ./DEAP/modules/scripts/expression_RNASeq_DE_analysis.r -i {input.rawcount} -r {output.table} -t {params.treat} -c {params.control}"
-        " --treatname {params.treatname} --controlname {params.controlname}"
+        "Rscript ./DEAP/modules/scripts/expression_RNASeq_DE_analysis.r -i {input.rawcount} "
+        "-r {output.table} -t {params.treat} -c {params.control} "
+        "--treatname {params.treatname} --controlname {params.controlname} > {log} 2>&1"
 
 rule expression_formatTable:
     input:
         get_format_input
     output:
         "analysis/{run}/expression/{compare}/{run}_{compare}_DE.txt"
+    # log: "analysis/{run}/log/{run}_expression_formatTable.log"
+    message: "Expression: format differential expression table for {wildcards.run} in {wildcards.compare}"
     params:
         columns = lambda wildcards: r'{print $2"\t"$3"\t"$4"\t"$7"\t"$8}' if config['runs'][wildcards.run]["type"]=="RS" else r'{print $1"\t"$3"\t"$2"\t"$5"\t"$6}'
     shell:
@@ -257,18 +278,22 @@ rule expression_volcaPlot:
         "analysis/{run}/expression/{compare}/{run}_{compare}_DE.txt"
     output:
         "analysis/{run}/expression/{compare}/{run}_{compare}_volca_plot.png"
+    log: "analysis/{run}/log/{run}_expression_volcaPlot.log"
+    message: "Expression: draw volcano plot for {wildcards.run} in {wildcards.compare}"
     params:
         foldchange=100,
         pvalue=0.01
     shell:
-        "Rscript ./DEAP/modules/scripts/draw_volca_plot.r -i {input} -r {output} -c {params.foldchange} -f {params.pvalue}"
+        "Rscript ./DEAP/modules/scripts/draw_volca_plot.r -i {input} -r {output} "
+        "-c {params.foldchange} -f {params.pvalue} > {log} 2>&1"
 
 rule expression_upRegGene:
     input:
         "analysis/{run}/expression/{compare}/{run}_{compare}_DE.txt"
     output:
         "analysis/{run}/expression/{compare}/{run}_{compare}.upRegGenes.txt"
-    # log: "analysis/{run}/log/{treatment}_upRegGenes.log"
+    # log: "analysis/{run}/log/{run}_expression_upRegGene.log"
+    message: "Expression: extract up regulatory genes for {wildcards.run} in {wildcards.compare}"
     params:
         foldchange = 0,
         pvalue = 1
@@ -280,7 +305,8 @@ rule expression_downRegGene:
         "analysis/{run}/expression/{compare}/{run}_{compare}_DE.txt"
     output:
         "analysis/{run}/expression/{compare}/{run}_{compare}.downRegGenes.txt"
-    # log: "analysis/{run}/log/{treatment}_downRegGenes.log"
+    # log: "analysis/{run}/log/{run}_expression_downRegGene.log"
+    message: "Expression: extract down regulatory genes for {wildcards.run} in {wildcards.compare}"
     params:
         foldchange = 0,
         pvalue = 1

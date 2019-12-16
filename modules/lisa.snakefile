@@ -65,6 +65,7 @@ rule lisa_run:
         "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.profile",
         "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.Snakefile.model",
         "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.yml"
+    message: "LISA: call lisa for {wildcards.geneType} in {wildcards.run} {wildcards.compare}"
     params:
         prefix=lambda wildcards: "%s_%s.%s.txt" % (wildcards.run,wildcards.compare,wildcards.geneType),
         species=config["assembly"],
@@ -78,7 +79,7 @@ rule lisa_run:
         cmd += "--epigenome \"['DNase', 'H3K27ac']\" --cluster=False --covariates=False --random=True --prefix %s " % params.prefix
         cmd += "--background=dynamic_auto_tad --stat_background_number=1000 --threads %s %s; " % (threads, params.prefix)
         cmd += "conda deactivate"
-        print(cmd)
+        # print(cmd)
         subprocess.run(cmd,shell=True,executable='/bin/bash')
         # # print(cmd2)
         # # subprocess.call(cmd2.split())

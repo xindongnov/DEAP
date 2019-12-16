@@ -29,7 +29,7 @@ def trim_targets(wildcards):
     return ls
 
 
-rule trim_paired_adapter:
+rule trim_PairedEndAdapter:
     input:
         getTrimFastq
     output:
@@ -43,15 +43,15 @@ rule trim_paired_adapter:
         output_dir=lambda wildcards: 'analysis/%s/samples/%s/trim/' % (wildcards.run, wildcards.sample),
         # file=lambda wildcards, input: '--paired %s %s' % (input[0],input[1]) if len(input) == 2 else '%s' % input, 
         basename=lambda wildcards: '%s' % wildcards.sample
-    # log: "analysis/{run}/log/trim/{sample}.log"
-    message: "TRIM: Trim adaptor for {wildcards.sample} " 
+    log: "analysis/{run}/log/{sample}_trim_PairedEndAdapter.log"
+    message: "TRIM: Trim adaptor for paired-end sample - {wildcards.sample} " 
     threads: _threads
     shell:
         "trim_galore -q {params.quality} -j {threads} --phred33 --stringency {params.stringency} "
         "-e {params.error_rate} --gzip --length {params.length} --fastqc "
-        "--basename {params.basename} -o {params.output_dir} --paired {input} "
+        "--basename {params.basename} -o {params.output_dir} --paired {input} > {log} 2>&1 "
 
-rule trim_single_adapter:
+rule trim_SingleEndAdapter:
     input:
         getTrimFastq
     output:
@@ -65,12 +65,12 @@ rule trim_single_adapter:
         length=20,
         output_dir=lambda wildcards: 'analysis/%s/samples/%s/trim/' % (wildcards.run, wildcards.sample),
         basename=lambda wildcards: '%s' % wildcards.sample
-    # log: "analysis/{run}/log/trim/{sample}.log"
-    message: "TRIM: Trim adaptor for {wildcards.sample} "
+    log: "analysis/{run}/log/{sample}_trim_SingleEndAdapter.log"
+    message: "TRIM: Trim adaptor for paired-end sample - {wildcards.sample} "
     threads: _threads
     shell:
         "trim_galore -q {params.quality} -j {threads} --phred33 --stringency {params.stringency} "
         "-e {params.error_rate} --gzip --length {params.length} --fastqc "
-        "{input} --basename {params.basename} -o {params.output_dir} "
+        "{input} --basename {params.basename} -o {params.output_dir} > {log} 2>&1"
 
 
