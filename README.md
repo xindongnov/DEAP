@@ -16,7 +16,7 @@ conda env create -n DEAP -f DEAP/environment.yaml # this might take long time ba
 conda activate DEAP
 ```
 
-The data can be stored anywhere with the given path in the config.yaml file, but we recommend you put all your data in the `data` folder.
+The data can be stored anywhere with the given path in the config.yaml file, but the best practice is putting all your data in the `data` folder.
 
 ```bash
 mkdir data
@@ -136,10 +136,10 @@ python DEAP/geo_start.py -j 8 # use 8 core to run snakemake
 python DEAP/geo_start.py -e "-npr" # dry-run for snakemake
 ```
 
-You can also specify the output new config files:
+You can specify the output path of new config files as well:
 
 ```bash
-python DEAP/geo_start.py -s new_config.yaml # dry-run for snakemake
+python DEAP/geo_start.py -s new_config.yaml 
 ```
 
 ## Files Format
@@ -153,7 +153,7 @@ Here are several keys in this yaml file.
   - `aligner`: the align tool that you want to use for RNA-seq samples, options: `"salmon"` or `"STAR"` *(Not support yet)*.  
   - `assembly`: the assembly you want to use for your data, options: `"mm10"` or `"hg38"`.  
   - `trim`: DEAP use [trim_galore](https://github.com/FelixKrueger/TrimGalore) to cut off the adapter at the distal of reads and do quality control, options: `True` or `False`.  
-  - `lisa`: [Lisa](http://lisa.cistrome.org/) is used to determine the transcription factors and chromatin regulators that are directly responsible for the perturbation of a differentially expressed gene set. option:`True` or `False`.  
+  - `lisa`: [LISA](http://lisa.cistrome.org/) is used to determine the transcription factors and chromatin regulators that are directly responsible for the perturbation of a differentially expressed gene set. option:`True` or `False`.  
   - `check_compare`: options: `True` or `False`, when set `True` for this option, DEAP will check comparison relationship and won't process alignment for RNA-seq samples that do not have enough samples(at least two samples in one condition). When set `False`, DEAP will still process trimming adaptor and alignment but still won't make the comparison.
   - `samples`: Can include many samples in this key. For each child key, you can write one fastq file for single-end samples or two fastq files for pair-end samples. *You can remove the whole key if you use `geo_start.py` to run the pipeline.*  
   
@@ -173,10 +173,9 @@ Here you are allowed to define your reference files, includes GPL files, hg38 in
 
 ### LISA installation
 
-LISA isn't a necessary component of DEAP, and you needn't install it if you do not plan to run it -- set `lisa` in config as `False`. Otherwise, please install LISA following the instruction below.  
+LISA isn't a necessary component of DEAP, and you needn't install it if you do not plan to run it - set `lisa` in config as `False`. Otherwise, please install LISA following the instruction below.  
 
-Since LISA also uses snakemake to build the workflow, to avoid the version conflict, we recommend you create a new environment for LISA.  
-[LISA GIT](https://github.com/qinqian/lisa)
+Since LISA also uses snakemake to build the workflow, to avoid the version conflict, we recommend you create a new environment for LISA. Here is the [GIT](https://github.com/qinqian/lisa) of LISA.
 
 1. Install LISA by conda:
 
@@ -189,8 +188,8 @@ Since LISA also uses snakemake to build the workflow, to avoid the version confl
 2. Download reference files of LISA:
 
     ```bash
-    wget --user=lisa --password='xxx'  http://lisa.cistrome.org/cistromedb_data/lisa_v1.0_hg38.tar.gz
-    wget --user=lisa --password='xxx'  http://lisa.cistrome.org/cistromedb_data/lisa_v1.1_mm10.tar.gz
+    wget http://lisa.cistrome.org/cistromedb_data/lisa_v1.0_hg38.tar.gz
+    wget http://lisa.cistrome.org/cistromedb_data/lisa_v1.1_mm10.tar.gz
     ```
 
 3. Extract files and update LISA configuration: *The files can not move after `lisa_update_conf`, and please extract them to a proper position.*
