@@ -292,6 +292,7 @@ def main():
     else: # may not seq data
         sys.stderr.write("+++++ WARNING: Do not find SRX information for %s. Microarray Data? +++++\n\n" % gsm)
         cmd = downloadMicroarrayData(gsm_html)
+        cmd += " -P %s" % path
         os.system(cmd)
 
 
