@@ -2,7 +2,7 @@
 
 ## Introducton
 
-Differential Expression Analysis Pipeline(DEAP) is a pipeline that can handle expression data that RNA-seq or MicroArray experiments generated. The pipeline is built using [snakemake](https://snakemake.readthedocs.io/), which allows for ease of use, optimal speed, and highly modular code that can be further added onto and customized by experienced users.
+Differential Expression Analysis Pipeline(DEAP) is a pipeline that can process expression data that RNA-seq or MicroArray experiments generated. The pipeline is built using [snakemake](https://snakemake.readthedocs.io/), which allows for ease of use, optimal speed, and highly modular code that can be further added onto and customized by experienced users.
 
 ## Basic Usage
 
@@ -60,7 +60,7 @@ Then your folder structure should like this:
 ├── ref.yaml  
 └── config.yaml  
 
-Please modify your config.yaml and metasheet following the instructions in **Files Format** part. After modified yaml files and metasheet.csv, at last type:
+Please modify your config.yaml and metasheet following the instructions in **Files Format** part. After modifing config.yaml and metasheet.csv, type:
 
 ```bash
 snakemake -s DEAP/DEAP.snakefile
