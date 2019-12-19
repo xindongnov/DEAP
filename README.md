@@ -2,7 +2,7 @@
 
 ## Introducton
 
-Differential Expression Analysis Pipeline(DEAP) is a pipeline which can handle expression data that RNA-seq or MicroArray experiment generated. The pipeline is built using [snakemake](https://bitbucket.org/snakemake/snakemake/wiki/Home) which allows for ease of use, optimal speed, and a highly modular code that can be further added onto and customized by experienced users. 
+Differential Expression Analysis Pipeline(DEAP) is a pipeline which can handle expression data that RNA-seq or MicroArray experiment generated. The pipeline is built using [snakemake](https://bitbucket.org/snakemake/snakemake/wiki/Home) which allows for ease of use, optimal speed, and a highly modular code that can be further added onto and customized by experienced users.  
 
 ## Usage
 
@@ -22,7 +22,7 @@ cp DEAP/config.yaml .
 mkdir data
 ```
 
-You can download reference file [here](). Each compressed file should be extracted to `ref_files` folder.
+You can download reference files [here](). All compressed files should be extracted to `ref_files` folder.
 
 ```bash
 mkdir ref_files
@@ -44,38 +44,46 @@ Then your folder structure should like this:
 ├── DEAP *(this one is the git repo)*  
 ├── metasheet.csv  
 ├── ref.yaml  
-└── config.yaml 
+└── config.yaml  
 
 After modified yaml files and metasheet.csv, at last type:
+
 ```bash
 snakemake -s DEAP/DEAP.snakefile
 ```
 
-### Files format:
+Then the pipeline would start running for analysis. If you only want to check the tasks scheduling and command used in analysis, you can type:
 
-- config.yaml:   
-Here are several keys in this yaml file.   
-    - `metasheet`: a path for a table file that defined the relationship among samples.   
-    - `ref`: a yaml file that stored the path where reference files are.   
-    - `aligner`: the align tool that you want to use for RNA-seq samples, options: `"STAR"` or `"salmon"`.   
-    - `assembly`: the assembly you want to use for your data, options: `"mm10"` or `"hg38"`. 
-    - `trim`: DEAP use [trim_galore](https://github.com/FelixKrueger/TrimGalore) to cut off the adaper at the distal of reads and do quality control, options: `True` or `False`.     
-    - `lisa`: [Lisa](http://lisa.cistrome.org/) is used to determine the transcription factors and chromatin regulators that are directly responsible for the perturbation of a differentially expressed gene set. option:`True` or `False`.  
-    - `check_compare`: options: `True` or `False`, when set `True` for this option, DEAP will check comparison relationship and won't process alignment for RNA-seq samples that do not have enough samples(at least 2 samples in one condition). When set `False`, DEAP will continue processing trimming adaptor and alignment but still won't do comparison.
-    - `samples`: Should have many keys of samples and in each key, you could write one fastq file for single-end smaples or two fastq files for pair-end samples. For microarray, you could set a path that include all CEL files.  
-    
-    
+```bash
+snakemake -s DEAP/DEAP.snakefile -npr
+```
+
+### Files format
+
+- config.yaml:  
+Here are several keys in this yaml file.  
+  - `metasheet`: a path for a table file that defined the relationship among samples.  
+  - `ref`: a yaml file that stored the path where reference files are.  
+  - `aligner`: the align tool that you want to use for RNA-seq samples, options: `"STAR"` or `"salmon"`.  
+  - `assembly`: the assembly you want to use for your data, options: `"mm10"` or `"hg38"`.  
+  - `trim`: DEAP use [trim_galore](https://github.com/FelixKrueger/TrimGalore) to cut off the adaper at the distal of reads and do quality control, options: `True` or `False`.  
+  - `lisa`: [Lisa](http://lisa.cistrome.org/) is used to determine the transcription factors and chromatin regulators that are directly responsible for the perturbation of a differentially expressed gene set. option:`True` or `False`.  
+  - `check_compare`: options: `True` or `False`, when set `True` for this option, DEAP will check comparison relationship and won't process alignment for RNA-seq samples that do not have enough samples(at least 2 samples in one condition). When set `False`, DEAP will continue processing trimming adaptor and alignment but still won't do comparison.
+  - `samples`: Can include many values of samples and in each key, you could write one fastq file for single-end smaples or two fastq files for pair-end samples.  
+
 - metasheet.csv:  
 This is a table that defined samples relationship and define how you would like to do differential expression genes among samples.  
-    - **The 1st column (run)** is the run name. A run(or batch) of samples should share same name though they could be devided into several rows for different FASTQ files or CEL files.  
-    - **The 2nd column (sample)** should always be samples ID. This sample ID **must** exactly match the sample names configured in the config yaml file.   
-    - **The 3rd column (experment_type)** defined the experiment type of data {RS, MA_A, MA_O, MA_I}.RS for RNA-seq, MA_{} for microarry data generated by **A**ffymatrix, **O**ligo or **I**llumina.  
-    - **The 4th (platform) colunm**: You are supposed to write the platform of each sample. We only use the first one platform you defined in same run but still recommand you fulfill the whole table. For RNA-seq, the platform will be used for reads group. For microarray data, the platform should use GPL file you downloaded from GEO. Please make sure the GPL you write in table, has the matched file which named by `GPL{XXX}.txt` in `ref_files/GPL/`. The `{XXX}` is the number of this platform.
-    - **The 5th colunm (treatment)**: The annotation of each sample. You should write some string in this column. For example, "Control", "RNAi", "Treat", "ESR1i" are acceptable.
-    - **The 6th column (compare_XXX)**: The samples that you want to perform a Differential Expression on using limma and DEseq. The “control” should be marked with a 1, and the “treatment” should be marked with a 2. You are allowed to have as many “compare_XXXX” columns as you want at the end.  
- 
+  - **The 1st column (run)** is the run name. A run(or batch) of samples should share same name though they could be devided into several rows for different FASTQ files or CEL files.  
+  - **The 2nd column (sample)** should always be samples ID. This sample ID **must** exactly match the sample names configured in the config yaml file.   
+  - **The 3rd column (experment_type)** defined the experiment type of data {RS, MA_A, MA_O, MA_I}.RS for RNA-seq, MA_{} for microarry data generated by **A**ffymatrix, **O**ligo or **I**llumina.  
+  - **The 4th colunm (platform)**: You are supposed to write the platform of each sample. We only use the first one platform you defined in same run but still recommand you fulfill the whole table. For RNA-seq, the platform will be used for reads group. For microarray data, the platform should use GPL file you downloaded from GEO. Please make sure the GPL you write in table, has the matched file which named by `GPL{XXX}.txt` in `ref_files/GPL/`. The `{XXX}` is the number of this platform.
+  - **The 5th colunm (treatment)**: The annotation of each sample. You should write some string in this column. For example, "Control", "RNAi", "Treat", "ESR1i" are acceptable.
+  - **The 6th column (compare_XXX)**: The samples that you want to perform a Differential Expression on using limma and DEseq. The “control” should be marked with a 1, and the “treatment” should be marked with a 2. You are allowed to have as many “compare_XXXX” columns as you want at the end.  
+  
 - ref.yaml:  
 Here you are allowed to define your own reference files. Basically here is hg38 and mm10 index files included.  
 
-
 ## Appendix
+
+### LISA installation
+

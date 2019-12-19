@@ -1,6 +1,8 @@
+#!/usr/bin/env Rscript
+
 # command: Rscript RNASeq_DE_analysis.R -i "/Users/shixiaoying/analysis/GSE110708/expression/GSE110708_Rawcount_matrix.txt" -r "/Users/shixiaoying/work2019/Test_DEAP/test_result/" -t "IFNy" -c "NT" --controlname "GSM3014871,GSM3014872,GSM3014873" --treatname "GSM3014868,GSM3014869,GSM3014870"
 
-required_Packages = c("DESeq2","optparse")
+required_Packages = c("DESeq2", "optparse", "sva")
 if(!all(required_Packages %in% installed.packages())){
   if (!requireNamespace("BiocManager", quietly = TRUE)){
     install.packages("BiocManager")
@@ -10,6 +12,7 @@ if(!all(required_Packages %in% installed.packages())){
 
 require(DESeq2)
 require(optparse)
+require(sva)
 
 option_list <- list(
   make_option(c("-i", "--input"), type = "character", default=FALSE,
@@ -49,29 +52,32 @@ design_matrix$label_c <- c(rep(1,nrow(design_matrix)))
 design_matrix$label_c[match(treatsample,design_matrix$sample)] <- 2
 design_matrix <- design_matrix[match(design_matrix$sample,colnames(rawcount)),]
 
-##function used to performance specific treatment DSE
-# get_DSE<-function(x){
-#   con_sample=as.vector(unlist(design_matrix$sample[which(design_matrix[,]=="1")]))
-#   case_sample=as.vector(unlist(design_matrix$sample[which(design_matrix[,x]=="2")]))
-# compa_samp=c(con_sample,case_sample)
-#   
 if(length(treatsample) >= 2 & length(controlsample) >= 2){
-  # comp_cond=design_matrix$treatment[match(compa_samp,design_matrix$sample)]
-  # control=as.character(unlist(design_matrix$treatment[which(design_matrix[,3]=="1")][1]))
-  # case=as.character(unlist(design_matrix$treatment[which(design_matrix[,3]=="2")][1]))
-  # temp_rawcount=rawcount[,match(compa_samp,colnames(rawcount))] 
-  #
   rawcount = rawcount[,match(design_matrix$sample,colnames(rawcount))]
   sampleTable <- data.frame(sampleName = design_matrix$sample,  condition = design_matrix$condition)
   sampleTable$condition <- factor(sampleTable$condition)
   sampleTable$condition <- relevel(sampleTable$condition, ref = control)
-  ddsFullCountTable <- DESeqDataSetFromMatrix(countData = rawcount,colData = sampleTable,  design= ~ condition)
-  dds <- DESeq(ddsFullCountTable) 
-  des.re=results(dds)
+
+  ddsFullCountTable <- DESeqDataSetFromMatrix(countData = rawcount, colData = sampleTable, design= ~ condition)
+  dds <- DESeq(ddsFullCountTable)
+  dat <- counts(dds, normalized=TRUE)
+  idx <- rowMeans(dat) > 1
+  dat <- dat[idx,]
+  mod <- model.matrix(~ design_matrix$label_c, colData(dds))
+  mod0 <- model.matrix(~ 1, colData(dds))
+  n.sv <- num.sv(dat,mod,method="leek")
+  svseq <- svaseq(dat, mod, mod0, n.sv=1)
+  ddssva <- dds
+  ddssva$SV1 <- svseq$sv[,1]
+  design(ddssva) <- ~ SV1 + condition
+  ddssva <- DESeq(ddssva)
+  des.re <- results(ddssva)
+
   df <- data.frame(matrix(unlist(des.re@listData), ncol=6))
   colnames(df)=names(des.re@listData)
   df=cbind(tran_gene,df)
   colnames(df)=c('refseq','symbol','AveExpr','logFC','lfcSE','stat','P.Value','adj.P.Val')
   write.table(df,result_path,quote=F,row.names = F,sep="\t")
 }
+
 
