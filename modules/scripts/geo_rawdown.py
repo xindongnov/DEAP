@@ -269,6 +269,12 @@ def main():
     else:
         sys.stdout.write("Would not compress files.\n")
 
+    try:
+        os.mkdir(path)
+        sys.stdout.write("Folder %s was created!\n" % path)
+    except FileExistsError:
+        sys.stdout.write("Folder %s existed!\n" % path)
+
     os.system('echo %s' % gsm)
     gsm_html = getGsmHtml(gsm)
     srx_html = getSrxHtml(gsm_html)

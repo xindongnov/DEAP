@@ -50,7 +50,7 @@ cp DEAP/ref.yaml .
 cp DEAP/config.yaml .
 ```
 
-Then your folder structure should like this:  
+Then your folder structure would be like this:  
 
 > PROJECT/  
 ├── data  *(store your data)  
@@ -118,6 +118,15 @@ ln -s path/to/previous/ref_files/ ref_files
 cp DEAP/ref.yaml .
 cp DEAP/metasheet.csv .
 cp DEAP/config.yaml .
+```
+
+If you have already downloaded repository and reference files, soft link would be useful for saving space:
+
+```bash
+mkdir PROJECT
+cd PROJECT
+ln -s /path/to/DEAP DEAP
+ln -s /path/to/ref_files ref_files
 ```
 
 In this case, you still need to modify the metasheet table to define samples relationship as instructed from **Files Format** first. Please noticed that all sample ID (2nd columns) should be exact accession with upper case "GSM", eg. `GSM123456`.  
