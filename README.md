@@ -182,9 +182,9 @@ Here you are allowed to define your reference files, includes GPL files, hg38 in
 
 ### LISA installation
 
-LISA isn't a necessary component of DEAP, and you needn't install it if you do not plan to run it - set `lisa` in config as `False`. Otherwise, please install LISA following the instruction below.  
+LISA isn't a necessary component of DEAP, and you needn't install it if you do not plan to run it - set `lisa` in config as `False`. Otherwise, please install LISA based on the following instruction.  
 
-Since LISA also uses snakemake to build the workflow, to avoid the version conflict, we recommend you create a new environment for LISA. Here is the [GIT](https://github.com/qinqian/lisa) of LISA.
+Since LISA also uses snakemake to build the workflow, to avoid the version conflict, we recommend creating a new environment for LISA. Here is the [GIT](https://github.com/qinqian/lisa) of LISA.
 
 1. Install LISA by conda:
 
