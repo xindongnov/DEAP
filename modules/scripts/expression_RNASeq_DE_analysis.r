@@ -43,14 +43,15 @@ rawcount=as.matrix(read.table(profile_path,header =T,sep="\t"))
 tran_gene=rawcount[,c(1,2)]
 rawcount=rawcount[,c(-1,-2)]
 mode(rawcount)<-"integer"
-
 design_matrix <- as.data.frame(c(treatsample,controlsample))
 colnames(design_matrix)="sample"
 design_matrix$condition <- c(rep(control,nrow(design_matrix)))
 design_matrix$condition[match(treatsample, as.character(design_matrix$sample))] <- treat
 design_matrix$label_c <- c(rep(1,nrow(design_matrix)))
 design_matrix$label_c[match(treatsample,design_matrix$sample)] <- 2
-design_matrix <- design_matrix[match(design_matrix$sample,colnames(rawcount)),]
+# print(design_matrix)
+# print(match(design_matrix$sample,colnames(rawcount)),])
+# design_matrix <- design_matrix[match(design_matrix$sample,colnames(rawcount)),]
 
 if(length(treatsample) >= 2 & length(controlsample) >= 2){
   rawcount = rawcount[,match(design_matrix$sample,colnames(rawcount))]
@@ -66,6 +67,7 @@ if(length(treatsample) >= 2 & length(controlsample) >= 2){
   mod <- model.matrix(~ design_matrix$label_c, colData(dds))
   mod0 <- model.matrix(~ 1, colData(dds))
   n.sv <- num.sv(dat,mod,method="leek")
+  print(n.sv)
   svseq <- svaseq(dat, mod, mod0, n.sv=1)
   ddssva <- dds
   ddssva$SV1 <- svseq$sv[,1]
