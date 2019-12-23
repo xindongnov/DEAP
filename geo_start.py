@@ -39,7 +39,7 @@ def main():
     for i,j in id_run_list:
         try:
             sys.stdout.write("Downloading sample %s \n" % i)
-            ret = subprocess.run("python modules/scripts/geo_rawdown.py -i {id} -o {path} -g".format(id=i,path="data/%s" % j), 
+            ret = subprocess.run("python DEAP/modules/scripts/geo_rawdown.py -i {id} -o {path} -g".format(id=i,path="data/%s" % j), 
                                 shell=True, check=True)
         except subprocess.CalledProcessError:
             sys.stderr.write("Sample %s failed to download!\n" % i)

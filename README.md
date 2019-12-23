@@ -16,7 +16,7 @@ conda env create -n DEAP -f DEAP/environment.yaml # this might take long time ba
 conda activate DEAP
 ```
 
-The data can be stored anywhere with the given path in the config.yaml file, but the best practice is storing all your data in the `data` folder.
+The data can be stored anywhere with the given path in the config.yaml file, but the best practice is putting all your data in the `data` folder.
 
 ```bash
 mkdir data
@@ -50,7 +50,7 @@ cp DEAP/ref.yaml .
 cp DEAP/config.yaml .
 ```
 
-Then your folder structure should like this:  
+Then your folder structure would be like this:  
 
 > PROJECT/  
 ├── data  *(store your data)  
@@ -66,7 +66,7 @@ Please modify your config.yaml and metasheet following the instructions in **Fil
 snakemake -s DEAP/DEAP.snakefile
 ```
 
-Then the pipeline would start running for analysis. If you only want to check the tasks scheduling and command used in the analysis, you can type:
+Then the pipeline will start running for analysis. If you only want to check the tasks scheduling and command used in the analysis, you can type:
 
 ```bash
 snakemake -s DEAP/DEAP.snakefile -npr
@@ -74,7 +74,7 @@ snakemake -s DEAP/DEAP.snakefile -npr
 
 Other snakemake advanced instructions can be found [here](https://snakemake.readthedocs.io/).
 
-## All Data Is From GEO
+## All Data Comes From GEO
 
 [Gene Expression Omnibus (GEO)](https://www.ncbi.nlm.nih.gov/gds/) database stores a huge number curated gene expression DataSets, as well as original Series and Platform records. If you want to process data all from GEO, you can use the `geo_start.py` to help you download data and configure the pipeline.
 
@@ -120,8 +120,17 @@ cp DEAP/metasheet.csv .
 cp DEAP/config.yaml .
 ```
 
-In this case, you still need to modify the metasheet table to define the relationship of the samples as instructed from **Files Format** first. Please note that all sample ID (2nd columns) should be exact accession that starts with upper-case "GSM", e.g. `GSM123456`.  
-In config.yaml file, you can skip the `samples` part and leave them as blank.  
+If you have already downloaded repository and reference files, soft link would be useful for saving space:
+
+```bash
+mkdir PROJECT
+cd PROJECT
+ln -s /path/to/DEAP DEAP
+ln -s /path/to/ref_files ref_files
+```
+
+In this case, you still need to modify the metasheet table to define samples relationship as instructed from **Files Format** first. Please noticed that all sample ID (2nd columns) should be exact accession with upper case "GSM", eg. `GSM123456`.  
+But in config.yaml file, you can skip the `samples` part just leave them as blank.  
 
 After the configuration of these two files, you can start download and processing by:
 
@@ -136,13 +145,15 @@ python DEAP/geo_start.py -j 8 # use 8 core to run snakemake
 python DEAP/geo_start.py -e "-npr" # dry-run for snakemake
 ```
 
-You also can specify the output new config files:
+You can specify the output path of new config files as well:
 
 ```bash
-python DEAP/geo_start.py -s new_config.yaml # dry-run for snakemake
+python DEAP/geo_start.py -s new_config.yaml
 ```
 
 ## Files Format
+
+You can take the config.yaml, metasheet.csv and ref.yaml provided under the DEAP folder as a reference.
 
 - config.yaml:  
 Here are several keys in this yaml file.  
@@ -151,18 +162,18 @@ Here are several keys in this yaml file.
   - `aligner`: the align tool that you want to use for RNA-seq samples, options: `"salmon"` or `"STAR"` *(Not support yet)*.  
   - `assembly`: the assembly you want to use for your data, options: `"mm10"` or `"hg38"`.  
   - `trim`: DEAP use [trim_galore](https://github.com/FelixKrueger/TrimGalore) to cut off the adapter at the distal of reads and do quality control, options: `True` or `False`.  
-  - `lisa`: [Lisa](http://lisa.cistrome.org/) is used to determine the transcription factors and chromatin regulators that are directly responsible for the perturbation of a differentially expressed gene set. option:`True` or `False`.  
+  - `lisa`: [LISA](http://lisa.cistrome.org/) is used to determine the transcription factors and chromatin regulators that are directly responsible for the perturbation of a differentially expressed gene set. option:`True` or `False`.  
   - `check_compare`: options: `True` or `False`, when set `True` for this option, DEAP will check comparison relationship and won't process alignment for RNA-seq samples that do not have enough samples(at least two samples in one condition). When set `False`, DEAP will still process trimming adaptor and alignment but still won't make the comparison.
-  - `samples`: Can include many samples and in this key. For each child key, you can write one fastq file for single-end samples or two fastq files for pair-end samples. *You can remove the whole key if you use `geo_start.py` to run the pipeline.*  
+  - `samples`: Can include many samples in this key. For each child key, you can write one fastq file for single-end samples or two fastq files for pair-end samples. *You can remove the whole key if you use `geo_start.py` to run the pipeline.*  
   
 - metasheet.csv:  
-This is a table that defined samples' relationship and defined how you would like to do differential expression genes among samples. Except `compare_XXX`, other headers should not be modified.  
-  - **The 1st column (run)** is the run name. A run(or batch) of samples should share the same name, though they could be divided into several rows for different FASTQ files or CEL files.  
-  - **The 2nd column (sample)** should always be samples ID. This sample ID **must** precisely match the sample names configured in the config yaml file. *If you use `geo_start.py` to run the pipeline, please make sure all sample ID is exact accession with upper-case "GSM", e.g. `GSM123456`.*  
-  - **The 3rd column (experment_type)** defined the experiment type of data, please choose one of `{RS, MA_A, MA_O, MA_I}`. `RS` for RNA-seq, `MA_{}` for microarray data generated by **A**ffymatrix, **O**ligo or **I**llumina *(Not support yet)*.  
-  - **The 4th column (platform)**: You are supposed to write the platform for each sample. We only use the first one platform you defined in the same run but still recommend you fulfill the whole table. For RNA-seq, the platform will be used for the reads group. For microarray data, the platform should use the GPL file you downloaded from GEO, e.g., `GPL570`. Please make sure the GPL you write in the table, has the matched file which named by `GPL{XXXX}.txt` in `ref_files/GPL/`. The `{XXXX}` is the number of this platform.
-  - **The 5th column (treatment)**: The annotation of each sample. It would help if you wrote some string in this column. For example, `"Control"`, `"RNAi"`, `"Treat"`, `"ESR1i"` etc.
-  - **The 6th column (compare_XXX)**: The samples that you want to perform a Differential Expression on using limma and DEseq. The "control" should be marked with a `1`, and the "treatment" should be marked with a `2`. You are allowed to have as many `compare_XXXX` columns as you want at the end.  
+This is a table that define samples' relationship and the way you would like to do differential expression genes among samples. Except `compare_XXX`, other headers should not be modified.  
+  - **The 1st column (run)** is the run name. Samples of a run(or batch) should share the same name, though they could be divided into several rows for different FASTQ files or CEL files.  
+  - **The 2nd column (sample)** should always be samples ID. This sample ID **must** precisely match the sample names configured in the config yaml file. *If you use `geo_start.py` to run the pipeline, please make sure all sample IDs are exact accession begin with upper-case "GSM", e.g. `GSM123456`.*  
+  - **The 3rd column (experment_type)** define the experiment type of data, please choose one of `{RS, MA_A, MA_O, MA_I}`. `RS` for RNA-seq, `MA_{}` for microarray data generated by **A**ffymatrix, **O**ligo or **I**llumina *(Not support yet)*.  
+  - **The 4th column (platform)**: You are supposed to write the platform each sample used. We only use the first one platform you defined in the same run but still recommend you fulfill the whole table. For RNA-seq, the platform will be used for the reads group. For microarray data, the platform should use the GPL file you downloaded from GEO, e.g., `GPL570`. Please make sure the GPL you write in the table has the matched file which named by `GPL{XXXX}.txt` in `ref_files/GPL/`. The `{XXXX}` is the number of this platform.
+  - **The 5th column (treatment)**: The annotation of each sample. It would help if you wrote some string in this column. For example, `"Control"`, `"RNAi"`, `"Treat"`, `"ESR1i"`, etc.
+  - **The 6th column (compare_XXX)**: The samples that you want to perform a Differential Expression to using limma and DEseq. The "control" should be marked with a `1`, and the "treatment" should be marked with a `2`. You are allowed to have as many `compare_XXXX` columns as you want at the end.  
   
 - ref.yaml:  
 Here you are allowed to define your reference files, includes GPL files, hg38 index, and mm10 index files.  
@@ -171,10 +182,9 @@ Here you are allowed to define your reference files, includes GPL files, hg38 in
 
 ### LISA installation
 
-LISA isn't a necessary component of DEAP, and you needn't install it if you do not plan to run it -- set `lisa` in config as `False`. Otherwise, please install LISA by the following instruction.  
+LISA isn't a necessary component of DEAP, and you needn't install it if you do not plan to run it - set `lisa` in config as `False`. Otherwise, please install LISA following the instruction below.  
 
-Since LISA also uses snakemake to build the workflow, to avoid the version conflict, we recommend you created a new environment for LISA.  
-[LISA GIT](https://github.com/qinqian/lisa)
+Since LISA also uses snakemake to build the workflow, to avoid the version conflict, we recommend you create a new environment for LISA. Here is the [GIT](https://github.com/qinqian/lisa) of LISA.
 
 1. Install LISA by conda:
 
@@ -187,8 +197,8 @@ Since LISA also uses snakemake to build the workflow, to avoid the version confl
 2. Download reference files of LISA:
 
     ```bash
-    wget --user=lisa --password='xxx'  http://lisa.cistrome.org/cistromedb_data/lisa_v1.0_hg38.tar.gz
-    wget --user=lisa --password='xxx'  http://lisa.cistrome.org/cistromedb_data/lisa_v1.1_mm10.tar.gz
+    wget http://lisa.cistrome.org/cistromedb_data/lisa_v1.0_hg38.tar.gz
+    wget http://lisa.cistrome.org/cistromedb_data/lisa_v1.1_mm10.tar.gz
     ```
 
 3. Extract files and update LISA configuration: *The files can not move after `lisa_update_conf`, and please extract them to a proper position.*
