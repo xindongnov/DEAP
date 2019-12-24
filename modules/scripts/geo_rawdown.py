@@ -27,10 +27,10 @@ def gunzip_fastq(lay_type,path,gsm):
     global compress
     if compress != True:
         if lay_type == "SINGLE":
-            os.system('gzip %s/%s.fastq \n' % (path, gsm))
+            os.system('gunzip %s/%s.fastq.gz \n' % (path, gsm))
         elif lay_type == 'PAIRED':
-            os.system('gzip %s/%s_R1.fastq \n'%(path, gsm))
-            os.system('gzip %s/%s_R2.fastq \n'%(path, gsm))
+            os.system('gunzip %s/%s_R1.fastq.gz \n'%(path, gsm))
+            os.system('gunzip %s/%s_R2.fastq.gz \n'%(path, gsm))
     else:
         return None
 
