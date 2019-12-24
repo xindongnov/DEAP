@@ -270,7 +270,7 @@ def main():
         sys.stdout.write("Would not compress files.\n")
 
     try:
-        os.mkdir(path)
+        os.makedirs(path)
         sys.stdout.write("Folder %s was created!\n" % path)
     except FileExistsError:
         sys.stdout.write("Folder %s existed!\n" % path)
