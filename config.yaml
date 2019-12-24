@@ -1,161 +1,53 @@
-#
+# You won't typically have to change the following two lines!
 metasheet: './metasheet.csv'
 ref: './ref.yaml'
 
+# ALIGNER: if you want to use STAR, set your aligner as 'STAR' (not support yet)
+# OTHERWISE leave it as 'salmon' (default)
 # {'salmon', 'STAR'}
 aligner: 'salmon'
 
-# {'mm10', 'hg38'}
+# #Tell us what assembly to use (!! MUST be defined in chips/ref.yaml !!)
+# typically we support {'mm10', 'hg38'}
 assembly: 'mm10'
 
+# Whethe you want to trim your RNA-seq reads adaptor first.
 # {True, False}
 trim: True
 
+# Whether you want to process lisa on your differential expression genes.
+# Please make sure on you have already installed lisa by the instruction in README.md
 # {True, False}
 lisa: True
 
-# if check_compare is False, DEAP will only align samples that have enough replications for saving time
-# either will still trim and align samples but no different expression.
+# If check_compare is False, DEAP will only trim and align samples that have enough replicates
+# otherwise will trim and align samples but won't process differential expression.
 check_compare: False
 
-#
+# DEFINE the samples - each sample should have a name, e.g. SAMPLE1
+# and a path to the input file, e.g. data/sample1.fastq.gz
+# VALID INPUTS: fastq, fastq.gz, CEL.gz
+# NOTE: for PAIRED-END fastq/fastq.gz, give both pairs to the sample:
+# SAMPLE_1_PE:
+#   - data/sample1_pair1.fastq
+#   - data/sample1_pair2.fastq
+# WARNING: DO not mix Paired-END and Single-End samples!!!
+# ALSO: having the string '.' in your sample name will throw an ERROR
+# '.' causes Rscripts chop off names
+# If you want to use geo_start.py, delete or comment whole "sample" part.
 samples:
-  GSM2365762:
-    - data/RS_PE/GSM2365762_R1.fastq.gz
-    - data/RS_PE/GSM2365762_R2.fastq.gz
-  GSM2365765:
-    - data/RS_PE/GSM2365765_R1.fastq.gz
-    - data/RS_PE/GSM2365765_R2.fastq.gz
-  GSM2365766:
-    - data/RS_PE/GSM2365766reads1.fastq.gz
-    - data/RS_PE/GSM2365766reads2.fastq.gz
-  GSM2309812:
-    - data/RS_SE/GSM2309812.fastq.gz
-  GSM2309813:
-    - data/RS_SE/GSM2309813.fastq.gz
-  GSM2309815:
-    - data/RS_SE/GSM2309815.fastq.gz
-  GSM2309818:
-    - data/RS_SE/GSM2309818.fastq.gz
-  GSM304303:
-    - data/MA/GSE12056_RAW/GSM304303_77463_77443.CEL.gz
-  GSM304304:
-    - data/MA/GSE12056_RAW/GSM304304_77472_77452.CEL.gz
-  GSM304479:
-    - data/MA/GSE12056_RAW/GSM304479_77464_77444.CEL.gz
-  GSM304480:
-    - data/MA/GSE12056_RAW/GSM304480_77466_77446.CEL.gz
-  GSM304481:
-    - data/MA/GSE12056_RAW/GSM304481_77467_77447.CEL.gz
-  GSM304482:
-    - data/MA/GSE12056_RAW/GSM304482_77468_77448.CEL.gz
-  GSM304483:
-    - data/MA/GSE12056_RAW/GSM304483_77469_77449.CEL.gz
-  GSM304484:
-    - data/MA/GSE12056_RAW/GSM304484_77470_77450.CEL.gz
-  GSM304486:
-    - data/MA/GSE12056_RAW/GSM304486_77471_77451.CEL.gz
-  GSM304487:
-    - data/MA/GSE12056_RAW/GSM304487_77473_77453.CEL.gz
-  GSM304488:
-    - data/MA/GSE12056_RAW/GSM304488_77482_77462.CEL.gz
-  GSM304489:
-    - data/MA/GSE12056_RAW/GSM304489_77474_77454.CEL.gz
-  GSM304490:
-    - data/MA/GSE12056_RAW/GSM304490_77475_77455.CEL.gz
-  GSM304491:
-    - data/MA/GSE12056_RAW/GSM304491_77476_77456.CEL.gz
-  GSM304492:
-    - data/MA/GSE12056_RAW/GSM304492_77477_77457.CEL.gz
-  GSM304493:
-    - data/MA/GSE12056_RAW/GSM304493_77478_77458.CEL.gz
-  GSM304494:
-    - data/MA/GSE12056_RAW/GSM304494_77479_77459.CEL.gz
-  GSM304495:
-    - data/MA/GSE12056_RAW/GSM304495_77480_77460.CEL.gz
-  GSM304496:
-    - data/MA/GSE12056_RAW/GSM304496_77481_77461.CEL.gz
-  GSM304498:
-    - data/MA/GSE12056_RAW/GSM304498_77465_77445.CEL.gz
-  GSM1026786:
-    - data/MA/GSE41867_RAW/GSM1026786_3265_13995_01CD8N_MoGene1.0ST.CEL.gz
-  GSM1026787:
-    - data/MA/GSE41867_RAW/GSM1026787_3265_13996_02CD8N_MoGene1.0ST.CEL.gz
-  GSM1026788:
-    - data/MA/GSE41867_RAW/GSM1026788_3265_13997_03CD8N_MoGene1.0ST.CEL.gz
-  GSM1026789:
-    - data/MA/GSE41867_RAW/GSM1026789_3265_13998_04CD8N_MoGene1.0ST.CEL.gz
-  GSM1026790:
-    - data/MA/GSE41867_RAW/GSM1026790_3265_13999_1CD8A6_MoGene1.0ST.CEL.gz
-  GSM1026791:
-    - data/MA/GSE41867_RAW/GSM1026791_3265_14000_2CD8A6_MoGene1.0ST.CEL.gz
-  GSM1026792:
-    - data/MA/GSE41867_RAW/GSM1026792_3265_14001_3CD8A6_MoGene1.0ST.CEL.gz
-  GSM1026793:
-    - data/MA/GSE41867_RAW/GSM1026793_3265_14002_4CD8A6_MoGene1.0ST.CEL.gz
-  GSM1026794:
-    - data/MA/GSE41867_RAW/GSM1026794_3265_14003_1CD8A8_MoGene1.0ST.CEL.gz
-  GSM1026795:
-    - data/MA/GSE41867_RAW/GSM1026795_3265_14004_2CD8A8_MoGene1.0ST.CEL.gz
-  GSM1026796:
-    - data/MA/GSE41867_RAW/GSM1026796_3265_14005_3CD8A8_MoGene1.0ST.CEL.gz
-  GSM1026797:
-    - data/MA/GSE41867_RAW/GSM1026797_3265_14006_4CD8A8_MoGene1.0ST.CEL.gz
-  GSM1026798:
-    - data/MA/GSE41867_RAW/GSM1026798_3265_14007_1C8A15_MoGene1.0ST.CEL.gz
-  GSM1026799:
-    - data/MA/GSE41867_RAW/GSM1026799_3265_14008_2C8A15_MoGene1.0ST.CEL.gz
-  GSM1026800:
-    - data/MA/GSE41867_RAW/GSM1026800_3265_14009_3C8A15_MoGene1.0ST.CEL.gz
-  GSM1026801:
-    - data/MA/GSE41867_RAW/GSM1026801_3265_14010_4C8A15_MoGene1.0ST.CEL.gz
-  GSM1026802:
-    - data/MA/GSE41867_RAW/GSM1026802_3265_14011_1C8A30_MoGene1.0ST.CEL.gz
-  GSM1026803:
-    - data/MA/GSE41867_RAW/GSM1026803_3265_14012_2C8A30_MoGene1.0ST.CEL.gz
-  GSM1026804:
-    - data/MA/GSE41867_RAW/GSM1026804_3265_14013_3C8A30_MoGene1.0ST.CEL.gz
-  GSM1026805:
-    - data/MA/GSE41867_RAW/GSM1026805_3265_14014_4C8A30_MoGene1.0ST.CEL.gz
-  GSM1026806:
-    - data/MA/GSE41867_RAW/GSM1026806_3265_14015_1CD8C6_MoGene1.0ST.CEL.gz
-  GSM1026807:
-    - data/MA/GSE41867_RAW/GSM1026807_3265_14016_2CD8C6_MoGene1.0ST.CEL.gz
-  GSM1026808:
-    - data/MA/GSE41867_RAW/GSM1026808_3265_14017_3CD8C6_MoGene1.0ST.CEL.gz
-  GSM1026809:
-    - data/MA/GSE41867_RAW/GSM1026809_3265_14018_4CD8C6_MoGene1.0ST.CEL.gz
-  GSM1026810:
-    - data/MA/GSE41867_RAW/GSM1026810_3265_14019_1CD8C8_MoGene1.0ST.CEL.gz
-  GSM1026811:
-    - data/MA/GSE41867_RAW/GSM1026811_3265_14020_2CD8C8_MoGene1.0ST.CEL.gz
-  GSM1026812:
-    - data/MA/GSE41867_RAW/GSM1026812_3265_14021_3CD8C8_MoGene1.0ST.CEL.gz
-  GSM1026813:
-    - data/MA/GSE41867_RAW/GSM1026813_3265_14022_4C8CA8_MoGene1.0ST.CEL.gz
-  GSM1026814:
-    - data/MA/GSE41867_RAW/GSM1026814_3265_14023_1C8C15_MoGene1.0ST.CEL.gz
-  GSM1026815:
-    - data/MA/GSE41867_RAW/GSM1026815_3265_14024_2C8C15_MoGene1.0ST.CEL.gz
-  GSM1026816:
-    - data/MA/GSE41867_RAW/GSM1026816_3265_14025_3C8C15_MoGene1.0ST.CEL.gz
-  GSM1026817:
-    - data/MA/GSE41867_RAW/GSM1026817_3265_14026_4C8C15_MoGene1.0ST.CEL.gz
-  GSM1026818:
-    - data/MA/GSE41867_RAW/GSM1026818_3265_14027_1C8C30_MoGene1.0ST.CEL.gz
-  GSM1026819:
-    - data/MA/GSE41867_RAW/GSM1026819_3265_14028_2C8C30_MoGene1.0ST.CEL.gz
-  GSM1026820:
-    - data/MA/GSE41867_RAW/GSM1026820_3265_14029_3C8C30_MoGene1.0ST.CEL.gz
-  GSM1026821:
-    - data/MA/GSE41867_RAW/GSM1026821_3265_14030_4C8C30_MoGene1.0ST.CEL.gz
-  GSM2067916:
-    - data/GSE7138/GSM2067916.fastq.gz
-  GSM2067917:
-    - data/GSE7138/GSM2067917.fastq.gz
-  GSM2067918:
-    - data/GSE7138/GSM2067918.fastq.gz
-  GSM2067919:
-    - data/GSE7138/GSM2067919.fastq.gz
-
-
+  SAMPLE1:
+    - data/SAMPLE1_R1.fastq.gz
+    - data/SAMPLE2_R2.fastq.gz
+  SAMPLE2:
+    - data/SAMPLE1_R1.fastq.gz
+    - data/SAMPLE2_R2.fastq.gz
+  SAMPLE3:
+    - data/SAMPLE3.fastq.gz
+  SAMPLE4:
+    - data/SAMPLE4.fastq.gz
+  SAMPLE5:
+    - data/SAMPLE5.fastq.gz
+  SAMPLE6:
+    - data/SAMPLE6.fastq.gz
+  
