@@ -2,6 +2,7 @@
 .vscode/*
 data/
 test/analysis/
+test/.snakemake/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

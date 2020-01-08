@@ -78,9 +78,11 @@ if(length(treatsample) >= 2 & length(controlsample) >= 2){
 
   df <- data.frame(matrix(unlist(des.re@listData), ncol=6))
   colnames(df)=names(des.re@listData)
-  df=cbind(tran_gene,df)
+  df <- cbind(tran_gene,df)
   colnames(df)=c('refseq','symbol','AveExpr','logFC','lfcSE','stat','P.Value','adj.P.Val')
-  write.table(df,result_path,quote=F,row.names = F,sep="\t")
+  df_dropna <- na.omit(df)
+  # aggregate(df_dropna$AveExpr, by = list(df_dropna$symbol), max)
+  df_dropna_dedup <- df_dropna[!duplicated(df_dropna$symbol),]
+  write.table(df_dropna_dedup, result_path, quote=F, row.names = F, sep="\t")
 }
-
 
