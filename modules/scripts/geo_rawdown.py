@@ -39,10 +39,10 @@ def checkSRA(fsra):
         f = os.path.basename(fsra)
         cmd_output = subprocess.getoutput('vdb-validate %s' % fsra)
         if ("'%s' is consistent" % f in cmd_output) or ("'%s' metadata: md5 ok" % f in cmd_output):
-            os.stdout.write("sra file OK: %s" % fsra)
+            sys.stdout.write("sra file OK: %s\n" % fsra)
             return True
         else:
-            os.stdout.write("sra file problem: %s" % fsra)
+            sys.stdout.write("sra file problem: %s\n" % fsra)
             return False
     except:
         return False
