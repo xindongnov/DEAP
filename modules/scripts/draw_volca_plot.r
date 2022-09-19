@@ -16,7 +16,7 @@ option_list <- list(
               help="Input matrix path"),
   make_option(c("-r", "--result"), type="character", default=FALSE,
               help="Input plot result path"),
-  make_option(c("-c", "--foldchange"), type="character", default='0',
+  make_option(c("-c", "--log2foldchange"), type="character", default='0',
               help="Set fold change value"),
   make_option(c("-f", "--fdr"), type="character", default='1',
               help="Set adj.p.val")
@@ -27,11 +27,11 @@ opt = parse_args(opt_parser)
 
 input_path = opt$input
 result_path = opt$result
-FC_setting = opt$foldchange
+logFC_setting = opt$log2foldchange
 fdr_setting = opt$fdr
-FC_setting <- as.numeric(FC_setting)
+logFC_setting <- as.numeric(logFC_setting)
 fdr_setting <- as.numeric(fdr_setting)
-logFC_setting <- log2(FC_setting)
+# logFC_setting <- log2(FC_setting)
 
 # file_path="/Users/shixiaoying/Downloads/result_path.txt"
 file=read.table(input_path,sep = "\t", header = TRUE,

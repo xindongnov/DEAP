@@ -9,13 +9,13 @@ dependencies:
 - snakemake=5.4.5
 - samtools
 - python>=3.5.2
-- r=3.5.1
+- r-base>=3.5.1
 - r-biocmanager
 - glib=2.56
 
 #align_STAR.snakefile
-# - star>=2.5.3a
-# - star-fusion=0.5.4
+- star>=2.5.3a
+- star-fusion=0.5.4
 
 # trim.snakefile
 - trim-galore>=0.6.2
@@ -23,25 +23,27 @@ dependencies:
 # align_salmon.snakefile
 - salmon=0.14.1
 
-#expression.snakefile
-# - bioconductor-deseq2>=1.12.1
-# - bioconductor-limma
-# - bioconductor-edger
-# - bioconductor-tximport
-# - bioconductor-org.Hs.eg.db
-# - bioconductor-org.Mm.eg.db
-# - bioconductor-affy
-# - bioconductor-affyplm
-# - bioconductor-sva
+expression.snakefile
+- bioconductor-deseq2>=1.12.1
+- bioconductor-limma
+- bioconductor-edger
+- bioconductor-tximport
+- bioconductor-org.Hs.eg.db
+- bioconductor-org.Mm.eg.db
+- bioconductor-affy
+- bioconductor-affyplm
+- bioconductor-sva
 # - bioconductor-oligo
 - r-optparse
-# - r-ggplot2>=3.1.1
-# - r-ggrepel
-# - r-readr
-# - r-calibrate
+- r-ggplot2>=3.1.1
+- r-ggrepel
+- r-readr
+- r-calibrate
+- libopenblas=0.3.3
+
 
 #gsea.snakefile
-# - bioconductor-clusterprofiler
+- bioconductor-clusterprofiler
 
 #lisa.snakefile
 

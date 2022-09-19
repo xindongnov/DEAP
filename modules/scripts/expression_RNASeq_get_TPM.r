@@ -57,6 +57,12 @@ if(species == "Human"){
 
 }
 
+if(species == "Rat"){
+  library(org.Rn.eg.db)
+  tran_gene_tpm=select(org.Rn.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="REFSEQ")
+
+}
+
 tran_gene_tpm=tran_gene_tpm[match(tran_tpm,tran_gene_tpm$REFSEQ),]
 tpm_matrix=cbind(tran_gene_tpm,tpm_matrix[-1])
 tpm_matrix=tpm_matrix[which(!is.na(tpm_matrix[,1])),]

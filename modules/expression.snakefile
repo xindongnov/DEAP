@@ -121,6 +121,15 @@ def get_format_input(wildcards):
     elif config["runs"][wildcards.run]["type"] == "RS":
         return "analysis/%s/expression/%s/%s_%s_DESeq_table.txt" % (wildcards.run,wildcards.compare,wildcards.run,wildcards.compare)
 
+def get_species(wildcards):
+    if config['assembly'].startswith("hg"):
+        species = 'Human'
+    elif config['assembly'].startswith("mm"):
+        species = 'Mouse'
+    elif config['assembly'].startswith("rn"):
+        species = 'Rat'
+    return species
+
 
 rule expression_GetSpecificDesign:
     output:
@@ -217,7 +226,7 @@ rule expression_RNAseqGatherTpm:
     log: "analysis/{run}/log/{run}_expression_RNAseqGatherTpm.log"
     params:
         files=lambda wildcards, input: ",".join(input),
-        species='Human' if config['assembly'].startswith("hg") else 'Mouse',
+        species=get_species,
         names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
         "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_TPM.r -s {params.species} "
@@ -234,7 +243,7 @@ rule expression_RNAseqGatherRawcount:
     log: "analysis/{run}/log/{run}_expression_RNAseqGatherRawcount.log"
     params:
         files=lambda wildcards, input: ",".join(input),
-        species='Human' if config['assembly'].startswith("hg") else 'Mouse',
+        species=get_species,
         names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
         "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_Rawcount.r -s {params.species} "
@@ -281,11 +290,11 @@ rule expression_volcaPlot:
     log: "analysis/{run}/log/{run}_expression_volcaPlot_{compare}.log"
     message: "Expression: draw volcano plot for {wildcards.run} in {wildcards.compare}"
     params:
-        foldchange=100,
-        pvalue=0.01
+        log2foldchange=config['lfc'],
+        pvalue=config['fdr']
     shell:
         "Rscript ./DEAP/modules/scripts/draw_volca_plot.r -i {input} -r {output} "
-        "-c {params.foldchange} -f {params.pvalue} > {log} 2>&1"
+        "-c {params.log2foldchange} -f {params.pvalue} > {log} 2>&1"
 
 rule expression_upRegGene:
     input:

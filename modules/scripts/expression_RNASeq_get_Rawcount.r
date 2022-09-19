@@ -5,7 +5,7 @@
 # @date: Sep 2019
 # ================================
 
-required_Packages = c("optparse","org.Mm.eg.db","org.Hs.eg.db")
+required_Packages = c("optparse","org.Mm.eg.db","org.Hs.eg.db","org.Rn.eg.db")
 if(!all(required_Packages %in% installed.packages())){
   if (!requireNamespace("BiocManager", quietly = TRUE)){
     install.packages("BiocManager")
@@ -68,6 +68,13 @@ if(species == "Human"){
   tran_gene_raw=select(org.Hs.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")#
   
 }
+
+if(species == "Rat"){
+  library(org.Rn.eg.db)
+  tran_gene_raw=select(org.Rn.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")#
+  
+}
+
 tran_gene_raw=tran_gene_raw[match(tran_raw,tran_gene_raw$REFSEQ),]
 rawcount=cbind(tran_gene_raw,rawcount[-1])
 rawcount=rawcount[which(!is.na(rawcount[,1])),]

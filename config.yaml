@@ -24,6 +24,11 @@ lisa: True
 # otherwise will trim and align samples but won't process differential expression.
 check_compare: False
 
+
+lfc: 1.5
+
+fdr: 0.1
+
 # DEFINE the samples - each sample should have a name, e.g. SAMPLE1
 # and a path to the input file, e.g. data/sample1.fastq.gz
 # VALID INPUTS: fastq, fastq.gz, CEL.gz
