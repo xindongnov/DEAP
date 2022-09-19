@@ -29,7 +29,7 @@ def experssion_targets(wildcards):
                     ls.append("analysis/%s/expression/%s/%s_%s_exp_matrix_gene.txt" % (run,comp,run,comp))
                     ls.append("analysis/%s/expression/%s/%s_%s_limma_table.txt" % (run,comp,run,comp))
                     ls.append("analysis/%s/expression/%s/%s_%s_DE.txt" % (run,comp,run,comp))
-                    ls.append("analysis/%s/expression/%s/%s_%s_volca_plot.png" % (run,comp,run,comp))
+                    ls.append("analysis/%s/expression/%s/%s_%s_volca_plot_%s_%s.png" % (run,comp,run,comp,config['lfc'],config['fdr']))
                     ls.append("analysis/%s/expression/%s/%s_%s.upRegGenes.txt" % (run,comp,run,comp))
                     ls.append("analysis/%s/expression/%s/%s_%s.downRegGenes.txt" % (run,comp,run,comp))
         elif config["runs"][run]["type"] == "RS":
@@ -48,7 +48,7 @@ def experssion_targets(wildcards):
             #         # ls.append("analysis/%s/expression/%s_Compare_detail.txt" % (run,run))
                     ls.append("analysis/%s/expression/%s/%s_%s_DESeq_table.txt" % (run,comp,run,comp))
                     ls.append("analysis/%s/expression/%s/%s_%s_DE.txt" % (run,comp,run,comp))
-                    ls.append("analysis/%s/expression/%s/%s_%s_volca_plot.png" % (run,comp,run,comp))
+                    ls.append("analysis/%s/expression/%s/%s_%s_volca_plot_%s_%s.png" % (run,comp,run,comp,config['lfc'],config['fdr']))
                     ls.append("analysis/%s/expression/%s/%s_%s.upRegGenes.txt" % (run,comp,run,comp))
                     ls.append("analysis/%s/expression/%s/%s_%s.downRegGenes.txt" % (run,comp,run,comp))
     return ls
@@ -286,7 +286,7 @@ rule expression_volcaPlot:
     input:
         "analysis/{run}/expression/{compare}/{run}_{compare}_DE.txt"
     output:
-        "analysis/{run}/expression/{compare}/{run}_{compare}_volca_plot.png"
+        "analysis/{run}/expression/{compare}/{run}_{compare}_volca_plot_%s_%s.png" % (config['lfc'],config['fdr'])
     log: "analysis/{run}/log/{run}_expression_volcaPlot_{compare}.log"
     message: "Expression: draw volcano plot for {wildcards.run} in {wildcards.compare}"
     params:
