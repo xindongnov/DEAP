@@ -19,7 +19,7 @@ def lisa_targets(wildcards):
                     # n = subprocess.check_output("wc -l %s" % checkpoints.lisa_copy_file.get(run=run,compare=comp,geneType=geneType).output[0],shell=True)
                     # n = int(n.decode("utf-8").strip().split()[0])
                     # if n != 0:
-                    ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s.txt.1000.lisa_direct.csv" % (run,comp,geneType,run,comp,geneType))
+                    ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s_results.tsv" % (run,comp,geneType,run,comp,geneType))
     # for run in config["RS_runs"]:
     #     for comp in config["RS_runs"][run]['compare']:
     #         ctrl = config["RS_runs"][run]['compare'][comp]['control']['name']
@@ -61,13 +61,15 @@ rule lisa_run:
     input:
         "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt"
     output:
-        "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.1000.lisa_direct.csv",
-        "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.profile",
-        "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.Snakefile.model",
-        "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.yml"
+        # "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.1000.lisa_direct.csv",
+        # "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.profile",
+        # "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.Snakefile.model",
+        # "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}.txt.yml"
+        "analysis/{run}/lisa/{compare}_{geneType}/{run}_{compare}.{geneType}_results.tsv"
     message: "LISA: call lisa for {wildcards.geneType} in {wildcards.run} {wildcards.compare}"
     params:
         prefix=lambda wildcards: "%s_%s.%s.txt" % (wildcards.run,wildcards.compare,wildcards.geneType),
+        result=lambda wildcards: "%s_%s.%s_results.tsv" % (wildcards.run,wildcards.compare,wildcards.geneType),
         species=config["assembly"],
         lisa_path=config["lisa_path"],
         method="all",
@@ -75,11 +77,12 @@ rule lisa_run:
     run:
         cmd = "cd analysis/%s/lisa/%s_%s/; " % (wildcards.run,wildcards.compare,wildcards.geneType)
         cmd += ". %s/etc/profile.d/conda.sh && conda activate lisa; " % config["conda_root"]
-        cmd += "%s model --method=\"%s\" --web=False --new_rp_h5=None --new_count_h5=None --species %s " % (params.lisa_path, params.method, params.species)
-        cmd += "--epigenome \"['DNase', 'H3K27ac']\" --cluster=False --covariates=False --random=True --prefix %s " % params.prefix
-        cmd += "--background=dynamic_auto_tad --stat_background_number=1000 --threads %s %s; " % (threads, params.prefix)
+        # cmd += "%s model --method=\"%s\" --web=False --new_rp_h5=None --new_count_h5=None --species %s " % (params.lisa_path, params.method, params.species)
+        # cmd += "--epigenome \"['DNase', 'H3K27ac']\" --cluster=False --covariates=False --random=True --prefix %s " % params.prefix
+        # cmd += "--background=dynamic_auto_tad --stat_background_number=1000 --threads %s %s; " % (threads, params.prefix)
+        cmd += "%s oneshot %s %s --save_metadata > %s;" % (params.lisa_path, params.species, params.prefix, params.result)
         cmd += "conda deactivate"
-        # print(cmd)
+        print(cmd)
         subprocess.run(cmd,shell=True,executable='/bin/bash')
         # # print(cmd2)
         # # subprocess.call(cmd2.split())
