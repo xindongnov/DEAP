@@ -33,14 +33,16 @@ def experssion_targets(wildcards):
                     ls.append("analysis/%s/expression/%s/%s_%s.upRegGenes.txt" % (run,comp,run,comp))
                     ls.append("analysis/%s/expression/%s/%s_%s.downRegGenes.txt" % (run,comp,run,comp))
         elif config["runs"][run]["type"] == "RS":
-            if config["check_compare"] == True and config["runs"][run]["samples"] != {}:
-                ls.append("analysis/%s/expression/%s_TPM_matrix.txt" % (run,run))
-                ls.append("analysis/%s/expression/%s_Rawcount_matrix.txt" % (run,run))
-                ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
-            elif config["check_compare"] == False:
-                ls.append("analysis/%s/expression/%s_TPM_matrix.txt" % (run,run))
-                ls.append("analysis/%s/expression/%s_Rawcount_matrix.txt" % (run,run))
-                ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
+            # if config["check_compare"] == True and config["runs"][run]["samples"] != {}:
+            ls.append("analysis/%s/expression/%s_TPM_transcript_matrix.txt" % (run,run))
+            ls.append("analysis/%s/expression/%s_Rawcount_transcript_matrix.txt" % (run,run))
+            ls.append("analysis/%s/expression/%s_TPM_gene_matrix.txt" % (run,run))
+            ls.append("analysis/%s/expression/%s_Rawcount_gene_matrix.txt" % (run,run))
+            ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
+            # elif config["check_compare"] == False:
+            #     ls.append("analysis/%s/expression/%s_TPM_transcript_matrix.txt" % (run,run))
+            #     ls.append("analysis/%s/expression/%s_Rawcount_transcript_matrix.txt" % (run,run))
+            #     ls.append("analysis/%s/expression/%s_PCA.png" % (run,run))
             for comp in config["runs"][run]['compare']:
                 ctrl = config["runs"][run]['compare'][comp]['control']['name']
                 treat = config["runs"][run]['compare'][comp]['treat']['name']
@@ -103,7 +105,7 @@ def get_PCAplot_Input(wildcards):
     if config["runs"][wildcards.run]["type"].startswith("MA_"):
         return "analysis/%s/expression/%s_exp_matrix_gene.txt" % (wildcards.run,wildcards.run)
     elif config["runs"][wildcards.run]["type"] == "RS":
-        return "analysis/%s/expression/%s_TPM_matrix.txt" % (wildcards.run,wildcards.run)
+        return "analysis/%s/expression/%s_TPM_gene_matrix.txt" % (wildcards.run,wildcards.run)
 
 def get_quantsf(wildcards):
     r = wildcards.run
@@ -220,16 +222,16 @@ rule expression_RNAseqGatherTpm:
     input:
         get_quantsf
     output:
-        TPM="analysis/{run}/expression/{run}_TPM_matrix.txt",
+        TPM="analysis/{run}/expression/{run}_TPM_transcript_matrix.txt",
         # RawCount="analysis/{run}/expression/{run}_Rawcount_matrix.txt"
     message: "Expression: gathering all TPM for RNA-seq experiment {wildcards.run}"
     log: "analysis/{run}/log/{run}_expression_RNAseqGatherTpm.log"
     params:
         files=lambda wildcards, input: ",".join(input),
-        species=get_species,
+        # species=get_species,
         names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
-        "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_TPM.r -s {params.species} "
+        "python ./DEAP/modules/scripts/expression_RNASeq_get_matrix_from_salmon.py -t TPM "
         "-i {params.files} -o {output.TPM} -n {params.names} > {log} 2>&1"
 
 rule expression_RNAseqGatherRawcount:
@@ -237,22 +239,39 @@ rule expression_RNAseqGatherRawcount:
     input:
         get_quantsf
     output:
-        rawcount="analysis/{run}/expression/{run}_Rawcount_matrix.txt",
+        rawcount="analysis/{run}/expression/{run}_Rawcount_transcript_matrix.txt",
         # RawCount="analysis/{run}/expression/{run}_Rawcount_matrix.txt"
     message: "Expression: gathering all raw count for RNA-seq experiment {wildcards.run}"
     log: "analysis/{run}/log/{run}_expression_RNAseqGatherRawcount.log"
     params:
         files=lambda wildcards, input: ",".join(input),
-        species=get_species,
+        # species=get_species,
         names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
-        "Rscript ./DEAP/modules/scripts/expression_RNASeq_get_Rawcount.r -s {params.species} "
+        "python ./DEAP/modules/scripts/expression_RNASeq_get_matrix_from_salmon.py -t Rawcount "
         "-i {params.files} -o {output.rawcount} -n {params.names} > {log} 2>&1"
+
+rule expression_RNAseqTranscriptToGene:
+    # only for RNA-seq
+    input:
+        transcript_matrix="analysis/{run}/expression/{run}_{type}_transcript_matrix.txt",
+    output:
+        gene_matrix="analysis/{run}/expression/{run}_{type}_gene_matrix.txt",
+    message: "Expression: Transfer gene name from transcript ID of {wildcards.run}"
+    log: "analysis/{run}/log/{run}_{type}_expression_RNAseqTranscriptToGene.log"
+    params:
+        ref = config['transformed_gtf']
+        # files=lambda wildcards, input: ",".join(input),
+        # species=get_species,
+        # names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
+    shell:
+        "python ./DEAP/modules/scripts/expression_RNASeq_matrix_transcript_to_gene.py "
+        "-i {input.transcript_matrix} -o {output.gene_matrix} -r {params.ref} > {log} 2>&1"
 
 rule expression_RNAseqDifferentialExpression:
     # For RNA-seq
     input:
-        rawcount="analysis/{run}/expression/{run}_Rawcount_matrix.txt",
+        rawcount="analysis/{run}/expression/{run}_Rawcount_gene_matrix.txt",
     output:
         # detail="analysis/{run}/expression/{run}_Compare_detail.txt",
         table="analysis/{run}/expression/{compare}/{run}_{compare}_DESeq_table.txt"
@@ -276,7 +295,7 @@ rule expression_formatTable:
     # log: "analysis/{run}/log/{run}_expression_formatTable.log"
     message: "Expression: format differential expression table for {wildcards.run} in {wildcards.compare}"
     params:
-        columns = lambda wildcards: r'{print $2"\t"$3"\t"$4"\t"$7"\t"$8}' if config['runs'][wildcards.run]["type"]=="RS" else r'{print $1"\t"$3"\t"$2"\t"$5"\t"$6}'
+        columns = lambda wildcards: r'{print $1"\t"$2"\t"$3"\t"$6"\t"$7}' if config['runs'][wildcards.run]["type"]=="RS" else r'{print $1"\t"$3"\t"$2"\t"$5"\t"$6}'
     shell:
         """awk -F'\\t' '{params.columns}' {input} > {output}"""
 

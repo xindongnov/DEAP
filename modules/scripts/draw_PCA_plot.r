@@ -27,31 +27,31 @@ opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 
-profile_path=opt$input #which is used to save the tpm matrix or expression matrix
-express_type=opt$type # tell the funtion which is RNAseq or Microarray
-design_path=opt$design #describe the subclass of each sample used for PCA
-result_path=opt$result #save the figure
+profile_path = opt$input #which is used to save the tpm matrix or expression matrix
+express_type = opt$type # tell the funtion which is RNAseq or Microarray
+design_path = opt$design #describe the subclass of each sample used for PCA
+result_path = opt$result #save the figure
 
-expre_matr=as.matrix(read.table(profile_path,header=T,sep="\t"))
-num_sam=dim(expre_matr)[2]
-if(express_type == "RNASeq"){
-  expre_matr=expre_matr[,3:num_sam]
-  expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam-2)
-} else {
-  expre_matr=expre_matr
-  expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam)
-}
-expre_matr=log2(expre_matr+1)
+expre_matr <- as.matrix(read.table(profile_path, header=T, sep="\t", row.names=1))
+num_sam <- dim(expre_matr)[2]
+# if(express_type == "RNASeq"){
+#   expre_matr=expre_matr[,3:num_sam]
+#   expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam-2)
+# } else {
+#   expre_matr=expre_matr
+#   expre_matr=matrix(as.numeric(as.vector(unlist(expre_matr))),ncol=num_sam)
+# }
+expre_matr <- log2(expre_matr+1)
 pca_raw <- prcomp(t(expre_matr), center = TRUE, scale. = F)
 edata_pc_df <- as.data.frame(pca_raw$x)
-design_matrix=read.table(design_path,header = T,sep=",")
-na=rep(TRUE,nrow(design_matrix))
+design_matrix <- read.table(design_path,header = T,sep=",")
+na <- rep(TRUE,nrow(design_matrix))
 # for (i in 3:ncol(design_matrix)){
 #     na=na & is.na(design_matrix[i])
 # }
 # design_matrix <- design_matrix[,!na]
-edata_pc_df$class=design_matrix$treatment
-pca_plot=ggplot(edata_pc_df, aes(x = PC1, y = PC2, color = class)) +
+edata_pc_df$class <- design_matrix$treatment
+pca_plot <- ggplot(edata_pc_df, aes(x = PC1, y = PC2, color = class)) +
          geom_point()+
          theme_bw()+
          theme(axis.text.x = element_text(size = 10))+

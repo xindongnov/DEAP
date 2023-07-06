@@ -2,13 +2,13 @@
 
 # command: Rscript RNASeq_DE_analysis.R -i "/Users/shixiaoying/analysis/GSE110708/expression/GSE110708_Rawcount_matrix.txt" -r "/Users/shixiaoying/work2019/Test_DEAP/test_result/" -t "IFNy" -c "NT" --controlname "GSM3014871,GSM3014872,GSM3014873" --treatname "GSM3014868,GSM3014869,GSM3014870"
 
-required_Packages = c("DESeq2", "optparse", "sva")
-if(!all(required_Packages %in% installed.packages())){
-  if (!requireNamespace("BiocManager", quietly = TRUE)){
-    install.packages("BiocManager")
-  }
-  BiocManager::install(setdiff(required_Packages, installed.packages()))
-}
+# required_packages <- c("DESeq2", "optparse", "sva")
+# if (!all(required_packages %in% installed.packages())){
+#   if (!requireNamespace("BiocManager", quietly = TRUE)){
+#     install.packages("BiocManager")
+#   }
+#   BiocManager::install(setdiff(required_packages, installed.packages()))
+# }
 
 require(DESeq2)
 require(optparse)
@@ -32,17 +32,17 @@ option_list <- list(
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
-profile_path=opt$input 
-result_path=opt$result
+profile_path = opt$input
+result_path = opt$result
 treatname = opt$treatname
 controlname = opt$controlname
 treatsample = strsplit(opt$treat,',')[[1]]
 controlsample = strsplit(opt$control,',')[[1]]
 
-rawcount=as.matrix(read.table(profile_path,header =T,sep="\t"))
-tran_gene=rawcount[,c(1,2)]
-rawcount=rawcount[,c(-1,-2)]
-rownames(rawcount) <- tran_gene[,1]
+rawcount <- as.matrix(read.table(profile_path, header=T, sep="\t", row.names = 1))
+tran_gene <- rawcount[,1]
+# rawcount <- rawcount[,-1]
+# rownames(rawcount) <- tran_gene
 mode(rawcount)<-"integer"
 design_matrix <- as.data.frame(c(treatsample,controlsample))
 colnames(design_matrix)="sample"
@@ -63,26 +63,30 @@ if(length(treatsample) >= 2 & length(controlsample) >= 2){
   ddsFullCountTable <- DESeqDataSetFromMatrix(countData = rawcount, colData = sampleTable, design= ~ condition)
   dds <- DESeq(ddsFullCountTable)
   # dds <- dds[rowSums(counts(dds)) > 0,]
-  dat <- counts(dds, normalized=TRUE)
-  idx <- rowMeans(dat) > 1 
-  dat <- dat[idx,]
-  mod <- model.matrix(~ design_matrix$label_c, colData(dds))
-  mod0 <- model.matrix(~ 1, colData(dds))
-  # n.sv <- num.sv(dat,mod,method="leek")
-  svseq <- svaseq(dat, mod, mod0, n.sv=1)
-  ddssva <- dds
-  ddssva$SV1 <- svseq$sv[,1]
-  design(ddssva) <- ~ SV1 + condition
-  ddssva <- DESeq(ddssva)
-  des.re <- results(ddssva)
 
-  df <- data.frame(matrix(unlist(des.re@listData), ncol=6))
-  colnames(df)=names(des.re@listData)
-  df <- cbind(tran_gene,df)
-  colnames(df)=c('refseq','symbol','AveExpr','logFC','lfcSE','stat','P.Value','adj.P.Val')
-  df_dropna <- na.omit(df)
+  ## following code is used to remove batch effect, which may not be needed
+  # dat <- counts(dds, normalized=TRUE)
+  # idx <- rowMeans(dat) > 1 
+  # dat <- dat[idx,]
+  # mod <- model.matrix(~ design_matrix$label_c, colData(dds))
+  # mod0 <- model.matrix(~ 1, colData(dds))
+  # n.sv <- num.sv(dat,mod,method="leek")
+  # svseq <- svaseq(dat, mod, mod0, n.sv=1)
+  # ddssva <- dds
+  # ddssva$SV1 <- svseq$sv[,1]
+  # design(ddssva) <- ~ SV1 + condition
+  # ddssva <- DESeq(ddssva)
+  # des.re <- results(ddssva)
+
+  des.re <- results(dds)
+
+  # df <- data.frame(matrix(unlist(des.re@listData), ncol=6))
+  # colnames(df)=names(des.re@listData)
+  df <- cbind(row.names(des.re),des.re)
+  colnames(df) <- c('symbol', 'AveExpr','logFC','lfcSE','stat','P.Value','adj.P.Val')
+  # df_dropna <- na.omit(df)
   # aggregate(df_dropna$AveExpr, by = list(df_dropna$symbol), max)
-  df_dropna_dedup <- df_dropna[!duplicated(df_dropna$symbol),]
-  write.table(df_dropna_dedup, result_path, quote=F, row.names = F, sep="\t")
+  # df_dropna_dedup <- df_dropna[!duplicated(df_dropna$symbol),]
+  write.table(df, result_path, quote=F, col.names=T, row.names = F, sep="\t")
 }
 

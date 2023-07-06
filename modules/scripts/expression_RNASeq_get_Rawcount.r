@@ -5,14 +5,15 @@
 # @date: Sep 2019
 # ================================
 
-required_Packages = c("optparse","org.Mm.eg.db","org.Hs.eg.db","org.Rn.eg.db")
-if(!all(required_Packages %in% installed.packages())){
-  if (!requireNamespace("BiocManager", quietly = TRUE)){
-    install.packages("BiocManager")
-  }
-  BiocManager::install(setdiff(required_Packages, installed.packages()))
-}
+# required_Packages = c("optparse","org.Mm.eg.db","org.Hs.eg.db","org.Rn.eg.db")
+# if(!all(required_Packages %in% installed.packages())){
+#   if (!requireNamespace("BiocManager", quietly = TRUE)){
+#     install.packages("BiocManager")
+#   }
+#   BiocManager::install(setdiff(required_Packages, installed.packages()))
+# }
 
+require(biomaRt)
 require(optparse)
 
 option_list <- list(
@@ -59,25 +60,30 @@ tran_raw=unlist(lapply(strsplit(rawcount[,1],"\\."),function(x) x[1]))
 #transform the ENSG to GENE ID and symbol
 
 if(species == "Mouse"){
-  library(org.Mm.eg.db)
-  tran_gene_raw=select(org.Mm.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")# 
+  ensembl <- useEnsembl(biomart = "genes", dataset = "mmusculus_gene_ensembl")
+  tran_gene_raw = getBM(
+    attributes = c("ensembl_transcript_id", "mgi_symbol"),
+    filters = "ensembl_transcript_id",
+    values = tran_tpm,
+    mart = ensembl
+  )
+  # library(org.Mm.eg.db)
+  # tran_gene_raw = select(org.Mm.eg.db, keys = tran_raw, columns = c("SYMBOL"), keytype = "ENSEMBLTRANS")
   }
 
 if(species == "Human"){
   library(org.Hs.eg.db)
-  tran_gene_raw=select(org.Hs.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")#
-  
+  tran_gene_raw = select(org.Hs.eg.db, keys = tran_raw, columns = c("SYMBOL"), keytype = "ENSEMBLTRANS")
 }
 
 if(species == "Rat"){
   library(org.Rn.eg.db)
-  tran_gene_raw=select(org.Rn.eg.db,keys=tran_raw,columns = c("SYMBOL"), keytype="REFSEQ")#
-  
+  tran_gene_raw = select(org.Rn.eg.db, keys = tran_raw, columns = c("SYMBOL"), keytype = "ENSEMBLTRANS")
 }
 
-tran_gene_raw=tran_gene_raw[match(tran_raw,tran_gene_raw$REFSEQ),]
-rawcount=cbind(tran_gene_raw,rawcount[-1])
+tran_gene_raw = tran_gene_raw[match(tran_raw, tran_gene_raw$ensembl_transcript_id), ]
+rawcount=cbind(tran_gene_raw, rawcount[-1])
 rawcount=rawcount[which(!is.na(rawcount[,1])),]
-colnames(rawcount)=c("refseq","symbol",names)
+colnames(rawcount) = c("ensembl_transcript_id", "symbol", names)
 
 write.table(rawcount,result_path_COUNT,col.names=T,row.names=F,sep="\t",quote = F)

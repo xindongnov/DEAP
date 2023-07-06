@@ -5,14 +5,15 @@
 # @date: Sep 2019
 # ================================
 
-required_Packages = c("optparse","org.Mm.eg.db","org.Hs.eg.db")
-if(!all(required_Packages %in% installed.packages())){
-  if (!requireNamespace("BiocManager", quietly = TRUE)){
-    install.packages("BiocManager")
-  }
-  BiocManager::install(setdiff(required_Packages, installed.packages()))
-}
+# required_Packages = c("optparse","org.Mm.eg.db","org.Hs.eg.db")
+# if(!all(required_Packages %in% installed.packages())){
+#   if (!requireNamespace("BiocManager", quietly = TRUE)){
+#     install.packages("BiocManager")
+#   }
+#   BiocManager::install(setdiff(required_Packages, installed.packages()))
+# }
 
+require(biomaRt)
 require(optparse)
 
 option_list <- list(
@@ -46,25 +47,32 @@ tran_tpm=unlist(lapply(strsplit(tpm_matrix[,1],"\\."),function(x) x[1]))
 
 #transform the ENSG to GENE ID and symbol
 
-if(species == "Mouse"){
-  library(org.Mm.eg.db)
-  tran_gene_tpm=select(org.Mm.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="REFSEQ")
+if (species == "Mouse") {
+  ensembl <- useEnsembl(biomart = "genes", dataset = "mmusculus_gene_ensembl")
+  tran_gene_raw <- getBM(
+    attributes = c("ensembl_transcript_id", "mgi_symbol"),
+    filters = "ensembl_transcript_id",
+    values = tran_tpm,
+    mart = ensembl
+  )
+  # library(org.Mm.eg.db)
+  # tran_gene_raw = select(org.Mm.eg.db, keys = tran_raw, columns = c("SYMBOL"), keytype = "ENSEMBLTRANS")
 }
 
 if(species == "Human"){
   library(org.Hs.eg.db)
-  tran_gene_tpm=select(org.Hs.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="REFSEQ")
+  tran_gene_tpm = select(org.Hs.eg.db, keys = tran_tpm, columns = c("SYMBOL"), keytype = "ENSEMBLTRANS")
 
 }
 
 if(species == "Rat"){
   library(org.Rn.eg.db)
-  tran_gene_tpm=select(org.Rn.eg.db,keys=tran_tpm,columns = c("SYMBOL"), keytype="REFSEQ")
+  tran_gene_tpm = select(org.Rn.eg.db, keys = tran_tpm, columns = c("SYMBOL"), keytype = "ENSEMBLTRANS")
 
 }
 
-tran_gene_tpm=tran_gene_tpm[match(tran_tpm,tran_gene_tpm$REFSEQ),]
+tran_gene_tpm = tran_gene_tpm[match(tran_tpm, tran_gene_tpm$ensembl_transcript_id), ]
 tpm_matrix=cbind(tran_gene_tpm,tpm_matrix[-1])
 tpm_matrix=tpm_matrix[which(!is.na(tpm_matrix[,1])),]
-colnames(tpm_matrix)=c("refseq","symbol",names)
+colnames(tpm_matrix) = c("ensembl_transcript_id", "symbol", names)
 write.table(tpm_matrix,result_path_TPM,col.names=T,row.names=F,sep="\t",quote = F)
