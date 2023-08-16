@@ -12,12 +12,12 @@ mm10:
   transformed_gtf: ./ref_files/mm10/mm10_gtf_full_table.txt.gz
   GPL: ./ref_files/GPL/
 
-mm39:
-  salmon_index: ./ref_files/mm39/salmon_index/
-  STAR_index: ./ref_files/mm39/STAR_index
-  gtf: ./ref_files/mm39/gencode.vM32.annotation.gtf.gz
-  transformed_gtf: ./ref_files/mm39/mm39_gtf_full_table.txt.gz
-  GPL: ./ref_files/GPL/
+# mm39:
+#   salmon_index: ./ref_files/mm39/salmon_index/
+#   STAR_index: ./ref_files/mm39/STAR_index
+#   gtf: ./ref_files/mm39/gencode.vM32.annotation.gtf.gz
+#   transformed_gtf: ./ref_files/mm39/mm39_gtf_full_table.txt.gz
+#   GPL: ./ref_files/GPL/
 
 # rn7:
 #   salmon_index: ./ref_files/rn7/salmon_index/

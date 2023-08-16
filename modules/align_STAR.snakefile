@@ -10,7 +10,7 @@
 
 # alignment by STAR
 
-_threads = 8
+star_threads = config['aligner_threads']
 
 
 def align_STAR_targets(wildcards):
@@ -18,9 +18,9 @@ def align_STAR_targets(wildcards):
     for run in config["runs"]:
         if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
             for sample in config["runs"][run]['samples']:
-                ls.append('analysis/STAR/{sample}/{sample}.unsorted.bam'.format(sample=sample))
-                ls.append('analysis/STAR/{sample}/{sample}.sorted.bam'.format(sample=sample))
-                ls.append('analysis/STAR/{sample}/{sample}.sorted.bam.bai'.format(sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.unsorted.bam'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.sorted.bam'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.sorted.bam.bai'.format(res_path=RES_PATH, sample=sample))
     return ls
 
 def getAlignFastq(wildcards):
@@ -30,31 +30,31 @@ def getAlignFastq(wildcards):
     else:
         tmp = []
         if len(config['samples'][s]) == 2:
-            tmp.append('%s/trim/%s/%s_val_1.fq.gz' % (res_path,s,s))
-            tmp.append('%s/trim/%s/%s_val_2.fq.gz' % (res_path,s,s))
+            tmp.append('%s/trim/%s/%s_val_1.fq.gz' % (RES_PATH,s,s))
+            tmp.append('%s/trim/%s/%s_val_2.fq.gz' % (RES_PATH,s,s))
         else:
-            tmp.append('%s/trim/%s/%s_trimmed.fq.gz' % (res_path,s,s))
+            tmp.append('%s/trim/%s/%s_trimmed.fq.gz' % (RES_PATH,s,s))
         return tmp
 
 rule align_STAR:
     input:
         getAlignFastq
     output:
-        unsortedBAM = "analysis/STAR/{sample}/{sample}.unsorted.bam",
-        # sortedBAM = "analysis/STAR/{sample}/{sample}.sorted.bam",
-        transcriptomeBAM = "analysis/STAR/{sample}/{sample}.transcriptome.bam",
-        junction_file = "analysis/STAR/{sample}/{sample}.Chimeric.out.junction",
-        #counts = "analysis/STAR/{sample}/{sample}.counts.tab",
-        log_file = "analysis/STAR/{sample}/{sample}.Log.final.out"
+        unsortedBAM = "%s/STAR/{sample}/{sample}.unsorted.bam" % RES_PATH, 
+        # sortedBAM = "%s/STAR/{sample}/{sample}.sorted.bam" % RES_PATH,
+        transcriptomeBAM = "%s/STAR/{sample}/{sample}.transcriptome.bam" % RES_PATH,
+        junction_file = "%s/STAR/{sample}/{sample}.Chimeric.out.junction" % RES_PATH,
+        #counts = "%s/STAR/{sample}/{sample}.counts.tab" % RES_PATH,
+        log_file = "%s/STAR/{sample}/{sample}.Log.final.out" % RES_PATH
     params:
         gz_support=lambda wildcards: "--readFilesCommand zcat" if config["samples"][wildcards.sample][0][-3:] == '.gz' else "",
-        prefix=lambda wildcards: "analysis/STAR/{sample}".format(sample=wildcards.sample),
+        prefix=lambda wildcards: "{res_path}/STAR/{sample}/".format(res_path=RES_PATH, sample=wildcards.sample),
         readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample),
         # keepPairs = _keepPairs
-    threads: _threads
+    threads: star_threads
     message: "ALIGN: Align {wildcards.sample} to the genome by STAR"
     log:
-        "analysis/logs/STAR/{sample}.star_align.log"
+        "%s/logs/STAR/{sample}.star_align.log" % RES_PATH
     shell:
         "STAR --runThreadN {threads} "
         "--genomeDir {config[STAR_index]} "
@@ -90,12 +90,13 @@ rule align_STAR:
 
 rule align_STAR_sort_bam:
     input:
-        "analysis/STAR/{sample}/{sample}.unsorted.bam",
+        "%s/STAR/{sample}/{sample}.unsorted.bam" % RES_PATH,
     output:
-        sortedBAM = "analysis/STAR/{sample}/{sample}.sorted.bam",
+        sortedBAM = "%s/STAR/{sample}/{sample}.sorted.bam" % RES_PATH,
     message: "ALIGN: Sorting {wildcards.sample}.unsorted.bam"
+    threads: 4
     params:
-        prefix=lambda wildcards: "analysis/STAR/{sample}".format(sample=wildcards.sample),
+        prefix=lambda wildcards: "{res_path}/STAR/{sample}".format(res_path=RES_PATH, sample=wildcards.sample),
     shell:
         "samtools sort -T {params.prefix}TMP -o {output.sortedBAM} -@ {threads} {input}"
 
@@ -103,9 +104,9 @@ rule align_STAR_sort_bam:
 rule align_STAR_index_bam:
     # """INDEX the {sample}.sorted.bam file"""
     input:
-        "analysis/STAR/{sample}/{sample}.sorted.bam"
+        "%s/STAR/{sample}/{sample}.sorted.bam" % RES_PATH
     output:
-        "analysis/STAR/{sample}/{sample}.sorted.bam.bai"
+        "%s/STAR/{sample}/{sample}.sorted.bam.bai" % RES_PATH
     message: "ALIGN: Indexing {wildcards.sample}.sorted.bam"
     shell:
         "samtools index {input}"

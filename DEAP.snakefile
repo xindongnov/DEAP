@@ -132,6 +132,9 @@ add_lisa_config(config)
 loadRef(config)
 #-----------------------------------------
 
+global RES_PATH
+RES_PATH = config['res_path']
+
 def all_targets(wildcards):
     print(config)
     ls = []

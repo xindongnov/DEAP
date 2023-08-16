@@ -3,32 +3,36 @@ metasheet: './metasheet.csv'
 ref: './ref.yaml'
 res_path: 'analysis'
 
-# ALIGNER: if you want to use STAR, set your aligner as 'STAR' (not support yet)
-# OTHERWISE leave it as 'salmon' (default)
-# {'salmon', 'STAR'}
-aligner: 'salmon'
-
-# #Tell us what assembly to use (!! MUST be defined in chips/ref.yaml !!)
+# Tell us what assembly to use (!! MUST be defined in ./ref.yaml !!)
 # typically we support {'mm10', 'hg38'}
 assembly: 'mm10'
-
-# Whethe you want to trim your RNA-seq reads adaptor first.
-# {True, False}
-trim: True
-
-# Whether you want to process lisa on your differential expression genes.
-# Please make sure on you have already installed lisa by the instruction in README.md
-# {True, False}
-lisa: True
 
 # If check_compare is False, DEAP will only trim and align samples that have enough replicates
 # otherwise will trim and align samples but won't process differential expression.
 check_compare: False
 
+# Whethe you want to trim your RNA-seq reads adaptor first.
+# {True, False}
+trim: True
+# threads used for trim adapator
+trim_threads: 4
 
+# ALIGNER: if you want to use STAR, set your aligner as 'STAR' (not support yet)
+# OTHERWISE leave it as 'salmon' (default)
+# {'salmon', 'STAR'}
+aligner: 'salmon'
+# how many threads will aligner use
+aligner_threads: 8
+
+# log fold change
 lfc: 1.5
-
+# False dicovery rate
 fdr: 0.1
+
+# Whether you want to process lisa on your differential expression genes.
+# Please make sure on you have already installed lisa by the instruction in README.md
+# {True, False}
+lisa: True
 
 # DEFINE the samples - each sample should have a name, e.g. SAMPLE1
 # and a path to the input file, e.g. data/sample1.fastq.gz
