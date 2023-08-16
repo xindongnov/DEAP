@@ -7,19 +7,21 @@
 # ================================
 
 _threads = 8
+global res_path
+res_path = config['res_path']
 
 def getAlignFastq(wildcards):
-    r = wildcards.run
+    # r = wildcards.run
     s = wildcards.sample
     if config['trim'] == False:
-        return config['runs'][r]['samples'][s]
+        return config['samples'][s]
     else:
         tmp = []
-        if len(config['runs'][r]['samples'][s]) == 2:
-            tmp.append('analysis/%s/samples/%s/trim/%s_val_1.fq.gz' % (r,s,s))
-            tmp.append('analysis/%s/samples/%s/trim/%s_val_2.fq.gz' % (r,s,s))
+        if len(config['samples'][s]) == 2:
+            tmp.append('%s/trim/%s/%s_val_1.fq.gz' % (res_path,s,s))
+            tmp.append('%s/trim/%s/%s_val_2.fq.gz' % (res_path,s,s))
         else:
-            tmp.append('analysis/%s/samples/%s/trim/%s_trimmed.fq.gz' % (r,s,s))
+            tmp.append('%s/trim/%s/%s_trimmed.fq.gz' % (res_path,s,s))
         return tmp
 
 def align_salmon_targets(wildcards):
@@ -27,21 +29,21 @@ def align_salmon_targets(wildcards):
     for run in config["runs"]:
         if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
             for sample in config["runs"][run]['samples']:
-                ls.append('analysis/%s/samples/%s/align/quant.sf' % (run,sample))
+                ls.append('%s/salmon/%s/quant.sf' % (res_path, sample))
     return ls
 
 rule align_Salmon:
     input:
         getAlignFastq
     output:
-        "analysis/{run}/samples/{sample}/align/quant.sf"
+        "%s/salmon/{sample}/quant.sf" % res_path
     params:
         index=config["salmon_index"],
         _inputs=lambda wildcards,input: "-1 %s -2 %s" % (input[0], input[1]) if len(input) == 2 else '-r %s' % input[0],
-        output_path=lambda wildcards: "analysis/%s/samples/%s/align/" % (wildcards.run,wildcards.sample),
+        output_path=lambda wildcards: "%s/salmon/%s/" % (res_path, wildcards.sample),
         bootstrap=100,
-        gcbias=lambda wildcards: "--gcBias" if len(config['runs'][wildcards.run]['samples'][wildcards.sample]) == 2 else "",
-    log: "analysis/{run}/log/{sample}_align_Salmon.log"
+        gcbias=lambda wildcards: "--gcBias" if len(config['samples'][wildcards.sample]) == 2 else "",
+    log: "%s/log/salmon/{sample}_align_Salmon.log" % res_path
     message: "ALIGN: Align {wildcards.sample} to the genome by salmon"
     threads: _threads
     shell:

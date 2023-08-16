@@ -1,5 +1,4 @@
 # trim adapter module
-_threads=4
 
 # ================================
 # @auther: Xin Dong
@@ -7,25 +6,30 @@ _threads=4
 # @date: Sep 2019
 # ================================
 
+_threads=4
+global res_path
+res_path = config['res_path']
+
 def getTrimFastq(wildcards):
-    if config['runs'][wildcards.run]['samples']:
-        s = config['runs'][wildcards.run]['samples'][wildcards.sample]
+    if wildcards.sample in config['samples']:
+        s = config['samples'][wildcards.sample]
     return s
 
 
 def trim_targets(wildcards):
     ls = []
     for run in config["runs"]:
-        if config["runs"][run]['type'] == "RS" and config["runs"][run]['samples']:
+        if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
             for sample in config["runs"][run]['samples']:
                 # print(run,sample)
-                if len(config["runs"][run]['samples'][sample]) == 2:
-                    ls.append('analysis/%s/samples/%s/trim/%s_val_1.fq.gz' % (run,sample,sample))
-                    ls.append('analysis/%s/samples/%s/trim/%s_val_2.fq.gz' % (run,sample,sample))
+                # for paired-end data, will generate val1 and val2
+                if len(config['samples'][sample]) == 2:
+                    ls.append('%s/trim/%s/%s_val_1.fq.gz' % (res_path, sample,sample))
+                    ls.append('%s/trim/%s/%s_val_2.fq.gz' % (res_path, sample,sample))
                 else:
-                    ls.append('analysis/%s/samples/%s/trim/%s_trimmed.fq.gz' % (run,sample,sample))
-                    ls.append('analysis/%s/samples/%s/trim/%s_trimmed_fastqc.zip' % (run,sample,sample))
-                    ls.append('analysis/%s/samples/%s/trim/%s_trimmed_fastqc.html' % (run,sample,sample))
+                    ls.append('%s/trim/%s/%s_trimmed.fq.gz' % (res_path, sample,sample))
+                    ls.append('%s/trim/%s/%s_trimmed_fastqc.zip' % (res_path, sample,sample))
+                    ls.append('%s/trim/%s/%s_trimmed_fastqc.html' % (res_path, sample,sample))
     return ls
 
 
@@ -33,17 +37,17 @@ rule trim_PairedEndAdapter:
     input:
         getTrimFastq
     output:
-        'analysis/{run}/samples/{sample}/trim/{sample}_val_1.fq.gz',
-        'analysis/{run}/samples/{sample}/trim/{sample}_val_2.fq.gz',
+        '%s/trim/{sample}/{sample}_val_1.fq.gz' % res_path,
+        '%s/trim/{sample}/{sample}_val_2.fq.gz' % res_path,
     params:
         quality=20,
         error_rate=0.1,
         stringency=8,
         length=20,
-        output_dir=lambda wildcards: 'analysis/%s/samples/%s/trim/' % (wildcards.run, wildcards.sample),
+        output_dir=lambda wildcards: '%s/trim/%s/' % (res_path, wildcards.sample),
         # file=lambda wildcards, input: '--paired %s %s' % (input[0],input[1]) if len(input) == 2 else '%s' % input, 
         basename=lambda wildcards: '%s' % wildcards.sample
-    log: "analysis/{run}/log/{sample}_trim_PairedEndAdapter.log"
+    log: "%s/log/trim/{sample}_trim_PairedEndAdapter.log" % res_path
     message: "TRIM: Trim adaptor for paired-end sample - {wildcards.sample} " 
     threads: _threads
     shell:
@@ -55,17 +59,17 @@ rule trim_SingleEndAdapter:
     input:
         getTrimFastq
     output:
-        'analysis/{run}/samples/{sample}/trim/{sample}_trimmed.fq.gz',
-        'analysis/{run}/samples/{sample}/trim/{sample}_trimmed_fastqc.zip',
-        'analysis/{run}/samples/{sample}/trim/{sample}_trimmed_fastqc.html',
+        '%s/trim/{sample}/{sample}_trimmed.fq.gz' % res_path,
+        '%s/trim/{sample}/{sample}_trimmed_fastqc.zip' % res_path,
+        '%s/trim/{sample}/{sample}_trimmed_fastqc.html' % res_path,
     params:
         quality=20,
         error_rate=0.1,
         stringency=8,
         length=20,
-        output_dir=lambda wildcards: 'analysis/%s/samples/%s/trim/' % (wildcards.run, wildcards.sample),
+        output_dir=lambda wildcards: '%s/trim/%s/' % (res_path, wildcards.sample),
         basename=lambda wildcards: '%s' % wildcards.sample
-    log: "analysis/{run}/log/{sample}_trim_SingleEndAdapter.log"
+    log: "%s/log/trim/{sample}_trim_SingleEndAdapter.log" % res_path
     message: "TRIM: Trim adaptor for paired-end sample - {wildcards.sample} "
     threads: _threads
     shell:

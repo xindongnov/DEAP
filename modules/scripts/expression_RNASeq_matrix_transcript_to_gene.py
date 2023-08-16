@@ -24,17 +24,19 @@ def main():
     parser.add_argument('-i', '--input', help='input matrix file', required=True)
     parser.add_argument('-o', '--output', help='the path to save', default="./output.txt")
     parser.add_argument('-r', '--reference', help='transformed gtf reference', required=True)
-    # parser.add_argument('-t', '--type', help='type of data', choices = ['Rawcount', 'TPM'], required=True)
+    parser.add_argument('-f', '--fromtype', help='to format', default="transcript_id", choices = ['transcript_id', 'gene_id'], required=True)
+    parser.add_argument('-t', '--totype', help='to format', default="gene_name", choices = ['gene_name', 'gene_id'], required=True)
     args = parser.parse_args()
 
     input = args.input
     result_path = args.output
     ref = args.reference
-    # dtype = args.type
+    tfrom = args.fromtype
+    tto = args.totype
 
     in_matrix = pd.read_csv(input, sep='\t', index_col=0)
     gtf_anno = pd.read_csv(ref, sep='\t')
-    mapping_dict = gtf_anno.set_index('transcript_id').loc[in_matrix.index, 'gene_name'].to_dict()
+    mapping_dict = gtf_anno.set_index(tfrom).loc[in_matrix.index, tto].to_dict()
     in_matrix['name'] = in_matrix.index.map(mapping_dict)
 
     output = in_matrix.groupby('name').max()

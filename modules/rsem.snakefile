@@ -1,12 +1,16 @@
-#!/usr/bin/env python
+# ==================================
+# @File    :   rsem.snakefile
+# @Time    :   2023/07/14 21:28:24
+# @Author  :   Xin Dong @ref:RIMA
+# @Contact :   xindong9511@gmail.com
+# @License :   (C)Copyright 2020-2023, XinDong
+# ==================================
 
-#-------------------------------RSEM gene quantification------------------------#
-# @author: Jin Wang @ref:VIPER
-# @email: jwang0611@gmail.com
-# @date: May, 2019
+
+
 import pandas as pd
 
-metadata = pd.read_csv(config["metasheet"], index_col=0, sep=',')
+# metadata = pd.read_csv(config["metasheet"], index_col=0, sep=',')
 
 def merge_sep_inputs(inputs):
     inputs_format = ' -f '.join(str(i) for i in list(inputs)[0])
@@ -15,16 +19,12 @@ def merge_sep_inputs(inputs):
 def rsem_quantification_targets(wildcards):
     ls = []
     for sample in config["samples"]:
-        ls.append("analysis/rsem/%s/%s.isoforms.results" % (sample, sample))
-        ls.append("analysis/rsem/%s/%s.genes.results" % (sample, sample))
-    ls.append("analysis/rsem/rsem_tpm_iso_matrix.csv")
-    ls.append("analysis/rsem/rsem_tpm_gene_matrix.csv")
+        pass
+    #     ls.append("analysis/rsem/%s/%s.isoforms.results" % (sample, sample))
+    #     ls.append("analysis/rsem/%s/%s.genes.results" % (sample, sample))
+    # ls.append("analysis/rsem/rsem_tpm_iso_matrix.csv")
+    # ls.append("analysis/rsem/rsem_tpm_gene_matrix.csv")
     return ls
-
-
-rule rsem_quantification_all:
-    input:
-        rsem_quantification_targets
 
 
 rule rsem_quantification:
@@ -42,9 +42,9 @@ rule rsem_quantification:
     conda: "../envs/rsem_env.yml"
     params:
         sample_name = lambda wildcards: "analysis/rsem/{sample}/{sample}".format(sample=wildcards.sample),
-        stranded = "--strand-specific" if config["stranded"] else "",
-        paired_end = "--paired-end" if len(config["mate"]) == 2 else "",
-        gz_support="--star-gzipped-read-file" if config["samples"][metadata.index[0]][0][-3:] == '.gz' else ""
+        # stranded = "--strand-specific" if config["stranded"] else "",
+        # paired_end = "--paired-end" if len(config["mate"]) == 2 else "",
+        gz_support=lambda wildcards: "--star-gzipped-read-file" if config["samples"][wildcards.sample][0][-3:] == '.gz' else ""
     threads:
         2
     shell:
@@ -64,7 +64,7 @@ rule rsem_quantification:
 rule rsem_iso_matrix:
     input:
         rsem_iso_files = expand( "analysis/rsem/{sample}/{sample}.isoforms.results", sample=config["samples"] ),
-        metasheet = config['metasheet']
+        # metasheet = config['metasheet']
     output:
         rsem_iso_matrix = "analysis/rsem/rsem_tpm_iso_matrix.csv"
     message: 
@@ -81,7 +81,7 @@ rule rsem_iso_matrix:
 rule rsem_gene_matrix:
     input:
         rsem_gene_files = expand( "analysis/rsem/{sample}/{sample}.genes.results", sample=config["samples"] ),
-        metasheet = config["metasheet"]
+        # metasheet = config["metasheet"]
     output:
         rsem_gene_matrix = "analysis/rsem/rsem_tpm_gene_matrix.csv"
     message: 

@@ -217,3 +217,54 @@ Since LISA also uses snakemake to build the workflow, to avoid the version confl
     conda deactivate
     conda activate DEAP
     ```
+
+### Reference building
+
+- use script:  
+  - salmon_index:  
+  `bash DEAP/modules/scripts/reference_salmon_index.sh <reference_output_path> <transcriptome_fasta_path> <gtf_path> <threads>`  
+  - STAR_index:  
+  `bash DEAP/modules/scripts/reference_STAR_index.sh <reference_output_path> <genome_fasta_path> <gtf_path> <threads>`  
+  - transformed_gtf:  
+  `python DEAP/modules/scripts/reference_prepare.py -g <gtf file> -o <output file>`  
+- hg38:
+  
+  ```yaml
+  hg38:
+    salmon_index: ./ref_files/hg38/salmon_index/
+    STAR_index: ./ref_files/hg38/STAR_index
+    gtf: ./ref_files/hg38/gencode.v29.primary_assembly.annotation_UCSC_names.gtf.gz
+    transformed_gtf: ./ref_files/hg38/hg38_gtf_full_table.txt.gz
+    GPL: ./ref_files/GPL/
+  ```
+
+  download from:  
+  - gencode V29: <https://www.gencodegenes.org/human/release_29.html>  
+  - ENOCDE: <https://www.encodeproject.org/references/ENCSR151GDH/>
+  - STAR index: <https://www.encodeproject.org/files/ENCFF598IDH/>
+  - rsem index: <https://www.encodeproject.org/files/ENCFF285DRD/>
+  - gtf: <https://www.encodeproject.org/files/gencode.v29.primary_assembly.annotation_UCSC_names/>  
+  - genome_fasta:  <https://www.encodeproject.org/files/GRCh38_no_alt_analysis_set_GCA_000001405.15/>
+  - transcriptome_fasta: <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_29/gencode.v29.transcripts.fa.gz>
+  - chromosome_size: <https://www.encodeproject.org/files/GRCh38_EBV.chrom.sizes/>
+
+- mm10:  
+  
+  ```yaml
+  mm10:
+    salmon_index: ./ref_files/mm10/salmon_index
+    STAR_index: ./ref_files/mm10/STAR_index
+    gtf: ./ref_files/mm10/gencode.vM21.primary_assembly.annotation_UCSC_names.gtf.gz
+    transformed_gtf: ./ref_files/mm10/mm10_gtf_full_table.txt.gz
+    GPL: ./ref_files/GPL/
+  ```
+
+  download from:  
+  - gencode M21: <https://www.gencodegenes.org/mouse/release_M21.html>  
+  - ENCODE: <https://www.encodeproject.org/references/ENCSR496QMW/>
+  - STAR index: <https://www.encodeproject.org/files/ENCFF795ZFF/>
+  - rsem index: <https://www.encodeproject.org/files/ENCFF363TFV/>
+  - gtf: <https://www.encodeproject.org/files/gencode.vM21.primary_assembly.annotation_UCSC_names/>  
+  - genome_fasta: <https://www.encodeproject.org/files/mm10_no_alt_analysis_set_ENCODE/>  
+  - transcriptome_fasta: <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M21/gencode.vM21.transcripts.fa.gz>  
+  - chromosome_size: <https://www.encodeproject.org/files/mm10_no_alt.chrom.sizes/>  

@@ -1,6 +1,7 @@
 # You won't typically have to change the following two lines!
 metasheet: './metasheet.csv'
 ref: './ref.yaml'
+res_path: 'analysis'
 
 # ALIGNER: if you want to use STAR, set your aligner as 'STAR' (not support yet)
 # OTHERWISE leave it as 'salmon' (default)

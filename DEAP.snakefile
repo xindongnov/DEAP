@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# ================================
-# @auther: Xin Dong
-# @email: xindong9511@gmail.com
-# @date: Sep 2019
-# ================================
+# =================
+# @File    :   DEAP.snakefile
+# @Time    :   2023/07/14 21:27:34
+# @Author  :   Xin Dong
+# @Contact :   xindong9511@gmail.com
+# @License :   (C)Copyright 2020-2023, XinDong
+# =================
 
 
 import os
@@ -128,19 +130,22 @@ add_lisa_config(config)
 
 #NOW load ref.yaml - SIDE-EFFECT: loadRef CHANGES config
 loadRef(config)
-# print(config)
 #-----------------------------------------
 
 def all_targets(wildcards):
-    # print(config)
+    print(config)
     ls = []
     #IMPORT all of the module targets
     if config['trim'] == True:
         ls.extend(trim_targets(wildcards))
-    ls.extend(align_salmon_targets(wildcards))
-    ls.extend(experssion_targets(wildcards))
-    if config['lisa'] == True:
-        ls.extend(lisa_targets(wildcards))
+    if config['aligner'] == 'STAR':
+        ls.extend(align_STAR_targets(wildcards))
+        # ls.extend(rsem_quantification_targets(wildcards))
+    else:
+        ls.extend(align_salmon_targets(wildcards))
+    # ls.extend(experssion_targets(wildcards))
+    # if config['lisa'] == True:
+    #     ls.extend(lisa_targets(wildcards))
     # print(ls)
     return ls   
 
@@ -149,7 +154,8 @@ rule all:
 
 include: "./modules/trim.snakefile"
 if config['aligner'] == 'STAR':
-    include: "./modules/align_STAR.snakefile"     # rules specific to STAR
+    include: "./modules/align_STAR.snakefile"  # rules specific to STAR
+    # include: "./modules/rsem.snakefile"        # rules specific to STAR
 else:
     include: "./modules/align_salmon.snakefile"   # rules specific to salmon
 include: "./modules/expression.snakefile"

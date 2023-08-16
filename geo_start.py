@@ -55,7 +55,9 @@ def main():
         config["samples"] = {}
         for i,j in id_run_list:
             folder = os.listdir("data/%s" % j)
-            config["samples"][i] = [os.path.join("data/%s" % j,file_name) for file_name in folder if i in file_name]
+            fq_list = [os.path.join("data/%s" % j,file_name) for file_name in folder if i in file_name]
+            fq_list.sort()
+            config["samples"][i] = fq_list
         with open(args.sampleconfig,"w") as sample_config:
             yaml.safe_dump(config, sample_config)
         snkmk_cmd = "snakemake -s DEAP/DEAP.snakefile --configfile %s -j %s %s" % (args.sampleconfig,args.jobs,args.command)

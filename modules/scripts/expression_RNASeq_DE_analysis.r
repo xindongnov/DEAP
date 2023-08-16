@@ -43,13 +43,13 @@ rawcount <- as.matrix(read.table(profile_path, header=T, sep="\t", row.names = 1
 tran_gene <- rawcount[,1]
 # rawcount <- rawcount[,-1]
 # rownames(rawcount) <- tran_gene
-mode(rawcount)<-"integer"
-design_matrix <- as.data.frame(c(treatsample,controlsample))
+mode(rawcount) <- "integer"
+design_matrix <- as.data.frame(c(treatsample, controlsample))
 colnames(design_matrix)="sample"
-design_matrix$condition <- c(rep(controlname,nrow(design_matrix)))
+design_matrix$condition <- c(rep(controlname, nrow(design_matrix)))
 design_matrix$condition[match(treatsample, as.character(design_matrix$sample))] <- treatname
-design_matrix$label_c <- c(rep(1,nrow(design_matrix)))
-design_matrix$label_c[match(treatsample,design_matrix$sample)] <- 2
+design_matrix$label_c <- c(rep(1, nrow(design_matrix)))
+design_matrix$label_c[match(treatsample, design_matrix$sample)] <- 2
 # print(design_matrix)
 # print(match(design_matrix$sample,colnames(rawcount)),])
 # design_matrix <- design_matrix[match(design_matrix$sample,colnames(rawcount)),]
@@ -62,7 +62,7 @@ if(length(treatsample) >= 2 & length(controlsample) >= 2){
 
   ddsFullCountTable <- DESeqDataSetFromMatrix(countData = rawcount, colData = sampleTable, design= ~ condition)
   dds <- DESeq(ddsFullCountTable)
-  # dds <- dds[rowSums(counts(dds)) > 0,]
+  dds <- dds[rowSums(counts(dds)) > 0,]
 
   ## following code is used to remove batch effect, which may not be needed
   # dat <- counts(dds, normalized=TRUE)
@@ -82,9 +82,9 @@ if(length(treatsample) >= 2 & length(controlsample) >= 2){
 
   # df <- data.frame(matrix(unlist(des.re@listData), ncol=6))
   # colnames(df)=names(des.re@listData)
-  df <- cbind(row.names(des.re),des.re)
+  df <- cbind(row.names(des.re), des.re)
   colnames(df) <- c('symbol', 'AveExpr','logFC','lfcSE','stat','P.Value','adj.P.Val')
-  # df_dropna <- na.omit(df)
+  df_dropna <- na.omit(df)
   # aggregate(df_dropna$AveExpr, by = list(df_dropna$symbol), max)
   # df_dropna_dedup <- df_dropna[!duplicated(df_dropna$symbol),]
   write.table(df, result_path, quote=F, col.names=T, row.names = F, sep="\t")
