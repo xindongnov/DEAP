@@ -29,16 +29,19 @@ def align_salmon_targets(wildcards):
     for run in config["runs"]:
         if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
             for sample in config["runs"][run]['samples']:
-                ls.append('%s/salmon/%s/quant.sf' % (RES_PATH, sample))
+                ls.append('%s/salmon/%s/%s.quant.sf' % (RES_PATH, sample, sample))
+                ls.append('%s/salmon/%s/%s.quant.genes.sf' % (RES_PATH, sample, sample))
     return ls
 
-rule align_Salmon:
+rule align_salmon:
     input:
         getAlignFastq
     output:
-        "%s/salmon/{sample}/quant.sf" % RES_PATH
+        "%s/salmon/{sample}/quant.sf" % RES_PATH,
+        "%s/salmon/{sample}/quant.genes.sf" % RES_PATH
     params:
         index=config["salmon_index"],
+        gtf=config['gtf'],
         _inputs=lambda wildcards,input: "-1 %s -2 %s" % (input[0], input[1]) if len(input) == 2 else '-r %s' % input[0],
         output_path=lambda wildcards: "%s/salmon/%s/" % (RES_PATH, wildcards.sample),
         bootstrap=100,
@@ -47,8 +50,25 @@ rule align_Salmon:
     message: "ALIGN: Align {wildcards.sample} to the genome by salmon"
     threads: salmon_threads
     shell:
-        "salmon quant -i {params.index} -l A {params._inputs} -o {params.output_path} "
-        "--numBootstraps {params.bootstrap} -p {threads} {params.gcbias} --validateMappings > {log} 2>&1"
+        "salmon quant -i {params.index} -g {params.gtf} "
+        "-l A {params._inputs} -o {params.output_path} "
+        "--numBootstraps {params.bootstrap} -p {threads} "
+        "{params.gcbias} --validateMappings > {log} 2>&1"
 
+rule align_salmonRenameTranscripts:
+    input:
+        "%s/salmon/{sample}/quant.sf" % RES_PATH
+    output:
+        "%s/salmon/{sample}/{sample}.quant.sf" % RES_PATH
+    message: "ALIGN: rename salmon output of {wildcards.sample}"
+    shell:
+        "mv {input} {output}"
 
-
+rule align_salmonRenameGenes:
+    input:
+        "%s/salmon/{sample}/quant.genes.sf" % RES_PATH
+    output:
+        "%s/salmon/{sample}/{sample}.quant.genes.sf" % RES_PATH
+    message: "ALIGN: rename salmon output of {wildcards.sample}"
+    shell:
+        "mv {input} {output}"

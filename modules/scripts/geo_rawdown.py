@@ -288,10 +288,10 @@ def main():
             PREFETCH_status = downloadFastqByPrefetch(path,gsm,SRR,LayType)
             if PREFETCH_status == False:
                 sys.stderr.write("+++++ WARNING: Could NOT download %s sra file by PREFETCH. Trying EBI. +++++\n\n" % gsm)
-                EBI_status = downloadFastqFromEBI(path,gsm,SRR,LayType)
-                if EBI_status == False:
-                    sys.stderr.write("!!!!! ERROR: Could NOT download %s sra file from EBI. END QUERY. !!!!!\n\n" % gsm)
-                    sys.exit(5)
+                # EBI_status = downloadFastqFromEBI(path,gsm,SRR,LayType)
+                # if EBI_status == False:
+                #     sys.stderr.write("!!!!! ERROR: Could NOT download %s sra file from EBI. END QUERY. !!!!!\n\n" % gsm)
+                sys.exit(5)
         else:
             sys.stderr.write("!!!!! ERROR: Do not find SRR information for %s. Experiment data may not be public. !!!!!\n\n" % gsm)
             sys.exit(4)

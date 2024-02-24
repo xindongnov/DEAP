@@ -64,38 +64,38 @@ def updateMeta(config):
             config["runs"][run]['samples'] = {}
             config["runs"][run]['compare'] = {}
             design = metadata.loc[run,comp_list]
-            if config['check_compare'] == True:
-                for c in design.loc[run,comp_list[2:]]:
-                    sample_list = [] # init sample_list
-                    control = list(design.loc[:,c]).count(0)
-                    treat = list(design.loc[:,c]).count(1)
-                    NA = len(design.loc[:,c]) - treat - control
-                    if control == 1 or treat == 1 or NA == len(design.loc[:,c]):
-                        sys.stdout.write("WARNING: run: %s, compare: %s do not have enough data!\n" % (run,c))
-                        sys.stdout.write("The samples in this comparison will not implement alignment and differential expression.\n")
-                    else:
-                        sample_list.extend(design.loc[design.loc[:,c] == 0,'sample'])
-                        sample_list.extend(design.loc[design.loc[:,c] == 1,'sample'])
-                        # only add useful sample in config
-                        for s in sample_list:
-                            if s not in config["runs"][run]['samples']:
-                                config["runs"][run]['samples'][s] = config['samples'][s]
-                        config["runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 0,'treatment'])[0], 
-                                                                         'sample': list(design.loc[design.loc[:,c] == 0,'sample'])},
-                                                               'treat': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
-                                                                         'sample': list(design.loc[design.loc[:,c] == 1,'sample'])}}
-                    config["runs"][run]['raw_design'] = metadata.loc[run,comp_list]
-            else:
+            # if config['check_compare'] == True:
+            #     for c in design.loc[run,comp_list[2:]]:
+            #         sample_list = [] # init sample_list
+            #         control = list(design.loc[:,c]).count(0)
+            #         treat = list(design.loc[:,c]).count(1)
+            #         NA = len(design.loc[:,c]) - treat - control
+            #         if control == 1 or treat == 1 or NA == len(design.loc[:,c]):
+            #             sys.stdout.write("WARNING: run: %s, compare: %s do not have enough data!\n" % (run,c))
+            #             sys.stdout.write("The samples in this comparison will not implement alignment and differential expression.\n")
+            #         else:
+            #             sample_list.extend(design.loc[design.loc[:,c] == 0,'sample'])
+            #             sample_list.extend(design.loc[design.loc[:,c] == 1,'sample'])
+            #             # only add useful sample in config
+            #             for s in sample_list:
+            #                 if s not in config["runs"][run]['samples']:
+            #                     config["runs"][run]['samples'][s] = config['samples'][s]
+            #             config["runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 0,'treatment'])[0], 
+            #                                                              'sample': list(design.loc[design.loc[:,c] == 0,'sample'])},
+            #                                                    'treat': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
+            #                                                              'sample': list(design.loc[design.loc[:,c] == 1,'sample'])}}
+            #         config["runs"][run]['raw_design'] = metadata.loc[run,comp_list]
+            # else:
                 # wrote sample information into config
-                for s in list(metadata.loc[run,"sample"]):
-                    config["runs"][run]['samples'][s] = config['samples'][s]
-                for c in design.loc[run,comp_list[2:]]:
-                    if len(pd.unique(design.loc[:,c])) != 1:
-                        config["runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 0,'treatment'])[0], 
-                                                                         'sample': list(design.loc[design.loc[:,c] == 0,'sample'])},
-                                                               'treat': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
-                                                                         'sample': list(design.loc[design.loc[:,c] == 1,'sample'])}}
-                config["runs"][run]['raw_design'] = metadata.loc[run,comp_list]
+            for s in list(metadata.loc[run,"sample"]):
+                config["runs"][run]['samples'][s] = config['samples'][s]
+            for c in design.loc[run,comp_list[2:]]:
+                if len(pd.unique(design.loc[:,c])) != 1:
+                    config["runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 0,'treatment'])[0], 
+                                                                        'sample': list(design.loc[design.loc[:,c] == 0,'sample'])},
+                                                            'treat': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
+                                                                        'sample': list(design.loc[design.loc[:,c] == 1,'sample'])}}
+            config["runs"][run]['raw_design'] = metadata.loc[run,comp_list]
         else:
             sys.stdout.write("WARNING: %s does NOT match any Experiment type." % run)
     return config

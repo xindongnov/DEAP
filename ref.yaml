@@ -1,13 +1,15 @@
 hg38:
   salmon_index: ./ref_files/hg38/salmon_index/
-  STAR_index: ./ref_files/hg38/STAR_index
+  STAR_index: ./ref_files/hg38/STAR_index/
+  rsem_index: ./ref_files/hg38/rsem_index/
   gtf: ./ref_files/hg38/gencode.v29.primary_assembly.annotation_UCSC_names.gtf.gz
   transformed_gtf: ./ref_files/hg38/hg38_gtf_full_table.txt.gz
   GPL: ./ref_files/GPL/
 
 mm10:
-  salmon_index: ./ref_files/mm10/salmon_index
-  STAR_index: ./ref_files/mm10/STAR_index
+  salmon_index: ./ref_files/mm10/salmon_index/
+  STAR_index: ./ref_files/mm10/STAR_index/
+  rsem_index: ./ref_files/mm10/rsem_index/
   gtf: ./ref_files/mm10/gencode.vM21.primary_assembly.annotation_UCSC_names.gtf.gz
   transformed_gtf: ./ref_files/mm10/mm10_gtf_full_table.txt.gz
   GPL: ./ref_files/GPL/

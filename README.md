@@ -11,8 +11,8 @@ We suppose you start your project with `PROJECT` folder:
 ```bash
 mkdir PROJECT
 cd PROJECT
-git clone git@github.com:XinDong9511/DEAP.git
-conda env create -n DEAP -f DEAP/environment.yaml # this might take long time based on your network environment
+git clone git@github.com:xindong95/DEAP.git
+conda env create -f DEAP/environment.yaml # this might take long time based on your network environment, use mamba is recommended
 conda activate DEAP
 ```
 
@@ -22,7 +22,7 @@ The data can be stored anywhere with the given path in the config.yaml file, but
 mkdir data
 ```
 
-You can download reference files [here](/mnt/Storage/home/dongxin/Files/DEAP_ref_files). All compressed files should be extracted to the `ref_files` folder.
+You can download reference files [here](/fs/home/dongxin/Files/DEAP_ref_files). All compressed files should be extracted to the `ref_files` folder.
 
 ```bash
 mkdir ref_files
@@ -39,7 +39,7 @@ cd ..
 If you have already downloaded reference files on your server or local machine, we recommend you link the reference files by the soft link:
 
 ```bash
-ln -s /mnt/Storage/home/dongxin/Files/DEAP_ref_files ref_files
+ln -s /fs/home/dongxin/Files/DEAP_ref_files ref_files
 ```
 
 Copy needed config files to the current folder.
@@ -53,7 +53,7 @@ cp DEAP/config.yaml .
 Then your folder structure would be like this:  
 
 > PROJECT/  
-├── data  *(store your data)  
+├── data  *(store your data)*  
 ├── ref_files  
 ├── DEAP *(this one is the git repo)*  
 ├── metasheet.csv  

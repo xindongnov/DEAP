@@ -18,9 +18,11 @@ def align_STAR_targets(wildcards):
     for run in config["runs"]:
         if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
             for sample in config["runs"][run]['samples']:
-                ls.append('{res_path}/STAR/{sample}/{sample}.unsorted.bam'.format(res_path=RES_PATH, sample=sample))
-                ls.append('{res_path}/STAR/{sample}/{sample}.sorted.bam'.format(res_path=RES_PATH, sample=sample))
-                ls.append('{res_path}/STAR/{sample}/{sample}.sorted.bam.bai'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.out.bam'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.ReadsPerTranscript.byfeatureCounts.txt'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.ReadsPerGene.byfeatureCounts.txt'.format(res_path=RES_PATH, sample=sample))
     return ls
 
 def getAlignFastq(wildcards):
@@ -40,76 +42,104 @@ rule align_STAR:
     input:
         getAlignFastq
     output:
-        unsortedBAM = "%s/STAR/{sample}/{sample}.unsorted.bam" % RES_PATH, 
-        # sortedBAM = "%s/STAR/{sample}/{sample}.sorted.bam" % RES_PATH,
-        transcriptomeBAM = "%s/STAR/{sample}/{sample}.transcriptome.bam" % RES_PATH,
-        junction_file = "%s/STAR/{sample}/{sample}.Chimeric.out.junction" % RES_PATH,
-        #counts = "%s/STAR/{sample}/{sample}.counts.tab" % RES_PATH,
-        log_file = "%s/STAR/{sample}/{sample}.Log.final.out" % RES_PATH
+        "%s/STAR/{sample}/{sample}.Aligned.out.bam" % RES_PATH, 
+        "%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH,
+        "%s/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam" % RES_PATH,
+        "%s/STAR/{sample}/{sample}.ReadsPerGene.out.tab" % RES_PATH,
+        "%s/STAR/{sample}/{sample}.Chimeric.out.junction" % RES_PATH,
+        "%s/STAR/{sample}/{sample}.Chimeric.out.sam" % RES_PATH,
+        "%s/STAR/{sample}/{sample}.SJ.out.tab" % RES_PATH,
+        "%s/STAR/{sample}/{sample}.Log.final.out" % RES_PATH
     params:
         gz_support=lambda wildcards: "--readFilesCommand zcat" if config["samples"][wildcards.sample][0][-3:] == '.gz' else "",
-        prefix=lambda wildcards: "{res_path}/STAR/{sample}/".format(res_path=RES_PATH, sample=wildcards.sample),
+        prefix=lambda wildcards: "{res_path}/STAR/{sample}/{sample}.".format(res_path=RES_PATH, sample=wildcards.sample),
         readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample),
         # keepPairs = _keepPairs
     threads: star_threads
     message: "ALIGN: Align {wildcards.sample} to the genome by STAR"
     log:
-        "%s/logs/STAR/{sample}.star_align.log" % RES_PATH
+        "%s/logs/STAR/{sample}.align_STAR.log" % RES_PATH
     shell:
         "STAR --runThreadN {threads} "
         "--genomeDir {config[STAR_index]} "
+        "--genomeLoad NoSharedMemory "
+        "--readFilesIn {input} "
+        "{params.gz_support} "
+        "--outSAMtype BAM Unsorted SortedByCoordinate "
+        "--outFileNamePrefix {params.prefix} "
+        "--outSAMheaderHD @HD VN:1.4 "
+        "--outSAMstrandField intronMotif "
+        "--outSAMunmapped Within "
         "--outReadsUnmapped Fastx "
-        "--chimSegmentMin 12 "
-        "--chimJunctionOverhangMin 12 "
-        # "--chimOutJunctionFormat 1 "
+        "--outWigType bedGraph read1_5p "
         "--alignSJDBoverhangMin 10 "
         "--alignMatesGapMax 1000000 "
         "--alignIntronMax 1000000 "
         "--alignSJstitchMismatchNmax 5 -1 5 5 "
-        "--outSAMstrandField intronMotif "
-        "--outSAMunmapped Within "
-        "--outSAMtype BAM Unsorted "
-        "--readFilesIn {input} "
+        "--chimSegmentMin 12 "
+        "--chimJunctionOverhangMin 12 "
+        # "--chimOutJunctionFormat 1 "
         # "--chimMultimapScoreRange 10 "
         # "--chimMultimapNmax 10 "
         # "--chimNonchimScoreDropMin 10 "
         # "--peOverlapNbasesMin 12 "
         # "--peOverlapMMp 0.1 "
-        "--genomeLoad NoSharedMemory "
-        "--outSAMheaderHD @HD VN:1.4 "
         "--twopassMode Basic "
-        "{params.gz_support} "
-        "--outFileNamePrefix {params.prefix} "
-        "--quantMode TranscriptomeSAM"
-        " && mv {params.prefix}Aligned.out.bam {output.unsortedBAM}"
-        # " && samtools sort -T {params.prefix}TMP -o {output.sortedBAM} -@ {threads} {output.unsortedBAM}"
-        " && mv {params.prefix}Aligned.toTranscriptome.out.bam {output.transcriptomeBAM}"
-        #" && mv {params.prefix}ReadsPerGene.out.tab {output.counts}"
-        " && mv {params.prefix}Chimeric.out.junction {output.junction_file}"
-        " && mv {params.prefix}Log.final.out {output.log_file}"
-
-rule align_STAR_sort_bam:
-    input:
-        "%s/STAR/{sample}/{sample}.unsorted.bam" % RES_PATH,
-    output:
-        sortedBAM = "%s/STAR/{sample}/{sample}.sorted.bam" % RES_PATH,
-    message: "ALIGN: Sorting {wildcards.sample}.unsorted.bam"
-    threads: 4
-    params:
-        prefix=lambda wildcards: "{res_path}/STAR/{sample}".format(res_path=RES_PATH, sample=wildcards.sample),
-    shell:
-        "samtools sort -T {params.prefix}TMP -o {output.sortedBAM} -@ {threads} {input}"
+        "--quantMode TranscriptomeSAM GeneCounts > {log} 2>&1"
 
 
-rule align_STAR_index_bam:
+rule align_STARIndexBam:
     # """INDEX the {sample}.sorted.bam file"""
     input:
-        "%s/STAR/{sample}/{sample}.sorted.bam" % RES_PATH
+        "%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH
     output:
-        "%s/STAR/{sample}/{sample}.sorted.bam.bai" % RES_PATH
-    message: "ALIGN: Indexing {wildcards.sample}.sorted.bam"
+        "%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai" % RES_PATH
+    message: "ALIGN: Indexing {wildcards.sample}.Aligned.sortedByCoord.out.bam"
     shell:
         "samtools index {input}"
+
+rule align_STARfeatureCountTranscript:
+    input:
+        bam="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH,
+        bai="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai" % RES_PATH
+    output:
+        "%s/STAR/{sample}/{sample}.ReadsPerTranscript.byfeatureCounts.txt" % RES_PATH
+    params:
+        gtf=config['gtf'],
+        paired=lambda wildcards: '-p --countReadPairs' if len(config['samples'][wildcards.sample]) == 2 else ''
+    threads: 4
+    log:
+        "%s/logs/STAR/{sample}.align_STARfeatureCountTranscript.log" % RES_PATH
+    shell:
+        "featureCounts -T {threads} -t exon -g transcript_id {params.paired} -o {output} -a {params.gtf} {input.bam} > {log} 2>&1"
+
+rule align_STARfeatureCountGene:
+    input:
+        bam="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH,
+        bai="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai" % RES_PATH
+    output:
+        "%s/STAR/{sample}/{sample}.ReadsPerGene.byfeatureCounts.txt" % RES_PATH
+    params:
+        gtf=config['gtf'],
+        paired=lambda wildcards: '-p --countReadPairs' if len(config['samples'][wildcards.sample]) == 2 else ''
+    threads: 4
+    log:
+        "%s/logs/STAR/{sample}.align_STARfeatureCountGene.log" % RES_PATH
+    shell:
+        "featureCounts -T {threads} -t exon -g gene_id {params.paired} -o {output} -a {params.gtf} {input.bam} > {log} 2>&1"
+
+# rule align_STAR_sort_bam:
+#     input:
+#         "%s/STAR/{sample}/{sample}.unsorted.bam" % RES_PATH,
+#     output:
+#         sortedBAM = "%s/STAR/{sample}/{sample}.sorted.bam" % RES_PATH,
+#     message: "ALIGN: Sorting {wildcards.sample}.unsorted.bam"
+#     threads: 4
+#     params:
+#         prefix=lambda wildcards: "{res_path}/STAR/{sample}/".format(res_path=RES_PATH, sample=wildcards.sample),
+#     shell:
+#         "samtools sort -T {params.prefix}TMP -o {output.sortedBAM} -@ {threads} {input}"
+
 
 # rule generate_STAR_report:
 #     input:

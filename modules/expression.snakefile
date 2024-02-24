@@ -10,16 +10,10 @@ def experssion_targets(wildcards):
     ls = []
     for run in config["runs"]:
         if config["runs"][run]["type"].startswith("MA_"):
-            if config["check_compare"] == True and config["runs"][run]["samples"] != {}:
-                ls.append("%s/expression/%s/%s_exp_matrix_probe.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_exp_matrix_transcription.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_exp_matrix_gene.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_PCA.png" % (RES_PATH,run,run))
-            elif config["check_compare"] == False:
-                ls.append("%s/expression/%s/%s_exp_matrix_probe.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_exp_matrix_transcription.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_exp_matrix_gene.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_PCA.png" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_exp_matrix_probe.txt" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_exp_matrix_transcription.txt" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_exp_matrix_gene.txt" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_PCA.png" % (RES_PATH,run,run))
             for comp in config["runs"][run]['compare']:
                 ctrl = config["runs"][run]['compare'][comp]['control']['name']
                 treat = config["runs"][run]['compare'][comp]['treat']['name']
@@ -33,18 +27,11 @@ def experssion_targets(wildcards):
                     ls.append("%s/expression/%s/%s/%s_%s.upRegGenes.txt" % (RES_PATH,run,comp,run,comp))
                     ls.append("%s/expression/%s/%s/%s_%s.downRegGenes.txt" % (RES_PATH,run,comp,run,comp))
         elif config["runs"][run]["type"] == "RS":
-            if config["check_compare"] == True and config["runs"][run]["samples"] != {}:
-                ls.append("%s/expression/%s/%s_TPM_transcript_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_Rawcount_transcript_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_TPM_gene_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_Rawcount_gene_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_PCA.png" % (RES_PATH,run,run))
-            elif config["check_compare"] == False:
-                ls.append("%s/expression/%s/%s_TPM_transcript_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_Rawcount_transcript_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_TPM_gene_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_Rawcount_gene_matrix.txt" % (RES_PATH,run,run))
-                ls.append("%s/expression/%s/%s_PCA.png" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_TPM_transcript_matrix.txt" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_Rawcount_transcript_matrix.txt" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_TPM_gene_matrix.txt" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_Rawcount_gene_matrix.txt" % (RES_PATH,run,run))
+            ls.append("%s/expression/%s/%s_PCA.png" % (RES_PATH,run,run))
             for comp in config["runs"][run]['compare']:
                 ctrl = config["runs"][run]['compare'][comp]['control']['name']
                 treat = config["runs"][run]['compare'][comp]['treat']['name']
@@ -109,15 +96,29 @@ def get_PCAplot_Input(wildcards):
     elif config["runs"][wildcards.run]["type"] == "RS":
         return "%s/expression/%s/%s_TPM_gene_matrix.txt" % (RES_PATH, wildcards.run, wildcards.run)
 
-def get_quantsf(wildcards):
+def get_trans_quant(wildcards):
     r = wildcards.run
-    sf =[]
+    lst =[]
     if r in config['runs']:
         if config['runs'][r]['samples']:
             for s in config['runs'][r]['samples']:
-                sf.append("%s/%s/samples/%s/align/quant.sf" % (RES_PATH,r,s))
-    # print(sf)
-    return sf
+                if config['aligner'] == 'salmon':
+                    lst.append("%s/salmon/%s/%s.quant.sf" % (RES_PATH,s,s))
+                else:
+                    lst.append("%s/STAR/%s/%s.ReadsPerTranscript.byfeatureCounts.txt" % (RES_PATH,s,s))
+    return lst
+
+def get_gene_quant(wildcards):
+    r = wildcards.run
+    lst =[]
+    if r in config['runs']:
+        if config['runs'][r]['samples']:
+            for s in config['runs'][r]['samples']:
+                if config['aligner'] == 'salmon':
+                    lst.append("%s/salmon/%s/%s.quant.genes.sf" % (RES_PATH,s,s))
+                else:
+                    lst.append("%s/STAR/%s/%s.ReadsPerGene.byfeatureCounts.txt" % (RES_PATH,s,s))
+    return lst
 
 def get_format_input(wildcards):
     if config["runs"][wildcards.run]["type"].startswith("MA_"):
@@ -137,7 +138,7 @@ def get_species(wildcards):
 
 rule expression_GetSpecificDesign:
     output:
-        temp("%s/expression/{run}/{run}_design_matrix.txt" % RES_PATH)
+        "%s/expression/{run}/{run}_design_matrix.txt" % RES_PATH
     message: "Expression: Get specific design for {wildcards.run}"
     run:
         with open(str(output),'w') as op:
@@ -219,27 +220,27 @@ rule expression_MicroarrayDifferentialExpression:
         "-f {params.foldchange} -q {params.p} -t {params.treatsample} "
         "-c {params.contsample} --treatname {params.treatname} --controlname {params.contname} > {log} 2>&1"
 
-rule expression_RNAseqGatherTpm:
+rule expression_RNAseqGatherTranscript:
     # only for RNA-seq
     input:
-        get_quantsf
+        get_trans_quant
     output:
-        TPM="analysis/expression/{run}/{run}_TPM_transcript_matrix.txt",
-        # RawCount="analysis/expression/{run}/{run}_Rawcount_matrix.txt"
-    message: "Expression: gathering all TPM for RNA-seq experiment {wildcards.run}"
+        tpm="analysis/expression/{run}/{run}_TPM_transcript_matrix.txt",
+        count="analysis/expression/{run}/{run}_Count_transcript_matrix.txt"
+    message: "Expression: gathering all transcripts TPM and raw count for RNA-seq experiment {wildcards.run}"
     log: "analysis/logs/expression/{run}/{run}_expression_RNAseqGatherTpm.log"
     params:
         files=lambda wildcards, input: ",".join(input),
-        # species=get_species,
-        names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
+        script='expression_RNASeq_get_matrix_from_STAR.py' if config['aligner'] == 'STAR' else 'expression_RNASeq_get_matrix_from_salmon.py',
+        star_cal_tpm='-r %s' % config['transformed_gtf'] if config['aligner'] == 'STAR' else ''
+        # names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
-        "python ./DEAP/modules/scripts/expression_RNASeq_get_matrix_from_salmon.py -t TPM "
-        "-i {params.files} -o {output.TPM} -n {params.names} > {log} 2>&1"
+        "python ./DEAP/modules/scripts/{params.script} -t TPM {params.star_cal_tpm} -i {params.files} -o {output.tpm} > {log} 2>&1"
 
-rule expression_RNAseqGatherRawcount:
+rule expression_RNAseqGatherGene:
     # only for RNA-seq
     input:
-        get_quantsf
+        get_gene_quant
     output:
         rawcount="analysis/expression/{run}/{run}_Rawcount_transcript_matrix.txt",
         # RawCount="analysis/expression/{run}/{run}_Rawcount_matrix.txt"
@@ -247,11 +248,10 @@ rule expression_RNAseqGatherRawcount:
     log: "analysis/logs/expression/{run}/{run}_expression_RNAseqGatherRawcount.log"
     params:
         files=lambda wildcards, input: ",".join(input),
-        # species=get_species,
-        names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
+        script='expression_RNASeq_get_matrix_from_STAR.py' if config['aligner'] == 'STAR' else 'expression_RNASeq_get_matrix_from_salmon.py'
+        # names=lambda wildcards, input: ",".join([i.replace("analysis/%s/samples/" % wildcards.run, "").replace("/align/quant.sf", "") for i in input]),
     shell:
-        "python ./DEAP/modules/scripts/expression_RNASeq_get_matrix_from_salmon.py -t Rawcount "
-        "-i {params.files} -o {output.rawcount} -n {params.names} > {log} 2>&1"
+        "python ./DEAP/modules/scripts/{params.script} -t Rawcount -i {params.files} -o {output.rawcount} > {log} 2>&1"
 
 rule expression_RNAseqTranscriptToGene:
     # only for RNA-seq

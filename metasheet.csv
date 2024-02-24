@@ -1,7 +1,7 @@
 run,sample,experiment_type,platform,treatment,compare_1,compare_2
-RUN1,SAMPLE1,RS,Illumina,control,0,0
-RUN1,SAMPLE2,RS,Illumina,control,0,0
-RUN1,SAMPLE3,RS,Illumina,treat1,1,
-RUN1,SAMPLE4,RS,Illumina,treat1,1,
-RUN1,SAMPLE5,RS,Illumina,treat2,,1
-RUN1,SAMPLE6,RS,Illumina,treat2,,1
+RUN1,SAMPLE1,RS,illumina,control,0,0
+RUN1,SAMPLE2,RS,illumina,control,0,0
+RUN1,SAMPLE3,RS,illumina,treat1,1,
+RUN1,SAMPLE4,RS,illumina,treat1,1,
+RUN1,SAMPLE5,RS,illumina,treat2,,1
+RUN1,SAMPLE6,RS,illumina,treat2,,1

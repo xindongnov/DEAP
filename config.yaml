@@ -7,10 +7,6 @@ res_path: 'analysis'
 # typically we support {'mm10', 'hg38'}
 assembly: 'mm10'
 
-# If check_compare is False, DEAP will only trim and align samples that have enough replicates
-# otherwise will trim and align samples but won't process differential expression.
-check_compare: False
-
 # Whethe you want to trim your RNA-seq reads adaptor first.
 # {True, False}
 trim: True

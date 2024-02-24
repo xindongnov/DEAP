@@ -18,23 +18,24 @@ def merge_sep_inputs(inputs):
 
 def rsem_quantification_targets(wildcards):
     ls = []
-    for sample in config["samples"]:
-        pass
-    #     ls.append("analysis/rsem/%s/%s.isoforms.results" % (sample, sample))
-    #     ls.append("analysis/rsem/%s/%s.genes.results" % (sample, sample))
-    # ls.append("analysis/rsem/rsem_tpm_iso_matrix.csv")
-    # ls.append("analysis/rsem/rsem_tpm_gene_matrix.csv")
+    for run in config["runs"]:
+        if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
+            for sample in config["runs"][run]['samples']:
+                ls.append("analysis/rsem/%s/%s.isoforms.results" % (sample, sample))
+                ls.append("analysis/rsem/%s/%s.genes.results" % (sample, sample))
+            # ls.append("analysis/rsem/rsem_tpm_iso_matrix.csv")
+            # ls.append("analysis/rsem/rsem_tpm_gene_matrix.csv")
     return ls
 
 
 rule rsem_quantification:
     input:
-        "analysis/star/{sample}/{sample}.transcriptome.bam" #just to make sure STAR output is available before STAR_Fusion
+        "analysis/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam" #just to make sure STAR output is available before STAR_Fusion
     output:
         rsem_transcript_out = "analysis/rsem/{sample}/{sample}.isoforms.results",
         rsem_gene_out = "analysis/rsem/{sample}/{sample}.genes.results"
     log:
-        "analysis/rsem/{sample}/{sample}.rsem.log"
+        "analysis/logs/rsem/{sample}/{sample}.rsem.log"
     message: 
         "Running RSEM on {wildcards.sample}"
     benchmark:
@@ -43,10 +44,9 @@ rule rsem_quantification:
     params:
         sample_name = lambda wildcards: "analysis/rsem/{sample}/{sample}".format(sample=wildcards.sample),
         # stranded = "--strand-specific" if config["stranded"] else "",
-        # paired_end = "--paired-end" if len(config["mate"]) == 2 else "",
+        paired_end = lambda wildcards: "--paired-end" if len(config['samples'][wildcards.sample]) == 2 else "",
         gz_support=lambda wildcards: "--star-gzipped-read-file" if config["samples"][wildcards.sample][0][-3:] == '.gz' else ""
-    threads:
-        2
+    threads: 2
     shell:
         "rsem-calculate-expression -p {threads} {params.stranded} "
         "{params.paired_end} "
@@ -61,38 +61,38 @@ rule rsem_quantification:
   #       "{input} {config[rsem_index]} "
   #       "{params.sample_name} > {log}"
 
-rule rsem_iso_matrix:
-    input:
-        rsem_iso_files = expand( "analysis/rsem/{sample}/{sample}.isoforms.results", sample=config["samples"] ),
-        # metasheet = config['metasheet']
-    output:
-        rsem_iso_matrix = "analysis/rsem/rsem_tpm_iso_matrix.csv"
-    message: 
-        "Running RSEM matrix generation rule for isoforms"
-    benchmark:
-        "analysis/rsem/rsem_iso_matrix_benchmark.txt"
-    params:
-        args = lambda wildcards, input: merge_sep_inputs({input.rsem_iso_files})
-    conda: "../envs/stat_perl_r.yml"
-    shell:
-        "perl src/raw_and_fpkm_count_matrix.pl --column 5 --metasheet {input.metasheet} --header -f {params.args} 1>{output.rsem_iso_matrix}"
+# rule rsem_iso_matrix:
+#     input:
+#         rsem_iso_files = expand( "analysis/rsem/{sample}/{sample}.isoforms.results", sample=config["samples"] ),
+#         # metasheet = config['metasheet']
+#     output:
+#         rsem_iso_matrix = "analysis/rsem/rsem_tpm_iso_matrix.csv"
+#     message: 
+#         "Running RSEM matrix generation rule for isoforms"
+#     benchmark:
+#         "analysis/rsem/rsem_iso_matrix_benchmark.txt"
+#     params:
+#         args = lambda wildcards, input: merge_sep_inputs({input.rsem_iso_files})
+#     conda: "../envs/stat_perl_r.yml"
+#     shell:
+#         "perl src/raw_and_fpkm_count_matrix.pl --column 5 --metasheet {input.metasheet} --header -f {params.args} 1>{output.rsem_iso_matrix}"
 
 
-rule rsem_gene_matrix:
-    input:
-        rsem_gene_files = expand( "analysis/rsem/{sample}/{sample}.genes.results", sample=config["samples"] ),
-        # metasheet = config["metasheet"]
-    output:
-        rsem_gene_matrix = "analysis/rsem/rsem_tpm_gene_matrix.csv"
-    message: 
-        "Running RSEM matrix generation rule for genes"
-    benchmark:
-        "analysis/rsem/rsem_gene_matrix_benchmark.txt"
-    params:
-        args = lambda wildcards, input: merge_sep_inputs({input.rsem_gene_files})
-    conda: "../envs/stat_perl_r.yml"
-    shell:
-        "perl src/raw_and_fpkm_count_matrix.pl --column 5 --metasheet {input.metasheet} --header -f {params.args} 1>{output.rsem_gene_matrix}"
+# rule rsem_gene_matrix:
+#     input:
+#         rsem_gene_files = expand( "analysis/rsem/{sample}/{sample}.genes.results", sample=config["samples"] ),
+#         # metasheet = config["metasheet"]
+#     output:
+#         rsem_gene_matrix = "analysis/rsem/rsem_tpm_gene_matrix.csv"
+#     message: 
+#         "Running RSEM matrix generation rule for genes"
+#     benchmark:
+#         "analysis/rsem/rsem_gene_matrix_benchmark.txt"
+#     params:
+#         args = lambda wildcards, input: merge_sep_inputs({input.rsem_gene_files})
+#     conda: "../envs/stat_perl_r.yml"
+#     shell:
+#         "perl src/raw_and_fpkm_count_matrix.pl --column 5 --metasheet {input.metasheet} --header -f {params.args} 1>{output.rsem_gene_matrix}"
 
 # rule rsem_filter_gene_ct_matrix:
 #   """filters the rsem gene count.
