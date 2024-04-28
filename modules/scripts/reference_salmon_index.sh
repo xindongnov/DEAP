@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this bash file is used to generate STAR genome reference
+# this bash file is used to generate salmon genome reference
 
 # usage: bash reference_salmon_index.sh <reference_output_path> <fasta_path> <gtf_path> <threads>
 

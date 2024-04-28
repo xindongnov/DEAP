@@ -16,7 +16,7 @@ import argparse
 
 def read_gtf(gtf_path):
     import pandas as pd
-    gtf = pd.read_csv(gtf_path, sep='\t', comment='#', header=None)
+    gtf = pd.read_csv(gtf_path, sep='\t', comment='#', header=None, low_memory=False)
     print('Parsing information ...')
     anno_dict = {}
     for n, i in enumerate(gtf[8]):

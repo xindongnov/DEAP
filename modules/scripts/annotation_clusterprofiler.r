@@ -9,7 +9,7 @@ option_list <- list(
   make_option(c("-t", "--title"), type = "character", default=FALSE,
               help="Figure title"),
   make_option(c("-l", "--list"), type="character", default=FALSE,
-              help="gene list"), 
+              help="gene list"),
   make_option(c("-s", "--species"), type="character", default='hg',
               help="species, hg or mm"), 
   make_option(c("-o", "--ont"), type="character", default='BP',
@@ -34,7 +34,7 @@ gene_list <- strsplit(gene_list,',')[[1]]
 
 if (species == 'hs'){
 gene_entriz <- bitr(gene_list, fromType="SYMBOL", toType=c("ENTREZID"), OrgDb="org.Hs.eg.db")
-go <-enrichGO(gene_entriz$ENTREZID, OrgDb = org.Hs.eg.db, ont=ont,
+go <- enrichGO(gene_entriz$ENTREZID, OrgDb = org.Hs.eg.db, ont=ont,
               pAdjustMethod = 'BH',
               pvalueCutoff = 1,
               qvalueCutoff = 1,

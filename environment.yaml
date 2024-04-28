@@ -9,9 +9,9 @@ dependencies:
 - snakemake=5.4.5
 - samtools
 - python>=3.8
-- r-base>=3.5.1
+- r-base>=4
 - r-biocmanager
-- glib=2.56
+- glib>=2.56
 
 # align_STAR.snakefile
 - star=2.5.1b
@@ -45,7 +45,12 @@ dependencies:
 - r-readr
 - r-calibrate
 - pydeseq2>=0.4.4
+- scipy
+- scikit-learn
+- pandas
+- numpy
 - adjusttext # for plot
+- matplotlib
 
 #gsea.snakefile
 - bioconductor-clusterprofiler
@@ -54,4 +59,4 @@ dependencies:
 #lisa.snakefile
 
 - pip:
-  - inmoose
+  - inmoose==0.3.0 # 0.3.1 has bug on batch effect, count_pd return array

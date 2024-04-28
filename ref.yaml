@@ -14,6 +14,14 @@ mm10:
   transformed_gtf: ./ref_files/mm10/mm10_gtf_full_table.txt.gz
   GPL: ./ref_files/GPL/
 
+rn6:
+  salmon_index: ./ref_files/rn6/salmon_index/
+  STAR_index: ./ref_files/rn6/STAR_index/
+  rsem_index: ./ref_files/rn6/rsem_index/
+  gtf: ./ref_files/rn6/Rattus_norvegicus.Rnor_6.0.104.gtf.gz
+  transformed_gtf: ./ref_files/rn6/rn6_gtf_full_table.txt.gz
+  GPL: ./ref_files/GPL/
+
 # mm39:
 #   salmon_index: ./ref_files/mm39/salmon_index/
 #   STAR_index: ./ref_files/mm39/STAR_index
