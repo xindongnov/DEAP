@@ -20,7 +20,7 @@ def read_gtf(gtf_path):
     print('Parsing information ...')
     anno_dict = {}
     for n, i in enumerate(gtf[8]):
-        l = [item.split(' ') for item in i.split('; ')]
+        l = [item.split(' "') for item in i.split('; ')]
         anno_dict[n] = {}
         for k, j in l:
             anno_dict[n][k] = j.strip(';').strip('"')
