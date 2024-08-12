@@ -22,7 +22,7 @@ lisa: True
 
 # If check_compare is False, DEAP will only trim and align samples that have enough replicates
 # otherwise will trim and align samples but won't process differential expression.
-check_compare: False
+# check_compare: False
 
 
 lfc: 1.5
