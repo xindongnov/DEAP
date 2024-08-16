@@ -34,6 +34,9 @@ def main():
 
     in_matrix = pd.read_csv(input, sep='\t', index_col=0)
     gtf_anno = pd.read_csv(ref, sep='\t')
+    index = list(set(in_matrix.index).intersection(gtf_anno['transcript_id']))
+    in_matrix = in_matrix.loc[index,:].copy()
+    # gtf_anno = gtf_anno[gtf_anno['transcript_id'].isin(index)].copy()
     mapping_dict = gtf_anno.set_index('transcript_id').loc[in_matrix.index, 'gene_name'].to_dict()
     in_matrix['name'] = in_matrix.index.map(mapping_dict)
 
