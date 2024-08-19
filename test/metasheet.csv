@@ -1,4 +1,4 @@
-run,sample,experiment_type,platform,treatment,compare_1,compare_2
+run,sample,experiment_type,platform,condition,compare_1,compare_2
 RS_SE,GSM2309812,RS,Illumina,control,1,
 RS_SE,GSM2309813,RS,Illumina,control,1,
 RS_SE,GSM2309815,RS,Illumina,antiPDL1,2,

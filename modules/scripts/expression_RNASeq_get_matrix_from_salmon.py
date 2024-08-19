@@ -22,13 +22,13 @@ def main():
 
     parser = MyParser()
     parser.add_argument('-i', '--input', help='input files', required=True)
-    parser.add_argument('-f', '--format', help='format of input files', choices=['salmon', 'STAR'], required=True)
+    # parser.add_argument('-f', '--format', help='format of input files', choices=['salmon', 'STAR'], required=True)
     parser.add_argument('-c', '--count', help='the count path to save', default="./count.txt")
     parser.add_argument('-t', '--tpm', help='the TPM path to save', default="./tpm.txt")
     args = parser.parse_args()
 
     files = args.input.split(',')
-    input_type = args.format
+    # input_type = args.format
     count_path = args.count
     tpm_path = args.tpm
     
@@ -39,20 +39,21 @@ def main():
     count_ls = []
     tpm_ls = []
 
-    if input_type == 'salmon':
-        for i, l in enumerate(df_list):
-            count_tmp = l.rename(columns = {'NumReads' : names[i]})
-            count_ls.append(count_tmp[names[i]])
-            tpm_tmp = l.rename(columns = {'TPM' : names[i]})
-            tpm_ls.append(tpm_tmp[names[i]])
-    elif input_type == 'STAR':
-        for i, l in enumerate(df_list):
-            count_tmp = l.rename(columns = {'NumReads' : names[i]})
-            count_ls.append(count_tmp[names[i]])
-            tpm_tmp = l.rename(columns = {'TPM' : names[i]})
-            tpm_ls.append(tpm_tmp[names[i]])
-    else:
-        sys.exit(0)
+    # if input_type == 'salmon':
+    for i, l in enumerate(df_list):
+        count_tmp = l.rename(columns = {'NumReads' : names[i]})
+        count_ls.append(count_tmp[names[i]])
+        tpm_tmp = l.rename(columns = {'TPM' : names[i]})
+        tpm_ls.append(tpm_tmp[names[i]])
+    # elif input_type == 'STAR':
+        # pass
+        # for i, l in enumerate(df_list):
+        #     count_tmp = l.rename(columns = {'NumReads' : names[i]})
+        #     count_ls.append(count_tmp[names[i]])
+        #     tpm_tmp = l.rename(columns = {'TPM' : names[i]})
+        #     tpm_ls.append(tpm_tmp[names[i]])
+    # else:
+        # sys.exit(0)
 
     count = pd.concat(count_ls, axis=1)
     tpm = pd.concat(tpm_ls, axis=1)

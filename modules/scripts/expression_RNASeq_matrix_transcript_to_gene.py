@@ -8,8 +8,14 @@
 @License :   (C)Copyright 2020-2023, XinDong
 '''
 
+# this script is a very simple script to transform the transcript id to gene id
+# usage: python expression_RNASeq_matrix_transcript_to_gene.py -i <input matrix file> -o <output file> -r <reference gtf file> -f <from type> -t <to type>
+# I only use the maximum expression value of the same transcript id as the gene id
+# beacause the salmon and RSEM both give the gene estimate value, so this script simply not be called
+# recommand to use the tximport or pytximport to perform the transformation
+
 import sys
-import os
+# import os
 import pandas as pd
 import argparse
 
@@ -36,6 +42,8 @@ def main():
 
     in_matrix = pd.read_csv(input, sep='\t', index_col=0)
     gtf_anno = pd.read_csv(ref, sep='\t')
+    index = list(set(in_matrix.index).intersection(gtf_anno['transcript_id']))
+    in_matrix = in_matrix.loc[index,:].copy()
     mapping_dict = gtf_anno.set_index(tfrom).loc[in_matrix.index, tto].to_dict()
     in_matrix['name'] = in_matrix.index.map(mapping_dict)
 

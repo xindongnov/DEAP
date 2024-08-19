@@ -13,13 +13,13 @@ def lisa_targets(wildcards):
         for comp in config["runs"][run]['compare']:
             ctrl = config["runs"][run]['compare'][comp]['control']['name']
             treat = config["runs"][run]['compare'][comp]['treat']['name']
-            # if len(config["runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["runs"][run]['compare'][comp]['treat']['sample']) > 1:
-            for geneType in ["upRegGenes","downRegGenes"]:
-                ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s.txt" % (run,comp,geneType,run,comp,geneType))
-                # n = subprocess.check_output("wc -l %s" % checkpoints.lisa_copy_file.get(run=run,compare=comp,geneType=geneType).output[0],shell=True)
-                # n = int(n.decode("utf-8").strip().split()[0])
-                # if n != 0:
-                ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s_results.tsv" % (run,comp,geneType,run,comp,geneType))
+            if len(config["runs"][run]['compare'][comp]['control']['sample']) > 1 and len(config["runs"][run]['compare'][comp]['treat']['sample']) > 1:
+                for geneType in ["upRegGenes","downRegGenes"]:
+                    ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s.txt" % (run,comp,geneType,run,comp,geneType))
+                    # n = subprocess.check_output("wc -l %s" % checkpoints.lisa_copy_file.get(run=run,compare=comp,geneType=geneType).output[0],shell=True)
+                    # n = int(n.decode("utf-8").strip().split()[0])
+                    # if n != 0:
+                    ls.append("analysis/%s/lisa/%s_%s/%s_%s.%s_results.tsv" % (run,comp,geneType,run,comp,geneType))
     # for run in config["RS_runs"]:
     #     for comp in config["RS_runs"][run]['compare']:
     #         ctrl = config["RS_runs"][run]['compare'][comp]['control']['name']
@@ -71,7 +71,7 @@ rule lisa_run:
         prefix=lambda wildcards: "%s_%s.%s.txt" % (wildcards.run,wildcards.compare,wildcards.geneType),
         result=lambda wildcards: "%s_%s.%s_results.tsv" % (wildcards.run,wildcards.compare,wildcards.geneType),
         species=config["assembly"],
-        # lisa_path=config["lisa_path"],
+        lisa_path=config["lisa_path"],
         method="all",
     threads: 8
     run:

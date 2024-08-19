@@ -4,6 +4,8 @@ hg38:
   rsem_index: ./ref_files/hg38/rsem_index/
   gtf: ./ref_files/hg38/gencode.v29.primary_assembly.annotation_UCSC_names.gtf.gz
   transformed_gtf: ./ref_files/hg38/hg38_gtf_full_table.txt.gz
+  tx2genename: 
+  tx2geneid: 
   GPL: ./ref_files/GPL/
 
 mm10:
@@ -12,6 +14,8 @@ mm10:
   rsem_index: ./ref_files/mm10/rsem_index/
   gtf: ./ref_files/mm10/gencode.vM21.primary_assembly.annotation_UCSC_names.gtf.gz
   transformed_gtf: ./ref_files/mm10/mm10_gtf_full_table.txt.gz
+  tx2genename: ./ref_files/mm10/tx2genename.tsv
+  tx2geneid: ./ref_files/mm10/tx2geneid.tsv
   GPL: ./ref_files/GPL/
 
 rn6:
@@ -20,6 +24,8 @@ rn6:
   rsem_index: ./ref_files/rn6/rsem_index/
   gtf: ./ref_files/rn6/Rattus_norvegicus.Rnor_6.0.104.gtf.gz
   transformed_gtf: ./ref_files/rn6/rn6_gtf_full_table.txt.gz
+  tx2genename: 
+  tx2geneid: 
   GPL: ./ref_files/GPL/
 
 # mm39:

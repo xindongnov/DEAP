@@ -57,8 +57,8 @@ input_matrix <- read.table(input_path, sep = "\t", header = TRUE,
                            quote = "", fill = TRUE)
 dm <- as.data.frame(c(treatsample,controlsample))
 colnames(dm) <- 'sample'
-dm$treatment <- c(rep(controlname,nrow(dm)))
-dm$treatment[match(treatsample, as.character(dm$sample))] <- treatname
+dm$condition <- c(rep(controlname,nrow(dm)))
+dm$condition[match(treatsample, as.character(dm$sample))] <- treatname
 dm$compare <- c(rep(1,nrow(dm)))
 dm$compare[match(treatsample,dm$sample)] <- 2
 dm <- dm[match(colnames(input_matrix),dm$sample),]

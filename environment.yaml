@@ -2,30 +2,31 @@ name: DEAP
 channels:
 - conda-forge
 - bioconda
+- liulab-dfci
 - defaults
 
 dependencies:
 # GENERAL
-- snakemake=5.4.5
+- snakemake>=8
 - samtools
-- python>=3.8
+- python>=3.11
 - r-base>=4
 - r-biocmanager
 - glib>=2.56
 
+# trim.snakefile
+- trim-galore>=0.6.2
+
 # align_STAR.snakefile
-- star=2.5.1b
+- star=2.7.11b
 - star-fusion>=0.5.4
 - subread=2.0.6
 
 # rsem.snakefile
 - rsem
 
-# trim.snakefile
-- trim-galore>=0.6.2
-
 # align_salmon.snakefile
-- salmon=0.14.1
+- salmon=1.10.3
 
 # expression.snakefile
 # 
@@ -33,6 +34,7 @@ dependencies:
 - bioconductor-limma
 # - bioconductor-edger
 # - bioconductor-tximport
+- pytximport>=0.7.0
 - bioconductor-org.hs.eg.db
 - bioconductor-org.mm.eg.db
 - bioconductor-affy
@@ -57,6 +59,7 @@ dependencies:
 - gseapy
 
 #lisa.snakefile
+- lisa2
 
 - pip:
-  - inmoose==0.3.0 # 0.3.1 has bug on batch effect, count_pd return array
+  - inmoose==0.7.1 # 0.3.1 has bug on batch effect, count_pd return array

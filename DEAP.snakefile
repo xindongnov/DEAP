@@ -59,41 +59,18 @@ def updateMeta(config):
             sys.exit(1)
         elif list(metadata.loc[run,"experiment_type"])[0] in ["RS","MA_A","MA_O"]:
             config["runs"][run] = {'type': list(metadata.loc[run,"experiment_type"])[0], 'platform': list(metadata.loc[run,"platform"])[0]}
-            comp_list = ['sample','treatment']
-            comp_list.extend([i for i in metadata.columns.values if i.startswith('compare_')])
+            comp_list = ['sample', 'condition', 'batch']
+            comp_list.extend(metadata.columns.values[5:]) # 5 means after 'batch'
             config["runs"][run]['samples'] = {}
             config["runs"][run]['compare'] = {}
             design = metadata.loc[run,comp_list]
-            # if config['check_compare'] == True:
-            #     for c in design.loc[run,comp_list[2:]]:
-            #         sample_list = [] # init sample_list
-            #         control = list(design.loc[:,c]).count(0)
-            #         treat = list(design.loc[:,c]).count(1)
-            #         NA = len(design.loc[:,c]) - treat - control
-            #         if control == 1 or treat == 1 or NA == len(design.loc[:,c]):
-            #             sys.stdout.write("WARNING: run: %s, compare: %s do not have enough data!\n" % (run,c))
-            #             sys.stdout.write("The samples in this comparison will not implement alignment and differential expression.\n")
-            #         else:
-            #             sample_list.extend(design.loc[design.loc[:,c] == 0,'sample'])
-            #             sample_list.extend(design.loc[design.loc[:,c] == 1,'sample'])
-            #             # only add useful sample in config
-            #             for s in sample_list:
-            #                 if s not in config["runs"][run]['samples']:
-            #                     config["runs"][run]['samples'][s] = config['samples'][s]
-            #             config["runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 0,'treatment'])[0], 
-            #                                                              'sample': list(design.loc[design.loc[:,c] == 0,'sample'])},
-            #                                                    'treat': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
-            #                                                              'sample': list(design.loc[design.loc[:,c] == 1,'sample'])}}
-            #         config["runs"][run]['raw_design'] = metadata.loc[run,comp_list]
-            # else:
-                # wrote sample information into config
             for s in list(metadata.loc[run,"sample"]):
                 config["runs"][run]['samples'][s] = config['samples'][s]
-            for c in design.loc[run,comp_list[2:]]:
+            for c in design.loc[run,comp_list[3:]]: # 0 is sample, 1 is condition, 2 is batch
                 if len(pd.unique(design.loc[:,c])) != 1:
-                    config["runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 0,'treatment'])[0], 
+                    config["runs"][run]['compare'][c] = {'control': {'name':list(design.loc[design.loc[:,c] == 0,'condition'])[0], 
                                                                         'sample': list(design.loc[design.loc[:,c] == 0,'sample'])},
-                                                            'treat': {'name':list(design.loc[design.loc[:,c] == 1,'treatment'])[0], 
+                                                            'treat': {'name':list(design.loc[design.loc[:,c] == 1,'condition'])[0], 
                                                                         'sample': list(design.loc[design.loc[:,c] == 1,'sample'])}}
             config["runs"][run]['raw_design'] = metadata.loc[run,comp_list]
         else:
@@ -101,13 +78,13 @@ def updateMeta(config):
     return config
 
 
-def add_lisa_config(config):
-    conda_root = subprocess.check_output('conda info --root',shell=True).decode('utf-8').strip()
-    config["conda_root"] = conda_root
-    conda_path = os.path.join(conda_root, 'pkgs')
-    if not "lisa_path" in config or not config["lisa_path"]:
-        config["lisa_path"] = os.path.join(conda_root, 'envs', 'lisa', 'bin', 'lisa')
-        config["lisa_env"] = os.path.join(conda_root, 'envs', 'lisa', 'bin')
+# def add_lisa_config(config):
+#     conda_root = subprocess.check_output('conda info --root',shell=True).decode('utf-8').strip()
+#     config["conda_root"] = conda_root
+#     conda_path = os.path.join(conda_root, 'pkgs')
+#     if not "lisa_path" in config or not config["lisa_path"]:
+#         config["lisa_path"] = os.path.join(conda_root, 'envs', 'lisa', 'bin', 'lisa')
+#         config["lisa_env"] = os.path.join(conda_root, 'envs', 'lisa', 'bin')
 
 
 def loadRef(config):
@@ -126,7 +103,7 @@ def loadRef(config):
 #---------  CONFIG set up  ---------------
 configfile: "config.yaml"   # This makes snakemake load up yaml into config 
 config = updateMeta(config)
-add_lisa_config(config)
+# add_lisa_config(config)
 
 #NOW load ref.yaml - SIDE-EFFECT: loadRef CHANGES config
 loadRef(config)
@@ -146,7 +123,7 @@ def all_targets(wildcards):
         # ls.extend(rsem_quantification_targets(wildcards))
     else:
         ls.extend(align_salmon_targets(wildcards))
-    # ls.extend(experssion_targets(wildcards))
+    ls.extend(experssion_targets(wildcards))
     # if config['lisa'] == True:
     #     ls.extend(lisa_targets(wildcards))
     # print(ls)

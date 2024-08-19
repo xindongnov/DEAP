@@ -20,10 +20,17 @@ aligner: 'salmon'
 # how many threads will aligner use
 aligner_threads: 8
 
+batch: False
+
 # log fold change
-lfc: 1.5
+lfc: [2, 3]
 # False dicovery rate
-fdr: 0.1
+fdr: [0.01, 1e-5]
+
+# auto define none
+add_gene_name: auto
+n_gene: 15
+plot_gene_name: []
 
 # Whether you want to process lisa on your differential expression genes.
 # Please make sure on you have already installed lisa by the instruction in README.md
