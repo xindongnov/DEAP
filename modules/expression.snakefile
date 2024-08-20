@@ -42,7 +42,9 @@ def experssion_targets(wildcards):
                     for lfc in config['lfc']:
                         for fdr in config['fdr']:
                             ls.append(f"{RES_PATH}/expression/{run}/{comp}/{run}_{comp}_volca_plot_{lfc:.1f}_{fdr}.png")
-            #         ls.append(f"{RES_PATH}/expression/{run}/{comp}/{run}_{comp}_volca_plot_{config['lfc']}_{config['fdr']}.png")
+                            ls.append(f"{RES_PATH}/expression/{run}/{comp}/{run}_{comp}_volca_plot_{lfc:.1f}_{fdr}.pdf")
+                            ls.append(f"{RES_PATH}/expression/{run}/{comp}/{run}_{comp}_volca_plot_{lfc:.1f}_{fdr}_nolegend.png")
+                            ls.append(f"{RES_PATH}/expression/{run}/{comp}/{run}_{comp}_volca_plot_{lfc:.1f}_{fdr}_nolegend.pdf")
                             ls.append(f"{RES_PATH}/expression/{run}/{comp}/{run}_{comp}.upRegGenes_{lfc:.1f}_{fdr}.txt")
                             ls.append(f"{RES_PATH}/expression/{run}/{comp}/{run}_{comp}.downRegGenes_{lfc:.1f}_{fdr}.txt")
     return ls
@@ -276,7 +278,9 @@ rule expression_RNAseqDifferentialExpression:
         design="analysis/expression/{run}/{run}_design_matrix.txt"
     output:
         # detail="analysis/expression/{run}/{run}_Compare_detail.txt",
-        table="analysis/expression/{run}/{compare}/{run}_{compare}_DESeq_table.txt"
+        table="analysis/expression/{run}/{compare}/{run}_{compare}_DESeq_table.txt",
+        ori_maplot = "analysis/expression/{run}/{compare}/{run}_{compare}_DESeq_maplot.png",
+        shrink_maplot = "analysis/expression/{run}/{compare}/{run}_{compare}_DESeq_shrink_maplot.png",
     log: "analysis/logs/expression/{run}/{run}_expression_RNAseqDifferentialExpression_{compare}.log"
     message: "Expression: call differential expression for RNA-seq experiment {wildcards.run} in {wildcards.compare}"
     # params:
@@ -285,7 +289,7 @@ rule expression_RNAseqDifferentialExpression:
     #     control=lambda wildcards: ",".join(config["runs"][wildcards.run]["compare"][wildcards.compare]["control"]["sample"]),
     #     controlname=lambda wildcards: config["runs"][wildcards.run]["compare"][wildcards.compare]["control"]["name"],
     shell:
-        "python DEAP/modules/scripts/expression_RNASeq_DE_analysis.py -c {input.rawcount} "
+        "python DEAP/modules/scripts/expression_RNASeq_DE_analysis.py -c {input.rawcount} -m {output.ori_maplot} -s {output.shrink_maplot} "
         "-o {output.table} -d {input.design} -cmp {wildcards.compare} > {log} 2>&1"
 
 rule expression_formatTable:
@@ -306,18 +310,27 @@ rule expression_volcaPlot:
     input:
         "analysis/expression/{run}/{compare}/{run}_{compare}_DE.txt"
     output:
-        "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}.png"
+        png = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}.png",
+        pdf = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}.pdf",
+        no_legend_png = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}_nolegend.png",
+        no_legend_pdf = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}_nolegend.pdf"
     log: "analysis/logs/expression/{run}/{run}_expression_volcaPlot_{compare}_{lfc}_{fdr}.log"
     message: "Expression: draw volcano plot for {wildcards.run} in {wildcards.compare}"
     params:
         add_gene_name = config['add_gene_name'],
-        n_gene = config['n_gene'],
+        n_gene = config['n_plot_gene'],
         genename_handle = lambda wildcards: "-g" + ",".join(config['plot_gene_name']) if config['plot_gene_name'] != [] else ''
     shell:
-        "python DEAP/modules/scripts/expression_draw_volca_plot.py "
-        "-i {input} -o {output} "
+        "python DEAP/modules/scripts/expression_draw_volca_plot.py -i {input} -o {output.png} "
         "-a {params.add_gene_name} -n {params.n_gene} {params.genename_handle} "
-        "-l {wildcards.lfc} -f {wildcards.fdr} -t {wildcards.compare} > {log} 2>&1"
+        "-l {wildcards.lfc} -f {wildcards.fdr} -t {wildcards.compare} > {log} 2>&1; "
+        "python DEAP/modules/scripts/expression_draw_volca_plot.py -i {input} -o {output.pdf} "
+        "-a {params.add_gene_name} -n {params.n_gene} {params.genename_handle} "
+        "-l {wildcards.lfc} -f {wildcards.fdr} -t {wildcards.compare} > {log} 2>&1; "
+        "python DEAP/modules/scripts/expression_draw_volca_plot.py -i {input} -o {output.no_legend_png} "
+        "-a none -l {wildcards.lfc} -f {wildcards.fdr} -t {wildcards.compare} > {log} 2>&1; "
+        "python DEAP/modules/scripts/expression_draw_volca_plot.py -i {input} -o {output.no_legend_pdf} "
+        "-a none -l {wildcards.lfc} -f {wildcards.fdr} -t {wildcards.compare} > {log} 2>&1;"
 
 
 rule expression_upRegGene:

@@ -47,7 +47,7 @@ dependencies:
 - r-readr
 - r-calibrate
 - pydeseq2>=0.4.4
-- scipy
+
 - scikit-learn
 - pandas
 - numpy
@@ -59,7 +59,8 @@ dependencies:
 - gseapy
 
 #lisa.snakefile
-- lisa2
+- lisa2=2.3.2
+- scipy=1.12.0
 
 - pip:
   - inmoose==0.7.1 # 0.3.1 has bug on batch effect, count_pd return array

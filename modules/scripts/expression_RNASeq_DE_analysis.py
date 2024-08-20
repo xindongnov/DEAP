@@ -21,8 +21,11 @@ from pydeseq2.ds import DeseqStats
 
 import argparse
 # from sklearn import decomposition
-# import matplotlib.pyplot as plt
 # import adjustText
+
+
+
+
 
 def main():
     class MyParser(argparse.ArgumentParser):
@@ -35,13 +38,20 @@ def main():
     parser.add_argument('-c', '--count', help='the raw count table path', default="count.txt")
     parser.add_argument('-d', '--design', help='The design file', required=True)
     parser.add_argument('-cmp', '--compare', help='the compare type', default='treat_vs_ref')
+    parser.add_argument('-m', '--maplot', help='the MA plot path', default='MA_plot.pdf')
+    parser.add_argument('-s', '--shrink_maplot', help='the Shrunk MA plot path', default='Shrink_MA_plot.pdf')
     parser.add_argument('-o', '--output', help='the output path', default='DEseq.txt')
     args = parser.parse_args()
 
     count_path = args.count
     design_path = args.design
     compare = args.compare
+    maplot_path = args.maplot
+    shrink_maplot_path = args.shrink_maplot
     output_path = args.output
+
+
+
     design = pd.read_csv(design_path, sep=',', index_col=0)
     # print(design)
     all_counts_df = pd.read_csv(count_path, sep='\t', index_col=0).T
@@ -49,16 +59,6 @@ def main():
 
     ref_condition = design[design[compare] == 0].condition.unique()[0]
     treat_condition = design[design[compare] == 1].condition.unique()[0]
-
-    # output_path = 'lcy/%s_vs_%s/lfc_%s_Pvalue_%s/' % (treat_condition, ref_condition, lfc_cutoff, pvalue_cutoff)
-    # print(output_path)
-    # do_batch=True
-    # if not os.path.exists(output_path):
-    #     os.makedirs(output_path)
-    # lfc_cutoff = 0.5
-    # pvalue_cutoff = 1e-5
-
-    # print(ref_condition, treat_condition, output_path, lfc_cutoff, pvalue_cutoff)
 
     needed_sample = design.index[design[compare] != '']
     metadata = design.loc[needed_sample, ['condition', 'batch', compare]]
@@ -85,8 +85,23 @@ def main():
     stat_res = DeseqStats(dds, contrast=['condition',treat_condition,ref_condition], inference=inference)
     stat_res.summary()
     # deseq_table_path = os.path.join(output_path)
+    # deseq_table = stat_res.results_df.sort_values(by='padj')
+    # deseq_table.to_csv(output_path, sep='\t')
+
+    # MA_plot_path = os.path.join(output_path, 'MA_plot.pdf')
+    stat_res.plot_MA(s=5, save_path=maplot_path)
+
+    # do lfc shrink
+    stat_res.lfc_shrink(coeff="condition_%s_vs_%s" % (treat_condition, ref_condition))
+    stat_res.summary(lfc_null=0.1, alt_hypothesis="greaterAbs")
+    stat_res.plot_MA(s=5, save_path=shrink_maplot_path)
+    
     deseq_table = stat_res.results_df.sort_values(by='padj')
     deseq_table.to_csv(output_path, sep='\t')
+    
+    # MA_plot_path = os.path.join(output_path, 'MA_plot_lfc_shrink.pdf')
+    # stat_res.plot_MA(s=5, save_path=MA_plot_path)
+
 
     # up_gene = deseq_table[(deseq_table['log2FoldChange'] > lfc_cutoff) & (deseq_table['padj'] < pvalue_cutoff)].sort_values(by='log2FoldChange', ascending=False).index
     # down_gene = deseq_table[(deseq_table['log2FoldChange'] < -lfc_cutoff) & (deseq_table['padj'] < pvalue_cutoff)].sort_values(by='log2FoldChange').index

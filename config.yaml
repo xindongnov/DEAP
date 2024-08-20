@@ -23,13 +23,13 @@ aligner_threads: 8
 batch: False
 
 # log fold change
-lfc: [2, 3]
+lfc: [2, 3, 5]
 # False dicovery rate
 fdr: [0.01, 1e-5]
 
 # auto define none
 add_gene_name: auto
-n_gene: 15
+n_gene: 20
 plot_gene_name: []
 
 # Whether you want to process lisa on your differential expression genes.

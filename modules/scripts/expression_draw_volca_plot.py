@@ -31,59 +31,81 @@ plt.rcParams.update({
     'axes.spines.top': False,
 })
 
-def get_label_color(label):
-    label_color = []
-    n = 1
-    for i,j in enumerate(label):
-        if i == 0:
-            label_color.append(n)
-        else:
-            if label[i] == label[i-1]:
-                label_color.append(n)
-            else:
-                n += 1
-                label_color.append(n)
-    return label_color
+# def get_label_color(label):
+#     label_color = []
+#     n = 1
+#     for i,j in enumerate(label):
+#         if i == 0:
+#             label_color.append(n)
+#         else:
+#             if label[i] == label[i-1]:
+#                 label_color.append(n)
+#             else:
+#                 n += 1
+#                 label_color.append(n)
+#     return label_color
 
-def volcano_plot(deseq_table, lfc_cutoff=0.5, pvalue_cutoff=1e-5, figsize=(5,5), add_text='auto', n_gene_name=15, plot_gene_names = [],
+def volcano_plot(deseq_table, lfc_cutoff=0.5, pvalue_cutoff=1e-5, figsize=(4,4), add_text='auto', n_gene_name=15, plot_gene_names = [],
                  fig_title='', save_path='volcano_plot.pdf'):
     '''
     add_text: 'auto' or 'define' or 'none'
     '''
     result = pd.DataFrame()
     result['x'] = deseq_table['log2FoldChange']
+    min_value_excluding_0 = np.min(deseq_table[deseq_table['padj'] != 0]['padj'])
+    deseq_table.loc[deseq_table['padj'] == 0, 'padj'] = min_value_excluding_0
     result['y'] = -np.log10(deseq_table['padj'])
-    
+    # max_value_exclueding_inf = np.max(result[result['y'] != np.inf]['y'])
+    # result.loc[result['y'] == np.inf, 'y'] = max_value_exclueding_inf + 50
+
     # set cutoff
     x_threshold = lfc_cutoff
     y_threshold = -np.log10(pvalue_cutoff)
     
     # group to up, normal, down
-    result['group'] = 'dimgrey'
+    result['group'] = 'grey'
     result.loc[(result.x > x_threshold)&(result.y > y_threshold),'group'] = 'tab:red' # up regulated
     result.loc[(result.x < -x_threshold)&(result.y > y_threshold),'group'] = 'tab:blue' # down regulated
+    # print(result.sort_values('y', ascending=False).head(10))
     # set which gene use to plot gene name
     if add_text == 'auto':
-        result['xy'] = abs(result['x'] * result['y']) 
-        plot_gene_names = result[result['group'] != 'dimgrey'].sort_values('xy', ascending=False).head(n_gene_name).index
-    
+        result['xy'] = result['x'] * result['y']
+        up_gene_names = result[result['group'] == 'tab:red'].sort_values('xy', ascending=False).head(n_gene_name//2).index
+        down_gene_names = result[result['group'] == 'tab:blue'].sort_values('xy', ascending=True).head(n_gene_name//2).index
+        plot_gene_names = list(up_gene_names) + list(down_gene_names)
+        # plot_gene_names = result[result['group'] != 'grey'].sort_values('xy', ascending=False).head(n_gene_name).index
+    # print(result[result['group'] != 'grey'].sort_values('xy', ascending=True).head(n_gene_name//2))
+    # print(up_gene_names)
+    # print(down_gene_names)
     # plot
-    fig, ax = plt.subplots(figsize=figsize) 
+    fig, ax = plt.subplots(figsize=figsize, dpi=600) 
     ax.set(title=fig_title)
-    ax.scatter(result['x'], result['y'], s=2, c=result['group'])
-    ax.set_ylabel('-Log10(P adj.)',fontweight='bold', fontsize=10)
-    ax.set_xlabel('Log2 (fold change)',fontweight='bold', fontsize=10)
+    ax.scatter(result['x'], result['y'], s=2, alpha=.5, c=result['group'])
+    ax.set_ylabel('-log10(P adj.)',fontweight='bold', fontsize=10)
+    ax.set_xlabel('log2(Fold change)',fontweight='bold', fontsize=10)
     ax.spines['right'].set_visible(False) 
     ax.spines['top'].set_visible(False) 
 
-    plt.axvline(-x_threshold, color='dimgrey',linestyle='dashed', linewidth=1) 
-    plt.axvline(x_threshold, color='dimgrey',linestyle='dashed', linewidth=1) 
-    plt.axhline(y_threshold, color='dimgrey',linestyle='dashed', linewidth=1) 
+    plt.axvline(-x_threshold, color='black',linestyle='dashed', linewidth=.5) 
+    plt.axvline(x_threshold, color='black',linestyle='dashed', linewidth=.5) 
+    plt.axhline(y_threshold, color='black',linestyle='dashed', linewidth=.5) 
     if add_text == 'auto' or add_text == 'define':
-        texts = [plt.text(result.loc[txt, 'x'], result.loc[txt, 'y'], txt) for i, txt in enumerate(plot_gene_names)]
-        adjustText.adjust_text(texts, arrowprops=dict(arrowstyle='->', color='grey'))
+        get_name_color = lambda txt: '#FD693E' if txt in up_gene_names else '#1873B8' if txt in down_gene_names else '#000000'
+        texts = [ax.annotate(txt, (result.loc[txt, 'x'], result.loc[txt, 'y']),
+                             color=get_name_color(txt), fontsize=6, fontweight='bold') for txt in plot_gene_names]
+        # print(texts)
+        adjustText.adjust_text(texts, 
+                               arrowprops=dict(arrowstyle='-', color='black', lw=0.2),
+                               expand=(1.2, 1.2),
+                               force_text=(0.2, 0.5),
+                               force_explode=(0.2, 2),
+                               avoid_self=True,
+                               prevent_crossings=True,
+                               ensure_inside_axes=True,
+                               expand_axes=False,
+                               max_move=None)
     fig.tight_layout()
-    fig.savefig(save_path)
+    fig.savefig(save_path, bbox_inches = 'tight')
 
 
 def main():
@@ -117,7 +139,7 @@ def main():
     volcano_plot(deseq_table, 
                  lfc_cutoff=lfc_cutoff, 
                  pvalue_cutoff=pvalue_cutoff, 
-                 figsize=(4,4), 
+                 figsize=(3,3), 
                  add_text=add_text, 
                  n_gene_name=n_gene_name, 
                  plot_gene_names = plot_gene_names,
