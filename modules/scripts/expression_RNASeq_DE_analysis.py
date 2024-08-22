@@ -8,23 +8,13 @@
 @License :   (C)Copyright 2020-2024, XinDong
 '''
 
-# import os
 import sys
-# import pickle as pkl
 import pandas as pd
-# import numpy as np
-# import scipy 
 from pydeseq2.dds import DeseqDataSet
 from pydeseq2.default_inference import DefaultInference
 from pydeseq2.ds import DeseqStats
-# from pydeseq2.utils import load_example_data
 
 import argparse
-# from sklearn import decomposition
-# import adjustText
-
-
-
 
 
 def main():
@@ -53,13 +43,13 @@ def main():
 
 
     design = pd.read_csv(design_path, sep=',', index_col=0)
-    # print(design)
+    print(design)
     all_counts_df = pd.read_csv(count_path, sep='\t', index_col=0).T
     # print(all_counts_df)
 
     ref_condition = design[design[compare] == 0].condition.unique()[0]
     treat_condition = design[design[compare] == 1].condition.unique()[0]
-
+    # print(ref_condition, treat_condition)
     needed_sample = design.index[design[compare] != '']
     metadata = design.loc[needed_sample, ['condition', 'batch', compare]]
     # print(metadata)
@@ -95,7 +85,7 @@ def main():
     stat_res.lfc_shrink(coeff="condition_%s_vs_%s" % (treat_condition, ref_condition))
     stat_res.summary(lfc_null=0.1, alt_hypothesis="greaterAbs")
     stat_res.plot_MA(s=5, save_path=shrink_maplot_path)
-    
+
     deseq_table = stat_res.results_df.sort_values(by='padj')
     deseq_table.to_csv(output_path, sep='\t')
     
