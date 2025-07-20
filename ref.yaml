@@ -24,8 +24,8 @@ rn6:
   rsem_index: ./ref_files/rn6/rsem_index/
   gtf: ./ref_files/rn6/Rattus_norvegicus.Rnor_6.0.104.gtf.gz
   transformed_gtf: ./ref_files/rn6/rn6_gtf_full_table.txt.gz
-  tx2genename: 
-  tx2geneid: 
+  tx2genename: ./ref_files/rn6/tx2genename.tsv
+  tx2geneid: ./ref_files/rn6/tx2geneid.tsv
   GPL: ./ref_files/GPL/
 
 # mm39:

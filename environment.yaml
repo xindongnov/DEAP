@@ -37,6 +37,7 @@ dependencies:
 - pytximport>=0.7.0
 - bioconductor-org.hs.eg.db
 - bioconductor-org.mm.eg.db
+- bioconductor-org.rn.eg.db
 - bioconductor-affy
 - bioconductor-affyplm
 # - bioconductor-sva

@@ -41,7 +41,7 @@ rule align_salmon:
         "%s/salmon/{sample}/quant.genes.sf" % RES_PATH
     params:
         index=config["salmon_index"],
-        tx2genemap=config['tx2genename'],
+        tx2genemap=lambda wildcards: "-g %s" % config['tx2genename'] if config['tx2genename'] else "",
         _inputs=lambda wildcards,input: "-1 %s -2 %s" % (input[0], input[1]) if len(input) == 2 else '-r %s' % input[0],
         output_path=lambda wildcards: "%s/salmon/%s/" % (RES_PATH, wildcards.sample),
         bootstrap=100,
@@ -50,7 +50,7 @@ rule align_salmon:
     message: "ALIGN: Align {wildcards.sample} to the genome by salmon"
     threads: salmon_threads
     shell:
-        "salmon quant -i {params.index} -g {params.tx2genemap} "
+        "salmon quant -i {params.index} {params.tx2genemap} "
         "-l A {params._inputs} -o {params.output_path} "
         "--numBootstraps {params.bootstrap} -p {threads} "
         "{params.gcbias} --validateMappings > {log} 2>&1"

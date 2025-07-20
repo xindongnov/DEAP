@@ -126,8 +126,8 @@ def all_targets(wildcards):
     ls.extend(experssion_targets(wildcards))
     if config['lisa'] == True:
         ls.extend(lisa_targets(wildcards))
-    # print(ls)
-    return ls   
+    ls.extend(geneontology_targets(wildcards))
+    return ls
 
 rule all:
     input: all_targets
@@ -141,4 +141,5 @@ else:
 include: "./modules/expression.snakefile"
 if config['lisa'] == True:
     include: "./modules/lisa.snakefile"
+include: "./modules/geneontology.snakefile"  # rules specific to gene ontology
 
