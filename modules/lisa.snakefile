@@ -39,7 +39,7 @@ rule lisa_run:
     message: "LISA: call lisa for {wildcards.geneType} in {wildcards.run} {wildcards.compare}"
     log: "analysis/logs/lisa/{run}/{run}_lisa_{compare}_{geneType}_{lfc}_{fdr}.log"
     params:
-        species=config["assembly"],
+        species='mm10' if config["assembly"].startswith('rn') else config["assembly"],
     # threads: 8
     shell:
         # "lisa oneshot {params.species} {input} > {output} 2>{log}"
