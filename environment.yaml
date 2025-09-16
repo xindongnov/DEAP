@@ -27,7 +27,7 @@ dependencies:
 
 # align_salmon.snakefile
 - salmon=1.10.3
-
+- deeptools=3.5.5
 # expression.snakefile
 # 
 # - bioconductor-deseq2>=1.12.1

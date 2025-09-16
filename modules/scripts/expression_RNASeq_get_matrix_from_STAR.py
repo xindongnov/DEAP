@@ -23,6 +23,7 @@ def main():
 
     parser = MyParser()
     parser.add_argument('-i', '--input', help='input featureCount output files, seprate by ",". ', required=True)
+    parser.add_argument('-g', '--gene_table', help='the gene table path for mapping gene name', default=None)
     parser.add_argument('-c', '--count', help='the count path to save', default="./count.txt")
     parser.add_argument('-t', '--tpm', help='the TPM path to save', default="./tpm.txt")
     args = parser.parse_args()
@@ -30,6 +31,9 @@ def main():
     files = args.input.split(',')
     count_path = args.count
     tpm_path = args.tpm
+    gene_table = args.gene_table
+
+    gene_table = pd.read_csv(gene_table, sep='\t', low_memory=False)[['gene_id', 'gene_name']].drop_duplicates().set_index('gene_id') if gene_table else None
 
     df_list = [pd.read_csv(i, sep='\t', index_col=0) for i in files]
     names = [i.split('/')[2] for i in files]
@@ -38,13 +42,24 @@ def main():
     tpm_ls = []
 
     for i, l in enumerate(df_list):
-        count_tmp = l.rename(columns = {'NumReads' : names[i]})
+        count_tmp = l.rename(columns = {'expected_count' : names[i]})
         count_ls.append(count_tmp[names[i]])
         tpm_tmp = l.rename(columns = {'TPM' : names[i]})
         tpm_ls.append(tpm_tmp[names[i]])
 
     count = pd.concat(count_ls, axis=1)
     tpm = pd.concat(tpm_ls, axis=1)
+
+    if gene_table is not None:
+        if count.index[0] in gene_table.index:
+            # rename the gene id to gene name
+            count.index = gene_table.loc[count.index].gene_name
+            count.index.name = 'gene_name'
+            tpm.index = gene_table.loc[tpm.index].gene_name
+            tpm.index.name = 'gene_name'
+            # remove duplicated gene names
+            count = count[~count.index.duplicated(keep='first')]
+            tpm = tpm[~tpm.index.duplicated(keep='first')]
 
     count.to_csv(count_path, sep='\t', index=True, header=True)
     tpm.to_csv(tpm_path, sep='\t', index=True, header=True)

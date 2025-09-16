@@ -28,12 +28,12 @@ def geneontology_targets(wildcards):
 
 rule geneontology_run:
     input:
-        "analysis/expression/{run}/{compare}/{run}_{compare}.{geneType}_{lfc}_{fdr}.txt"
+        "%s/expression/{run}/{compare}/{run}_{compare}.{geneType}_{lfc}_{fdr}.txt" % RES_PATH
     output:
-        go_fig="analysis/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_GO_{ont}.pdf",
-        go_txt="analysis/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_GO_{ont}.txt",
+        go_fig="%s/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_GO_{ont}.pdf" % RES_PATH,
+        go_txt="%s/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_GO_{ont}.txt" % RES_PATH,
     message: "Gene Ontology: call GO for {wildcards.geneType} in {wildcards.run} {wildcards.compare} {wildcards.ont} {wildcards.lfc} {wildcards.fdr}"
-    log: "analysis/logs/geneontology/{run}/{run}_{compare}_{lfc}_{fdr}_{geneType}_GO_{ont}.log"
+    log: "%s/logs/geneontology/{run}/{run}_{compare}_{lfc}_{fdr}_{geneType}_GO_{ont}.log" % RES_PATH
     params:
         species='hs' if config["assembly"] in ['hg38', 'hg19'] else 'mm' if config["assembly"] in ['mm39', 'mm10', 'mm9'] else 'rn',
     shell:
@@ -52,12 +52,12 @@ rule geneontology_run:
 
 rule kegg_run:
     input:
-        "analysis/expression/{run}/{compare}/{run}_{compare}.{geneType}_{lfc}_{fdr}.txt"
+        "%s/expression/{run}/{compare}/{run}_{compare}.{geneType}_{lfc}_{fdr}.txt" % RES_PATH
     output:
-        go_fig="analysis/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_kegg.pdf",
-        go_txt="analysis/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_kegg.txt",
+        go_fig="%s/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_kegg.pdf" % RES_PATH,
+        go_txt="%s/geneontology/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}_kegg.txt" % RES_PATH,
     message: "Gene Ontology: call kegg for {wildcards.geneType} in {wildcards.run} {wildcards.compare} {wildcards.lfc} {wildcards.fdr}"
-    log: "analysis/logs/geneontology/{run}/{run}_{compare}_{lfc}_{fdr}_{geneType}_kegg.log"
+    log: "%s/logs/geneontology/{run}/{run}_{compare}_{lfc}_{fdr}_{geneType}_kegg.log" % RES_PATH
     params:
         species='hs' if config["assembly"] in ['hg38', 'hg19'] else 'mm' if config["assembly"] in ['mm39', 'mm10', 'mm9'] else 'rn',
     shell:

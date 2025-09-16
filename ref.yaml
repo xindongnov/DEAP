@@ -6,6 +6,7 @@ hg38:
   transformed_gtf: ./ref_files/hg38/hg38_gtf_full_table.txt.gz
   tx2genename: 
   tx2geneid: 
+  effective_genome_size: 2913022398
   GPL: ./ref_files/GPL/
 
 mm10:
@@ -16,6 +17,7 @@ mm10:
   transformed_gtf: ./ref_files/mm10/mm10_gtf_full_table.txt.gz
   tx2genename: ./ref_files/mm10/tx2genename.tsv
   tx2geneid: ./ref_files/mm10/tx2geneid.tsv
+  effective_genome_size: 2652783500
   GPL: ./ref_files/GPL/
 
 rn6:
@@ -26,6 +28,7 @@ rn6:
   transformed_gtf: ./ref_files/rn6/rn6_gtf_full_table.txt.gz
   tx2genename: ./ref_files/rn6/tx2genename.tsv
   tx2geneid: ./ref_files/rn6/tx2geneid.tsv
+  effective_genome_size: 2729860805
   GPL: ./ref_files/GPL/
 
 # mm39:

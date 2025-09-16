@@ -6,7 +6,7 @@
 # @date: Sep 2019
 # ================================
 
-def experssion_targets(wildcards):
+def expression_targets(wildcards):
     ls = []
     for run in config["runs"]:
         if config["runs"][run]["type"].startswith("MA_"):
@@ -110,7 +110,9 @@ def get_trans_quant(wildcards):
                 if config['aligner'] == 'salmon':
                     lst.append("%s/salmon/%s/%s.quant.sf" % (RES_PATH,s,s))
                 else:
-                    lst.append("%s/STAR/%s/%s.ReadsPerTranscript.byfeatureCounts.txt" % (RES_PATH,s,s))
+                    lst.append("%s/STAR/%s/%s.rsem.isoforms.results" % (RES_PATH,s,s))
+                    # lst.append("%s/STAR/%s/%s.ReadsPerTranscript.byfeatureCounts.txt" % (RES_PATH,s,s))
+                    # print(lst)
     return lst
 
 def get_gene_quant(wildcards):
@@ -122,7 +124,8 @@ def get_gene_quant(wildcards):
                 if config['aligner'] == 'salmon':
                     lst.append("%s/salmon/%s/%s.quant.genes.sf" % (RES_PATH,s,s))
                 else:
-                    lst.append("%s/STAR/%s/%s.ReadsPerGene.byfeatureCounts.txt" % (RES_PATH,s,s))
+                    lst.append("%s/STAR/%s/%s.rsem.genes.results" % (RES_PATH,s,s))
+                    # lst.append("%s/STAR/%s/%s.ReadsPerGene.byfeatureCounts.txt" % (RES_PATH,s,s))
     return lst
 
 def get_format_input(wildcards):
@@ -153,10 +156,10 @@ rule expression_MicroarrayGatherAllExpresion:
     input:
         get_MA_Input
     output:
-        probe="analysis/expression/{run}/{run}_exp_matrix_probe.txt",
-        trans="analysis/expression/{run}/{run}_exp_matrix_transcription.txt",
-        gene="analysis/expression/{run}/{run}_exp_matrix_gene.txt",
-    log: "analysis/logs/expression/{run}/{run}_expression_MicroarrayGatherAllExpresion.log"
+        probe="%s/expression/{run}/{run}_exp_matrix_probe.txt" % RES_PATH,
+        trans="%s/expression/{run}/{run}_exp_matrix_transcription.txt" % RES_PATH,
+        gene="%s/expression/{run}/{run}_exp_matrix_gene.txt" % RES_PATH,
+    log: "%s/logs/expression/{run}/{run}_expression_MicroarrayGatherAllExpresion.log" % RES_PATH
     message: "Expression: gathering all expression profile for microarray experiment {wildcards.run}"
     params:
         GPL=lambda wildcards: "%s/%s.txt" % (config['GPL'],config['runs'][wildcards.run]['platform']),
@@ -171,10 +174,10 @@ rule expression_MicroarrayGatherExpression:
     input:
         get_MA_Compare_Input
     output:
-        probe="analysis/expression/{run}/{compare}/{run}_{compare}_exp_matrix_probe.txt",
-        trans="analysis/expression/{run}/{compare}/{run}_{compare}_exp_matrix_transcription.txt",
-        gene="analysis/expression/{run}/{compare}/{run}_{compare}_exp_matrix_gene.txt",
-    log: "analysis/logs/expression/{run}/{run}_expression_MicroarrayGatherExpression_{compare}.log"
+        probe="%s/expression/{run}/{compare}/{run}_{compare}_exp_matrix_probe.txt" % RES_PATH,
+        trans="%s/expression/{run}/{compare}/{run}_{compare}_exp_matrix_transcription.txt" % RES_PATH,
+        gene="%s/expression/{run}/{compare}/{run}_{compare}_exp_matrix_gene.txt" % RES_PATH,
+    log: "%s/logs/expression/{run}/{run}_expression_MicroarrayGatherExpression_{compare}.log" % RES_PATH
     message: "Expression: gathering specific expression profile for {wildcards.run} in {wildcards.compare}"
     params:
         GPL=lambda wildcards: "%s/%s.txt" % (config['GPL'],config['runs'][wildcards.run]['platform']),
@@ -190,10 +193,10 @@ rule expression_PCAplot:
     # Both for RNA-seq and Microarray
     input:
         matrix=get_PCAplot_Input,
-        design="analysis/expression/{run}/{run}_design_matrix.txt"
+        design="%s/expression/{run}/{run}_design_matrix.txt" % RES_PATH
     output:
-        "analysis/expression/{run}/{run}_PCA.png"
-    log: "analysis/logs/expression/{run}/{run}_expression_PCAplot.log"
+        "%s/expression/{run}/{run}_PCA.png" % RES_PATH
+    log: "%s/logs/expression/{run}/{run}_expression_PCAplot.log" % RES_PATH
     message: "Expression: draw PCA plot for {wildcards.run}"
     # params:
     #     protocal = lambda wildcards: "Microarray" if config['runs'][wildcards.run]["type"].startswith("MA_") else "RNASeq"
@@ -204,11 +207,11 @@ rule expression_PCAplot:
 rule expression_MicroarrayDifferentialExpression:
     # only for Microarray
     input:
-        "analysis/expression/{run}/{compare}/{run}_{compare}_exp_matrix_probe.txt"
+        "%s/expression/{run}/{compare}/{run}_{compare}_exp_matrix_probe.txt" % RES_PATH
     output:
-        table="analysis/expression/{run}/{compare}/{run}_{compare}_limma_table.txt"
-        # "analysis/expression/{run}/{run}_Compare_detail.txt"
-    log: "analysis/logs/expression/{run}/{run}_expression_MicroarrayDifferentialExpression_{compare}.log"
+        table="%s/expression/{run}/{compare}/{run}_{compare}_limma_table.txt" % RES_PATH
+        # "%s/expression/{run}/{run}_Compare_detail.txt" % RES_PATH
+    log: "%s/logs/expression/{run}/{run}_expression_MicroarrayDifferentialExpression_{compare}.log" % RES_PATH
     message: "Expression: call differential expression for microarray experiment {wildcards.run} in {wildcards.compare}"
     params:
         scripts=lambda wildcards: DE_scripts_switcher(wildcards),
@@ -229,30 +232,32 @@ rule expression_RNAseqGatherTranscript:
     input:
         get_trans_quant
     output:
-        tpm="analysis/expression/{run}/{run}_TPM_transcript_matrix.txt",
-        rawcount="analysis/expression/{run}/{run}_Rawcount_transcript_matrix.txt"
+        tpm="%s/expression/{run}/{run}_TPM_transcript_matrix.txt" % RES_PATH,
+        rawcount="%s/expression/{run}/{run}_Rawcount_transcript_matrix.txt" % RES_PATH
     message: "Expression: gathering all transcripts TPM and raw count for RNA-seq experiment {wildcards.run}"
-    log: "analysis/logs/expression/{run}/{run}_expression_RNAseqGatherTpm.log"
+    log: "%s/logs/expression/{run}/{run}_expression_RNAseqGatherTranscript.log" % RES_PATH
     params:
         files=lambda wildcards, input: ",".join(input),
+        gene_table=lambda wildcards: config['transformed_gtf'],
         script='expression_RNASeq_get_matrix_from_STAR.py' if config['aligner'] == 'STAR' else 'expression_RNASeq_get_matrix_from_salmon.py',
     shell:
-        "python ./DEAP/modules/scripts/{params.script} -i {params.files} -t {output.tpm} -c {output.rawcount} > {log} 2>&1"
+        "python ./DEAP/modules/scripts/{params.script} -i {params.files} -g {params.gene_table} -t {output.tpm} -c {output.rawcount} > {log} 2>&1"
 
 rule expression_RNAseqGatherGene:
     # only for RNA-seq
     input:
         get_gene_quant
     output:
-        tpm="analysis/expression/{run}/{run}_TPM_gene_matrix.txt",
-        rawcount="analysis/expression/{run}/{run}_Rawcount_gene_matrix.txt",
+        tpm="%s/expression/{run}/{run}_TPM_gene_matrix.txt" % RES_PATH,
+        rawcount="%s/expression/{run}/{run}_Rawcount_gene_matrix.txt" % RES_PATH,
     message: "Expression: gathering all raw count for RNA-seq experiment {wildcards.run}"
-    log: "analysis/logs/expression/{run}/{run}_expression_RNAseqGatherRawcount.log"
+    log: "%s/logs/expression/{run}/{run}_expression_RNAseqGatherGene.log" % RES_PATH
     params:
         files=lambda wildcards, input: ",".join(input),
+        gene_table=lambda wildcards: config['transformed_gtf'],
         script='expression_RNASeq_get_matrix_from_STAR.py' if config['aligner'] == 'STAR' else 'expression_RNASeq_get_matrix_from_salmon.py'
     shell:
-        "python ./DEAP/modules/scripts/{params.script} -i {params.files} -t {output.tpm} -c {output.rawcount} > {log} 2>&1"
+        "python ./DEAP/modules/scripts/{params.script} -i {params.files} -g {params.gene_table} -t {output.tpm} -c {output.rawcount} > {log} 2>&1"
 
 # rule expression_RNAseqTranscriptToGene: # should use tximport, but rsem and salmon all have similar function
 #     # only for RNA-seq
@@ -274,14 +279,14 @@ rule expression_RNAseqGatherGene:
 rule expression_RNAseqDifferentialExpression:
     # For RNA-seq
     input:
-        rawcount="analysis/expression/{run}/{run}_Rawcount_gene_matrix.txt",
-        design="analysis/expression/{run}/{run}_design_matrix.txt"
+        rawcount="%s/expression/{run}/{run}_Rawcount_gene_matrix.txt" % RES_PATH,
+        design="%s/expression/{run}/{run}_design_matrix.txt" % RES_PATH
     output:
-        # detail="analysis/expression/{run}/{run}_Compare_detail.txt",
-        table="analysis/expression/{run}/{compare}/{run}_{compare}_DESeq_table.txt",
-        ori_maplot = "analysis/expression/{run}/{compare}/{run}_{compare}_DESeq_maplot.png",
-        shrink_maplot = "analysis/expression/{run}/{compare}/{run}_{compare}_DESeq_shrink_maplot.png",
-    log: "analysis/logs/expression/{run}/{run}_expression_RNAseqDifferentialExpression_{compare}.log"
+        # detail="%s/expression/{run}/{run}_Compare_detail.txt",
+        table="%s/expression/{run}/{compare}/{run}_{compare}_DESeq_table.txt" % RES_PATH,
+        ori_maplot = "%s/expression/{run}/{compare}/{run}_{compare}_DESeq_maplot.png" % RES_PATH,
+        shrink_maplot = "%s/expression/{run}/{compare}/{run}_{compare}_DESeq_shrink_maplot.png" % RES_PATH,
+    log: "%s/logs/expression/{run}/{run}_expression_RNAseqDifferentialExpression_{compare}.log" % RES_PATH
     message: "Expression: call differential expression for RNA-seq experiment {wildcards.run} in {wildcards.compare}"
     # params:
     #     treat=lambda wildcards: ",".join(config["runs"][wildcards.run]["compare"][wildcards.compare]["treat"]["sample"]),
@@ -296,8 +301,8 @@ rule expression_formatTable:
     input:
         get_format_input
     output:
-        "analysis/expression/{run}/{compare}/{run}_{compare}_DE.txt"
-    # log: "analysis/logs/expression/{run}/{run}_expression_formatTable.log"
+        "%s/expression/{run}/{compare}/{run}_{compare}_DE.txt" % RES_PATH
+    # log: "%s/logs/expression/{run}/{run}_expression_formatTable.log" % RES_PATH
     message: "Expression: format differential expression table for {wildcards.run} in {wildcards.compare}"
     params:
         columns = lambda wildcards: r'{print $1"\t"$2"\t"$3"\t"$6"\t"$7}' if config['runs'][wildcards.run]["type"]=="RS" else r'{print $1"\t"$2"\t"$3"\t"$6"\t"$7}'
@@ -308,13 +313,13 @@ rule expression_formatTable:
 rule expression_volcaPlot:
     # both RNA-seq and microarray
     input:
-        "analysis/expression/{run}/{compare}/{run}_{compare}_DE.txt"
+        "%s/expression/{run}/{compare}/{run}_{compare}_DE.txt" % RES_PATH
     output:
-        png = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}.png",
-        pdf = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}.pdf",
-        no_legend_png = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}_nolegend.png",
-        no_legend_pdf = "analysis/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}_nolegend.pdf"
-    log: "analysis/logs/expression/{run}/{run}_expression_volcaPlot_{compare}_{lfc}_{fdr}.log"
+        png = "%s/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}.png" % RES_PATH,
+        pdf = "%s/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}.pdf" % RES_PATH,
+        no_legend_png = "%s/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}_nolegend.png" % RES_PATH,
+        no_legend_pdf = "%s/expression/{run}/{compare}/{run}_{compare}_volca_plot_{lfc}_{fdr}_nolegend.pdf" % RES_PATH
+    log: "%s/logs/expression/{run}/{run}_expression_volcaPlot_{compare}_{lfc}_{fdr}.log" % RES_PATH
     message: "Expression: draw volcano plot for {wildcards.run} in {wildcards.compare}"
     params:
         add_gene_name = config['add_gene_name'],
@@ -335,10 +340,10 @@ rule expression_volcaPlot:
 
 rule expression_upRegGene:
     input:
-        "analysis/expression/{run}/{compare}/{run}_{compare}_DE.txt"
+        "%s/expression/{run}/{compare}/{run}_{compare}_DE.txt" % RES_PATH
     output:
-        "analysis/expression/{run}/{compare}/{run}_{compare}.upRegGenes_{lfc}_{fdr}.txt"
-    # log: "analysis/logs/expression/{run}/{run}_expression_upRegGene.log"
+        "%s/expression/{run}/{compare}/{run}_{compare}.upRegGenes_{lfc}_{fdr}.txt" % RES_PATH
+    # log: "%s/logs/expression/{run}/{run}_expression_upRegGene.log" % RES_PATH
     message: "Expression: extract up regulatory genes for {wildcards.run} in {wildcards.compare}"
     # params:
     #     foldchange = 0,
@@ -348,10 +353,10 @@ rule expression_upRegGene:
 
 rule expression_downRegGene:
     input:
-        "analysis/expression/{run}/{compare}/{run}_{compare}_DE.txt"
+        "%s/expression/{run}/{compare}/{run}_{compare}_DE.txt" % RES_PATH
     output:
-        "analysis/expression/{run}/{compare}/{run}_{compare}.downRegGenes_{lfc}_{fdr}.txt"
-    # log: "analysis/logs/expression/{run}/{run}_expression_downRegGene.log"
+        "%s/expression/{run}/{compare}/{run}_{compare}.downRegGenes_{lfc}_{fdr}.txt" % RES_PATH
+    # log: "%s/logs/expression/{run}/{run}_expression_downRegGene.log" % RES_PATH
     message: "Expression: extract down regulatory genes for {wildcards.run} in {wildcards.compare}"
     # params:
     #     foldchange = 0,

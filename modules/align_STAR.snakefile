@@ -20,9 +20,15 @@ def align_STAR_targets(wildcards):
             for sample in config["runs"][run]['samples']:
                 ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.out.bam'.format(res_path=RES_PATH, sample=sample))
                 ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bw'.format(res_path=RES_PATH, sample=sample))
                 ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam'.format(res_path=RES_PATH, sample=sample))
+                # ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam.bai'.format(res_path=RES_PATH, sample=sample))
                 ls.append('{res_path}/STAR/{sample}/{sample}.ReadsPerTranscript.byfeatureCounts.txt'.format(res_path=RES_PATH, sample=sample))
-                ls.append('{res_path}/STAR/{sample}/{sample}.ReadsPerGene.byfeatureCounts.txt'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.ReadsPerGeneID.byfeatureCounts.txt'.format(res_path=RES_PATH, sample=sample))
+                # ls.append('{res_path}/STAR/{sample}/{sample}.ReadsPerGeneName.byfeatureCounts.txt'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.rsem.genes.results'.format(res_path=RES_PATH, sample=sample))
+                ls.append('{res_path}/STAR/{sample}/{sample}.rsem.isoforms.results'.format(res_path=RES_PATH, sample=sample))
     return ls
 
 def getAlignFastq(wildcards):
@@ -47,7 +53,7 @@ rule align_STAR:
         "%s/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam" % RES_PATH,
         "%s/STAR/{sample}/{sample}.ReadsPerGene.out.tab" % RES_PATH,
         "%s/STAR/{sample}/{sample}.Chimeric.out.junction" % RES_PATH,
-        "%s/STAR/{sample}/{sample}.Chimeric.out.sam" % RES_PATH,
+        # "%s/STAR/{sample}/{sample}.Chimeric.out.sam" % RES_PATH,
         "%s/STAR/{sample}/{sample}.SJ.out.tab" % RES_PATH,
         "%s/STAR/{sample}/{sample}.Log.final.out" % RES_PATH
     params:
@@ -88,7 +94,7 @@ rule align_STAR:
         "--quantMode TranscriptomeSAM GeneCounts > {log} 2>&1"
 
 
-rule align_STARIndexBam:
+rule align_STARIndexSortedBam:
     # """INDEX the {sample}.sorted.bam file"""
     input:
         "%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH
@@ -97,6 +103,32 @@ rule align_STARIndexBam:
     message: "ALIGN: Indexing {wildcards.sample}.Aligned.sortedByCoord.out.bam"
     shell:
         "samtools index {input}"
+
+# rule align_STARIndexTranscripBam:
+#     # """INDEX the {sample}.sorted.bam file"""
+#     input:
+#         "%s/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam" % RES_PATH
+#     output:
+#         "%s/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam.bai" % RES_PATH
+#     message: "ALIGN: Indexing {wildcards.sample}.Aligned.toTranscriptome.out.bam"
+#     shell:
+#         "samtools index {input}"
+
+rule align_STARBamtoBw:
+    input:
+        bam="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH,
+        bai="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai" % RES_PATH
+    output:
+        "%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bw" % RES_PATH
+    params:
+        effective_genome_size=config['effective_genome_size']
+    threads: 8
+    log:
+        "%s/logs/STAR/{sample}.align_STARBamtoBw.log" % RES_PATH
+    shell:
+        "bamCoverage -b {input.bam} -o {output} -p {threads} "
+        "--binSize 10 --normalizeUsing CPM --effectiveGenomeSize {params.effective_genome_size} > {log} 2>&1"
+
 
 rule align_STARfeatureCountTranscript:
     input:
@@ -113,12 +145,12 @@ rule align_STARfeatureCountTranscript:
     shell:
         "featureCounts -T {threads} -t exon -g transcript_id {params.paired} -o {output} -a {params.gtf} {input.bam} > {log} 2>&1"
 
-rule align_STARfeatureCountGene:
+rule align_STARfeatureCountGeneID:
     input:
         bam="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH,
         bai="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai" % RES_PATH
     output:
-        "%s/STAR/{sample}/{sample}.ReadsPerGene.byfeatureCounts.txt" % RES_PATH
+        "%s/STAR/{sample}/{sample}.ReadsPerGeneID.byfeatureCounts.txt" % RES_PATH
     params:
         gtf=config['gtf'],
         paired=lambda wildcards: '-p --countReadPairs' if len(config['samples'][wildcards.sample]) == 2 else ''
@@ -127,6 +159,41 @@ rule align_STARfeatureCountGene:
         "%s/logs/STAR/{sample}.align_STARfeatureCountGene.log" % RES_PATH
     shell:
         "featureCounts -T {threads} -t exon -g gene_id {params.paired} -o {output} -a {params.gtf} {input.bam} > {log} 2>&1"
+
+# rule align_STARfeatureCountGeneName:
+#     input:
+#         bam="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam" % RES_PATH,
+#         bai="%s/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam.bai" % RES_PATH
+#     output:
+#         "%s/STAR/{sample}/{sample}.ReadsPerGeneName.byfeatureCounts.txt" % RES_PATH
+#     params:
+#         gtf=config['gtf'],
+#         paired=lambda wildcards: '-p --countReadPairs' if len(config['samples'][wildcards.sample]) == 2 else ''
+#     threads: 4
+#     log:
+#         "%s/logs/STAR/{sample}.align_STARfeatureCountGene.log" % RES_PATH
+#     shell:
+#         "featureCounts -T {threads} -t gene -g gene_name {params.paired} -o {output} -a {params.gtf} {input.bam} > {log} 2>&1"
+
+rule align_STARrsemCalTPM:
+    input:
+        bam="%s/STAR/{sample}/{sample}.Aligned.toTranscriptome.out.bam" % RES_PATH,
+    output:
+        "%s/STAR/{sample}/{sample}.rsem.genes.results" % RES_PATH,
+        "%s/STAR/{sample}/{sample}.rsem.isoforms.results" % RES_PATH
+    params:
+        rsem_index=config['rsem_index'],
+        paired=lambda wildcards: '--paired-end' if len(config['samples'][wildcards.sample]) == 2 else '',
+        prefix=lambda wildcards: "{res_path}/STAR/{sample}/{sample}.rsem".format(res_path=RES_PATH, sample=wildcards.sample)
+    message: "ALIGN: Calculating TPM of {wildcards.sample} by RSEM"
+    threads: 8
+    log:
+        "%s/logs/STAR/{sample}.align_STARrsemCalTPM.log" % RES_PATH
+    shell:
+        "rsem-calculate-expression --alignments -p {threads} {params.paired} "
+        "{input.bam} {params.rsem_index}rsem {params.prefix} > {log} 2>&1"
+
+
 
 # rule align_STAR_sort_bam:
 #     input:

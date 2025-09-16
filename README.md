@@ -182,7 +182,7 @@ Here you are allowed to define your reference files, includes GPL files, hg38 in
 
 ## Appendix
 
-### LISA installation (updating to lisa2, unfinished)
+### LISA installation (updating to lisa2, deprecated)
 
 LISA isn't a necessary component of DEAP, and you needn't install it if you do not plan to run it - set `lisa` in config as `False`. Otherwise, please install LISA based on the following instruction.  
 
@@ -227,6 +227,8 @@ Since LISA also uses snakemake to build the workflow, to avoid the version confl
   `bash DEAP/modules/scripts/reference_salmon_index.sh <reference_output_path> <transcriptome_fasta_path> <threads>`  
   - STAR_index:  
   `bash DEAP/modules/scripts/reference_STAR_index.sh <reference_output_path> <genome_fasta_path> <gtf_path> <threads>`  
+  - rsem_index:
+  `bash DEAP/modules/scripts/reference_rsem_index.sh <reference_output_path> <fasta_path> <gtf_path>`
   - transformed_gtf:  
   `python DEAP/modules/scripts/reference_prepare.py -g <gtf file> -o <output file>`  
 

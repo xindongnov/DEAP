@@ -123,7 +123,7 @@ def all_targets(wildcards):
         # ls.extend(rsem_quantification_targets(wildcards))
     else:
         ls.extend(align_salmon_targets(wildcards))
-    ls.extend(experssion_targets(wildcards))
+    ls.extend(expression_targets(wildcards))
     if config['lisa'] == True:
         ls.extend(lisa_targets(wildcards))
     ls.extend(geneontology_targets(wildcards))

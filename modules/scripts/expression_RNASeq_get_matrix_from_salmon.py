@@ -22,7 +22,7 @@ def main():
 
     parser = MyParser()
     parser.add_argument('-i', '--input', help='input files', required=True)
-    # parser.add_argument('-f', '--format', help='format of input files', choices=['salmon', 'STAR'], required=True)
+    parser.add_argument('-g', '--gene_table', help='the gene table path for mapping gene name', default=None)
     parser.add_argument('-c', '--count', help='the count path to save', default="./count.txt")
     parser.add_argument('-t', '--tpm', help='the TPM path to save', default="./tpm.txt")
     args = parser.parse_args()
