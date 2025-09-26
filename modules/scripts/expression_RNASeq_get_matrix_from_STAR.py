@@ -54,9 +54,9 @@ def main():
         if count.index[0] in gene_table.index:
             # rename the gene id to gene name
             count.index = gene_table.loc[count.index].gene_name
-            count.index.name = 'gene_name'
+            count.index.name = 'Name'
             tpm.index = gene_table.loc[tpm.index].gene_name
-            tpm.index.name = 'gene_name'
+            tpm.index.name = 'Name'
             # remove duplicated gene names
             count = count[~count.index.duplicated(keep='first')]
             tpm = tpm[~tpm.index.duplicated(keep='first')]

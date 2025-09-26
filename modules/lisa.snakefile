@@ -25,19 +25,19 @@ def lisa_targets(wildcards):
 
 rule lisa_copy_file:
     input:
-        "analysis/expression/{run}/{compare}/{run}_{compare}.{geneType}_{lfc}_{fdr}.txt"
+        "%s/expression/{run}/{compare}/{run}_{compare}.{geneType}_{lfc}_{fdr}.txt" % RES_PATH
     output:
-        "analysis/lisa/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}.txt"
+        "%s/lisa/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}.txt" % RES_PATH
     shell:
         "head -n 500 {input} > {output}"
 
 rule lisa_run:
     input:
-        "analysis/lisa/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}.txt"
+        "%s/lisa/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}.txt" % RES_PATH
     output:
-        "analysis/lisa/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}.results.txt"
+        "%s/lisa/{run}/{compare}/{run}_{compare}_{lfc}_{fdr}_{geneType}.results.txt" % RES_PATH
     message: "LISA: call lisa for {wildcards.geneType} in {wildcards.run} {wildcards.compare}"
-    log: "analysis/logs/lisa/{run}/{run}_lisa_{compare}_{geneType}_{lfc}_{fdr}.log"
+    log: "%s/logs/lisa/{run}/{run}_lisa_{compare}_{geneType}_{lfc}_{fdr}.log" % RES_PATH
     params:
         species='mm10' if config["assembly"].startswith('rn') else config["assembly"],
     # threads: 8
