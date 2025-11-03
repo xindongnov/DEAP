@@ -230,7 +230,7 @@ def getSRR(srx_html):
     return srr
 
 def getSrxHtml(gsm_html):
-    srx_infor = re.search('https://www.ncbi.nlm.nih.gov/sra\S*"',gsm_html)
+    srx_infor = re.search(r'https://www.ncbi.nlm.nih.gov/sra\S*"', gsm_html)
     if srx_infor:
         srx = srx_infor.group().rstrip('"').lstrip('https://www.ncbi.nlm.nih.gov/sra?term=')
         # get the SRR id('>SRR1588518</a></td><td') and find the type of layout
