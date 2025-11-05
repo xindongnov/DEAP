@@ -4,7 +4,7 @@ ref: './ref.yaml'
 res_path: 'analysis'
 
 # Tell us what assembly to use (!! MUST be defined in ./ref.yaml !!)
-# typically we support {'mm10', 'hg38'}
+# typically we support {'mm10', 'hg38', 'rn6'}
 assembly: 'mm10'
 
 # Whethe you want to trim your RNA-seq reads adaptor first.
@@ -29,7 +29,7 @@ fdr: [0.01, 1e-5]
 
 # auto define none
 add_gene_name: auto
-n_gene: 20
+n_plot_gene: 20
 plot_gene_name: []
 
 # Whether you want to process lisa on your differential expression genes.

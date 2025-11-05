@@ -71,7 +71,7 @@ def main():
         refit_cooks=True,
         inference=inference,
     )
-    dds.deseq2()    
+    dds.deseq2()
     stat_res = DeseqStats(dds, contrast=['condition',treat_condition,ref_condition], inference=inference)
     stat_res.summary()
     # deseq_table_path = os.path.join(output_path)

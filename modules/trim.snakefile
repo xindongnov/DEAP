@@ -52,8 +52,8 @@ rule trim_PairedEndAdapter:
     threads: trim_threads
     shell:
         "trim_galore -q {params.quality} -j {threads} --phred33 --stringency {params.stringency} "
-        "-e {params.error_rate} --gzip --length {params.length} --fastqc "
-        "--basename {params.basename} -o {params.output_dir} --paired {input} > {log} 2>&1 "
+        "-e {params.error_rate} --length {params.length} --fastqc --gzip "
+        "--basename {params.basename} -o {params.output_dir} --paired {input} > {log} 2>&1"
 
 rule trim_SingleEndAdapter:
     input:
@@ -74,7 +74,7 @@ rule trim_SingleEndAdapter:
     threads: trim_threads
     shell:
         "trim_galore -q {params.quality} -j {threads} --phred33 --stringency {params.stringency} "
-        "-e {params.error_rate} --gzip --length {params.length} --fastqc "
+        "-e {params.error_rate} --length {params.length} --fastqc --gzip "
         "{input} --basename {params.basename} -o {params.output_dir} > {log} 2>&1"
 
 

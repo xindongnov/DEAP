@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*-coding:utf-8 -*-
 '''
-@File    :   expression_RNASeq_get_matrix.py
-@Time    :   2023/07/01 14:53:32
+@File    :   expression_RNASeq_get_matrix_from_salmon.py
+@Time    :   2025/11/05 11:02:33
 @Author  :   Xin Dong
-@Contact :   xindong9511@gmail.com
-@License :   (C)Copyright 2020-2023, XinDong
+@Contact :   xindongnov@gmail.com
+@License :   (C)Copyright 2020-2025, XinDong
 '''
+
 
 import sys
 import os

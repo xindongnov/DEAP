@@ -7,15 +7,15 @@ channels:
 
 dependencies:
 # GENERAL
-- snakemake>=8
+- snakemake=8.18.0
 - samtools
-- python>=3.11
-- r-base>=4
+- python=3.12.3
+- r-base=4.3.3
 - r-biocmanager
-- glib>=2.56
+- glib=2.80.2
 
 # trim.snakefile
-- trim-galore>=0.6.2
+- trim-galore=0.6.10
 
 # align_STAR.snakefile
 - star=2.7.11b
@@ -43,15 +43,16 @@ dependencies:
 # - bioconductor-sva
 # - bioconductor-oligo
 - r-optparse
-- r-ggplot2>=3.1.1
+- r-ggplot2=3.1.1
 - r-ggrepel
 - r-readr
 - r-calibrate
-- pydeseq2>=0.4.4
+- pydeseq2=0.4.10
+- anndata=0.10.5
 
 - scikit-learn
-- pandas
-- numpy
+- pandas=2.2.2
+- numpy=1.26.4
 - adjusttext # for plot
 - matplotlib
 

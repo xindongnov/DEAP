@@ -4,8 +4,8 @@ hg38:
   rsem_index: ./ref_files/hg38/rsem_index/
   gtf: ./ref_files/hg38/gencode.v29.primary_assembly.annotation_UCSC_names.gtf.gz
   transformed_gtf: ./ref_files/hg38/hg38_gtf_full_table.txt.gz
-  tx2genename: 
-  tx2geneid: 
+  tx2genename: ./ref_files/hg38/tx2genename.tsv
+  tx2geneid: ./ref_files/hg38/tx2geneid.tsv
   effective_genome_size: 2913022398
   GPL: ./ref_files/GPL/
 
