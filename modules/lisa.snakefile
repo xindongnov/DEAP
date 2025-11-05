@@ -40,11 +40,12 @@ rule lisa_run:
     log: "%s/logs/lisa/{run}/{run}_lisa_{compare}_{geneType}_{lfc}_{fdr}.log" % RES_PATH
     params:
         species='mm10' if config["assembly"].startswith('rn') else config["assembly"],
+        min_genes=config.get("lisa_min_genes", 50)
     # threads: 8
     shell:
         # "lisa oneshot {params.species} {input} > {output} 2>{log}"
         """
-        if [ `wc -l {input} | cut -f 1 -d ' '` -lt 50 ]
+        if [ `wc -l {input} | cut -f 1 -d ' '` -lt {params.min_genes} ]
         then
             touch {output}
         else

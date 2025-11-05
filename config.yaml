@@ -36,6 +36,7 @@ plot_gene_name: []
 # Please make sure on you have already installed lisa by the instruction in README.md
 # {True, False}
 lisa: True
+lisa_min_genes: 70 # less than 50 will be 50
 
 # DEFINE the samples - each sample should have a name, e.g. SAMPLE1
 # and a path to the input file, e.g. data/sample1.fastq.gz
