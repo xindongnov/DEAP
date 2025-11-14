@@ -18,6 +18,18 @@ def align_STAR_targets(wildcards):
     for run in config["runs"]:
         if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
             for sample in config["runs"][run]['samples']:
+                if config['contam'] == True:
+                    for panel in config['contam_panel']:
+                        ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.sam'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                        if len(config['samples'][sample]) == 2:
+                            ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.1.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                            ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.2.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                        else:
+                            ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                if config['aligner_rRNA'] == True:
+                    ls.append('{res_path}/STAR_rRNA/{sample}/{sample}.Unmapped.out.mate1'.format(res_path=RES_PATH, sample=sample))
+                    if len(config['samples'][sample]) == 2:
+                        ls.append('{res_path}/STAR_rRNA/{sample}/{sample}.Unmapped.out.mate2'.format(res_path=RES_PATH, sample=sample))
                 ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.out.bam'.format(res_path=RES_PATH, sample=sample))
                 ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bam'.format(res_path=RES_PATH, sample=sample))
                 ls.append('{res_path}/STAR/{sample}/{sample}.Aligned.sortedByCoord.out.bw'.format(res_path=RES_PATH, sample=sample))
@@ -31,7 +43,7 @@ def align_STAR_targets(wildcards):
                 ls.append('{res_path}/STAR/{sample}/{sample}.rsem.isoforms.results'.format(res_path=RES_PATH, sample=sample))
     return ls
 
-def getAlignFastq(wildcards):
+def getAlignRawFastq(wildcards):
     s = wildcards.sample
     if config['trim'] == False:
         return config['samples'][s]
@@ -43,6 +55,113 @@ def getAlignFastq(wildcards):
         else:
             tmp.append('%s/trim/%s/%s_trimmed.fq.gz' % (RES_PATH,s,s))
         return tmp
+
+def getAlignrRNAFastq(wildcards):
+    s = wildcards.sample
+    if config['contam'] == True:
+        for panel in config['contam_panel']:
+            if len(config['samples'][s]) == 2:
+                return ['%s/bowtie2_contam_panel/%s/%s.unmapped.1.fq' % (RES_PATH,s,panel),
+                        '%s/bowtie2_contam_panel/%s/%s.unmapped.2.fq' % (RES_PATH,s,panel)]
+            else:
+                return ['%s/bowtie2_contam_panel/%s/%s.unmapped.fq' % (RES_PATH,s,panel)]
+    else:
+        tmp = getAlignRawFastq(wildcards)
+        return tmp
+
+
+def getAlignFastq(wildcards):
+    s = wildcards.sample
+    if config['aligner_rRNA'] == True:
+        # first align to rRNA, then use the unmapped reads to align to genome
+        tmp = []
+        if len(config['samples'][s]) == 2:
+            tmp.append('%s/STAR_rRNA/%s/%s.Unmapped.out.mate1' % (RES_PATH,s,s))
+            tmp.append('%s/STAR_rRNA/%s/%s.Unmapped.out.mate2' % (RES_PATH,s,s))
+        else:
+            tmp.append('%s/STAR_rRNA/%s/%s.Unmapped.out.mate1' % (RES_PATH,s,s))
+        return tmp
+    else:
+        if config['contam'] == True:
+            for panel in config['contam_panel']:
+                getAlignrRNAFastq(wildcards)
+        else:
+            tmp = getAlignRawFastq(wildcards)
+            return tmp
+
+
+rule contamination_mapping_bowtie2_PE:
+    input:
+        getAlignRawFastq
+    output:
+        "%s/bowtie2_contam_panel/{sample}/{panel}.sam" % RES_PATH,
+        "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.1.fq" % RES_PATH,
+        "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.2.fq" % RES_PATH,
+    params:
+        index=lambda wildcards: config['contamination_panel'][wildcards.panel],
+        # gz_support=lambda wildcards, input: "--un-gz" if str(input[0]).endswith('.gz') else "",
+        res_path=RES_PATH
+    threads: star_threads
+    message: "ALIGN: Align {wildcards.sample} to contamination panel by bowtie2"
+    log:
+        "%s/logs/bowtie2_contam_panel/{sample}_align_bowtie2_contam_{panel}.log" % RES_PATH
+    shell:
+        """
+        bowtie2 -x {params.index} -p {threads}  -1 {input[0]} -2 {input[1]} \
+        --un-conc {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.unmapped.fq \
+        -S {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.sam > {log} 2>&1
+        """
+
+
+rule align_rRNA_STAR:
+    input:
+        getAlignrRNAFastq
+    output:
+        "%s/STAR_rRNA/{sample}/{sample}.Unmapped.out.mate1" % RES_PATH,
+        "%s/STAR_rRNA/{sample}/{sample}.Unmapped.out.mate2" % RES_PATH
+    params:
+        gz_support=lambda wildcards, input: "--readFilesCommand zcat" if str(input[0]).endswith('.gz') else "",
+        prefix=lambda wildcards: "{res_path}/STAR_rRNA/{sample}/{sample}.".format(res_path=RES_PATH, sample=wildcards.sample),
+        readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample),
+    threads: star_threads
+    message: "ALIGN: Align rRNA reads of {wildcards.sample} to the rRNA genome by STAR"
+    log:
+        "%s/logs/STAR_rRNA/{sample}.align_rRNA_STAR.log" % RES_PATH
+    shell:
+        """
+        STAR --runThreadN {threads} \
+        --runMode alignReads \
+        --genomeDir {config[STAR_rRNA_index]} \
+        --readFilesIn {input} {params.gz_support} \
+        --outFileNamePrefix {params.prefix} \
+        --outReadsUnmapped Fastx \
+        --outFilterMultimapNmax 10 \
+        --winAnchorMultimapNmax 500 \
+        --outFilterScoreMinOverLread 0 \
+        --outFilterMatchNminOverLread 0 \
+        --outSAMattributes All \
+        --outSAMtype BAM Unsorted \
+        --alignIntronMin 1 \
+        --alignEndsType Local \
+        --scoreGap 0 \
+        --scoreGapNoncan 0 \
+        --scoreGapGCAG 0 \
+        --scoreGapATAC 0 \
+        --scoreGenomicLengthLog2scale -1 \
+        --chimFilter None \
+        --chimOutType WithinBAM HardClip \
+        --chimSegmentMin 5 \
+        --chimJunctionOverhangMin 5 \
+        --chimScoreJunctionNonGTAG 0 \
+        --chimScoreDropMax 80 \
+        --chimNonchimScoreDropMin 20 \
+        --peOverlapNbasesMin 12 \
+        --peOverlapMMp 0.05 \
+        --limitOutSJcollapsed 10000000 \
+        --limitBAMsortRAM 8000000000 > {log} 2>&1
+        """
+
+
 
 rule align_STAR:
     input:
@@ -57,7 +176,7 @@ rule align_STAR:
         "%s/STAR/{sample}/{sample}.SJ.out.tab" % RES_PATH,
         "%s/STAR/{sample}/{sample}.Log.final.out" % RES_PATH
     params:
-        gz_support=lambda wildcards: "--readFilesCommand zcat" if config["samples"][wildcards.sample][0][-3:] == '.gz' else "",
+        gz_support=lambda wildcards, input: "--readFilesCommand zcat" if str(input[0]).endswith('.gz') else "",
         prefix=lambda wildcards: "{res_path}/STAR/{sample}/{sample}.".format(res_path=RES_PATH, sample=wildcards.sample),
         readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample),
         # keepPairs = _keepPairs
@@ -186,7 +305,7 @@ rule align_STARrsemCalTPM:
         paired=lambda wildcards: '--paired-end' if len(config['samples'][wildcards.sample]) == 2 else '',
         prefix=lambda wildcards: "{res_path}/STAR/{sample}/{sample}.rsem".format(res_path=RES_PATH, sample=wildcards.sample)
     message: "ALIGN: Calculating TPM of {wildcards.sample} by RSEM"
-    threads: 8
+    threads: 16
     log:
         "%s/logs/STAR/{sample}.align_STARrsemCalTPM.log" % RES_PATH
     shell:

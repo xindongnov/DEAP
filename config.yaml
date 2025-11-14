@@ -4,8 +4,8 @@ ref: './ref.yaml'
 res_path: 'analysis'
 
 # Tell us what assembly to use (!! MUST be defined in ./ref.yaml !!)
-# typically we support {'mm10', 'hg38', 'rn6'}
-assembly: 'mm10'
+# typically we support {'hg38', 'mm10', 'rn6'}
+assembly: 'hg38'
 
 # Whethe you want to trim your RNA-seq reads adaptor first.
 # {True, False}
@@ -13,19 +13,26 @@ trim: True
 # threads used for trim adapator
 trim_threads: 4
 
-# ALIGNER: if you want to use STAR, set your aligner as 'STAR' (not support yet)
+# whether you want to check contamination panel {True, False}
+contam: True
+# support ['mycoplasma', 'e_coli']
+contam_panel: ['mycoplasma']
+
+# ALIGNER: if you want to use STAR, set your aligner as 'STAR'
 # OTHERWISE leave it as 'salmon' (default)
 # {'salmon', 'STAR'}
-aligner: 'salmon'
+aligner: 'STAR'
 # how many threads will aligner use
 aligner_threads: 8
+# whether you want to remove rRNA reads {True, False}
+aligner_rRNA: True
 
 batch: False
 
 # log fold change
-lfc: [2, 3, 5]
+lfc: [1, 2, 5]
 # False dicovery rate
-fdr: [0.01, 1e-5]
+fdr: [0.05, 0.01, 0.001]
 
 # auto define none
 add_gene_name: auto

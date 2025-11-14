@@ -46,6 +46,9 @@ def main():
     print(design)
     all_counts_df = pd.read_csv(count_path, sep='\t', index_col=0).T
     # print(all_counts_df)
+    # breakpoint()
+    # remove MT gene and RP gene
+    all_counts_df = all_counts_df.loc[:, ~all_counts_df.columns.str.startswith(('MT-', 'SNOR', 'MIR', 'RNA5'))]
 
     ref_condition = design[design[compare] == 0].condition.unique()[0]
     treat_condition = design[design[compare] == 1].condition.unique()[0]

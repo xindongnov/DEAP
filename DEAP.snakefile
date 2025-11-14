@@ -99,6 +99,7 @@ def loadRef(config):
         #NO CLOBBERING what is user-defined!
         if k not in config:
             config[k] = v
+    config['contamination_panel'] = ref_info['contamination_panel']
 
 #---------  CONFIG set up  ---------------
 configfile: "config.yaml"   # This makes snakemake load up yaml into config 

@@ -1,5 +1,10 @@
+contamination_panel:
+  mycoplasma: ./ref_files/contam_panel/mycoplasma/mycoplasma_index
+  e_coli: ./ref_files/contam_panel/e_coli/e_coli_index
+
 hg38:
   salmon_index: ./ref_files/hg38/salmon_index/
+  STAR_rRNA_index: ./ref_files/hg38/STAR_rRNA_index/
   STAR_index: ./ref_files/hg38/STAR_index/
   rsem_index: ./ref_files/hg38/rsem_index/
   gtf: ./ref_files/hg38/gencode.v29.primary_assembly.annotation_UCSC_names.gtf.gz
@@ -11,6 +16,7 @@ hg38:
 
 mm10:
   salmon_index: ./ref_files/mm10/salmon_index/
+  STAR_rRNA_index: ./ref_files/mm10/STAR_rRNA_index/
   STAR_index: ./ref_files/mm10/STAR_index/
   rsem_index: ./ref_files/mm10/rsem_index/
   gtf: ./ref_files/mm10/gencode.vM21.primary_assembly.annotation_UCSC_names.gtf.gz
@@ -22,6 +28,7 @@ mm10:
 
 rn6:
   salmon_index: ./ref_files/rn6/salmon_index/
+  STAR_rRNA_index: ./ref_files/rn6/STAR_rRNA_index/
   STAR_index: ./ref_files/rn6/STAR_index/
   rsem_index: ./ref_files/rn6/rsem_index/
   gtf: ./ref_files/rn6/Rattus_norvegicus.Rnor_6.0.104.gtf.gz
