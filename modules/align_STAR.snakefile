@@ -90,29 +90,6 @@ def getAlignFastq(wildcards):
             return tmp
 
 
-# rule contamination_mapping_bowtie2_PE:
-#     input:
-#         getAlignRawFastq
-#     output:
-#         "%s/bowtie2_contam_panel/{sample}/{panel}.sam" % RES_PATH,
-#         "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.1.fq" % RES_PATH,
-#         "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.2.fq" % RES_PATH,
-#     params:
-#         index=lambda wildcards: config['contamination_panel'][wildcards.panel],
-#         # gz_support=lambda wildcards, input: "--un-gz" if str(input[0]).endswith('.gz') else "",
-#         res_path=RES_PATH
-#     threads: star_threads
-#     message: "ALIGN: Align {wildcards.sample} to contamination panel by bowtie2"
-#     log:
-#         "%s/logs/bowtie2_contam_panel/{sample}_align_bowtie2_contam_{panel}.log" % RES_PATH
-#     shell:
-#         """
-#         bowtie2 -x {params.index} -p {threads}  -1 {input[0]} -2 {input[1]} \
-#         --un-conc {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.unmapped.fq \
-#         -S {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.sam > {log} 2>&1
-#         """
-
-
 rule align_rRNA_STAR:
     input:
         getAlignrRNAFastq
@@ -158,7 +135,7 @@ rule align_rRNA_STAR:
         --peOverlapNbasesMin 12 \
         --peOverlapMMp 0.05 \
         --limitOutSJcollapsed 10000000 \
-        --limitBAMsortRAM 8000000000 > {log} 2>&1
+        --limitBAMsortRAM 80000000000 > {log} 2>&1
         """
 
 
