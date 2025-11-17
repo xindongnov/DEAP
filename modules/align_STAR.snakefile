@@ -18,14 +18,14 @@ def align_STAR_targets(wildcards):
     for run in config["runs"]:
         if config["runs"][run]["type"] == "RS" and config["runs"][run]['samples']:
             for sample in config["runs"][run]['samples']:
-                if config['contam'] == True:
-                    for panel in config['contam_panel']:
-                        ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.sam'.format(res_path=RES_PATH, panel=panel, sample=sample))
-                        if len(config['samples'][sample]) == 2:
-                            ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.1.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
-                            ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.2.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
-                        else:
-                            ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                # if config['contam'] == True:
+                #     for panel in config['contam_panel']:
+                #         ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.sam'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                #         if len(config['samples'][sample]) == 2:
+                #             ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.1.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                #             ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.2.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
+                #         else:
+                #             ls.append('{res_path}/bowtie2_contam_panel/{sample}/{panel}.unmapped.fq'.format(res_path=RES_PATH, panel=panel, sample=sample))
                 if config['aligner_rRNA'] == True:
                     ls.append('{res_path}/STAR_rRNA/{sample}/{sample}.Unmapped.out.mate1'.format(res_path=RES_PATH, sample=sample))
                     if len(config['samples'][sample]) == 2:
@@ -61,10 +61,10 @@ def getAlignrRNAFastq(wildcards):
     if config['contam'] == True:
         for panel in config['contam_panel']:
             if len(config['samples'][s]) == 2:
-                return ['%s/bowtie2_contam_panel/%s/%s.unmapped.1.fq' % (RES_PATH,s,panel),
-                        '%s/bowtie2_contam_panel/%s/%s.unmapped.2.fq' % (RES_PATH,s,panel)]
+                return ['%s/bowtie2_contam_panel/%s/%s.%s.unmapped.fq.1.gz' % (RES_PATH,s,s,panel),
+                        '%s/bowtie2_contam_panel/%s/%s.%s.unmapped.fq.2.gz' % (RES_PATH,s,s,panel)]
             else:
-                return ['%s/bowtie2_contam_panel/%s/%s.unmapped.fq' % (RES_PATH,s,panel)]
+                return ['%s/bowtie2_contam_panel/%s/%s.%s.unmapped.fq.gz' % (RES_PATH,s,s,panel)]
     else:
         tmp = getAlignRawFastq(wildcards)
         return tmp
@@ -90,27 +90,27 @@ def getAlignFastq(wildcards):
             return tmp
 
 
-rule contamination_mapping_bowtie2_PE:
-    input:
-        getAlignRawFastq
-    output:
-        "%s/bowtie2_contam_panel/{sample}/{panel}.sam" % RES_PATH,
-        "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.1.fq" % RES_PATH,
-        "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.2.fq" % RES_PATH,
-    params:
-        index=lambda wildcards: config['contamination_panel'][wildcards.panel],
-        # gz_support=lambda wildcards, input: "--un-gz" if str(input[0]).endswith('.gz') else "",
-        res_path=RES_PATH
-    threads: star_threads
-    message: "ALIGN: Align {wildcards.sample} to contamination panel by bowtie2"
-    log:
-        "%s/logs/bowtie2_contam_panel/{sample}_align_bowtie2_contam_{panel}.log" % RES_PATH
-    shell:
-        """
-        bowtie2 -x {params.index} -p {threads}  -1 {input[0]} -2 {input[1]} \
-        --un-conc {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.unmapped.fq \
-        -S {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.sam > {log} 2>&1
-        """
+# rule contamination_mapping_bowtie2_PE:
+#     input:
+#         getAlignRawFastq
+#     output:
+#         "%s/bowtie2_contam_panel/{sample}/{panel}.sam" % RES_PATH,
+#         "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.1.fq" % RES_PATH,
+#         "%s/bowtie2_contam_panel/{sample}/{panel}.unmapped.2.fq" % RES_PATH,
+#     params:
+#         index=lambda wildcards: config['contamination_panel'][wildcards.panel],
+#         # gz_support=lambda wildcards, input: "--un-gz" if str(input[0]).endswith('.gz') else "",
+#         res_path=RES_PATH
+#     threads: star_threads
+#     message: "ALIGN: Align {wildcards.sample} to contamination panel by bowtie2"
+#     log:
+#         "%s/logs/bowtie2_contam_panel/{sample}_align_bowtie2_contam_{panel}.log" % RES_PATH
+#     shell:
+#         """
+#         bowtie2 -x {params.index} -p {threads}  -1 {input[0]} -2 {input[1]} \
+#         --un-conc {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.unmapped.fq \
+#         -S {params.res_path}/bowtie2_contam_panel/{wildcards.sample}/{wildcards.panel}.sam > {log} 2>&1
+#         """
 
 
 rule align_rRNA_STAR:

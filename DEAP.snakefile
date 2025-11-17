@@ -119,6 +119,8 @@ def all_targets(wildcards):
     #IMPORT all of the module targets
     if config['trim'] == True:
         ls.extend(trim_targets(wildcards))
+    if config['contam'] == True:
+        ls.extend(bowtie2_contam_targets(wildcards))
     if config['aligner'] == 'STAR':
         ls.extend(align_STAR_targets(wildcards))
         # ls.extend(rsem_quantification_targets(wildcards))
@@ -128,12 +130,14 @@ def all_targets(wildcards):
     if config['lisa'] == True:
         ls.extend(lisa_targets(wildcards))
     ls.extend(geneontology_targets(wildcards))
+    ls.extend(multiqc_targets(wildcards))
     return ls
 
 rule all:
     input: all_targets
 
 include: "./modules/trim.snakefile"
+include: "./modules/bowtie2_contam.snakefile"
 if config['aligner'] == 'STAR':
     include: "./modules/align_STAR.snakefile"  # rules specific to STAR
     # include: "./modules/rsem.snakefile"        # rules specific to STAR
@@ -143,4 +147,5 @@ include: "./modules/expression.snakefile"
 if config['lisa'] == True:
     include: "./modules/lisa.snakefile"
 include: "./modules/geneontology.snakefile"  # rules specific to gene ontology
+include: "./modules/multiqc.snakefile"
 
