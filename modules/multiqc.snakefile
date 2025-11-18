@@ -10,15 +10,12 @@
 
 def multiqc_targets(wildcards):
     ls = []
-    ls.append(f"{RES_PATH}/multiqc/multiqc_report.zip")
     ls.append(f"{RES_PATH}/multiqc/multiqc_report.html")
     return ls
 
 def get_multiqc_input(wildcards):
-    ls = all_targets(wildcards)
-    ls.remove(f"{RES_PATH}/multiqc/multiqc_report.zip")
-    ls.remove(f"{RES_PATH}/multiqc/multiqc_report.html")
-    inputs = ls
+    inputs = all_targets(wildcards)
+    inputs.remove(f"{RES_PATH}/multiqc/multiqc_report.html")
     return inputs
 
 
@@ -26,7 +23,6 @@ rule multiqc_report:
     input:
         get_multiqc_input
     output:
-        f"{RES_PATH}/multiqc/multiqc_report.zip",
         f"{RES_PATH}/multiqc/multiqc_report.html"
     params:
         output_dir=f"{RES_PATH}/multiqc/",
@@ -35,5 +31,5 @@ rule multiqc_report:
     message: "MULTIQC: Generating MultiQC report"
     shell:
         """
-        multiqc {RES_PATH} -o {params.output_dir} > {log} 2>&1
+        multiqc {RES_PATH} -o {params.output_dir} --force > {log} 2>&1
         """
